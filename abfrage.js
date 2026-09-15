@@ -1,6 +1,6 @@
 // Einsatzabfrage V20 – dynamischer Entscheidungsbaum mit permanenter Aktionsleiste
-import { startupDefaults } from "./startup-data.js?v=20260915v34";
-import { anonymous, read, authState } from "./firebase-rest.js?v=20260915v27";
+import { startupDefaults } from "./startup-data.js?v=20260915v38";
+import { anonymous, read, authState } from "./firebase-rest.js?v=20260915v38";
 
 const $ = id => document.getElementById(id);
 const mainCategories = [
@@ -14,11 +14,11 @@ const mainCategories = [
 const medicalInitialQuestions = [
   {id:"med_wem",text:"Geht es um Sie oder um jemand anderen?",type:"choice",order:10,options:["Fremdanrufer (Erwachsen)","Ist selbst der einzige Patient","Fremdanrufer (Kind)"]},
   {id:"med_personen",text:"Wie viele Personen sind betroffen?",type:"choice",order:20,options:["1","2–9","Mehr als 9 / MANV"]},
-  {id:"med_spricht",text:"Kann der Patient sprechen?",type:"choice",order:30,options:["Ja","Nein","Unsicher (kann nicht beurteilt werden)","Unbekannt (kein Kontakt / keine Angabe möglich)"]},
+  {id:"med_spricht",text:"Kann der Patient sprechen?",type:"choice",order:30,options:["Ja","Nein","Unsicher (kann nicht beurteilt werden)","Unbekannter (kein Kontakt / keine Angabe möglich)"]},
   {id:"med_demografie",text:"Wie alt ist der Patient?",type:"demographics",order:40,fields:{ageLabel:"Alter in Jahren",birthdateLabel:"Geburtsdatum",genderLabel:"Geschlecht",genderOptions:["Männlich","Weiblich","Divers","Unbekannt"]}},
   {id:"med_grund",text:"Sagen Sie mir bitte den genauen Grund Ihres Anrufes!",type:"choice",order:50,options:["Allergie / Anaphylaxie","Atemstörung","Bauchschmerzen","Bewusstseinsstörung / Wesensveränderung","Blutungen","Brustschmerzen","Erkrankung / medizinische Hilfeleistung","Geburt / Schwangerschaft","Gefühlsstörung / Lähmung / Sprache / Sehstörung","Herzrhythmusstörungen","Hitze- / Kälteprobleme","Kollaps / Kreislaufstörung","Kopfschmerzen","Krampfanfall","Psychische Erkrankung / Suizid","Sonstige Schmerzen","Unklares Geschehen","Vergiftung","Verletzung","Arbeits- / Betriebs- / Schulunfall"]}
 ];
-const yesNoUnclearOptions=["Ja","Nein","Unsicher (kann nicht beurteilt werden)","Unbekannt (kein Kontakt / keine Angabe möglich)"];
+const yesNoUnclearOptions=["Ja","Nein","Unsicher (kann nicht beurteilt werden)","Unbekannter (kein Kontakt / keine Angabe möglich)"];
 function normalizeChoiceOptions(q){
   if(!q || q.type!=="choice" || !Array.isArray(q.options)) return q;
   const vals=q.options.map(v=>String(v).trim().toLowerCase());
@@ -28,7 +28,6 @@ function normalizeChoiceOptions(q){
   if(isPlainYesNo || (hasUnclear && hasUnknown && vals.length<=4)) q={...q,options:[...yesNoUnclearOptions]};
   return q;
 }
-
 const grossQuestions = [
   {id:"gs_lage",text:"Was ist die Großschadenslage?",type:"choice",order:10,options:["Viele Betroffene / MANV","Großbrand / Flächenlage","Unwetter / Naturereignis","Einsturz / Gebäudeschaden","Sonstige Großschadenslage"]},
   {id:"gs_orte",text:"Wo befindet sich die Lage?",type:"text",order:20,placeholder:"Ort / Straße / Objekt …"},
@@ -53,7 +52,7 @@ function mergeDeep(base,incoming){
 async function loadLocalCategoryInBackground(){
   if(!category || category==="grossschaden") return false;
   try{
-    const mod=await import(`./catalog-${category}.js?v=20260915v34`);
+    const mod=await import(`./catalog-${category}.js?v=20260915v38`);
     data.catalog[category]=mod.catalog||{};
     render();
     if($("status")) $("status").textContent="● Abfrage aktiv · Fragenkatalog bereit";
@@ -136,12 +135,10 @@ function questions(){
   let qs=Object.values(data.catalog?.[category]||{}).filter(q=>q?.id&&q?.text).map(normalizeChoiceOptions);
   if(category==="medizin") {
     const byId=new Map(qs.map(q=>[q.id,q]));
-    // Der Einstieg ist bewusst fest definiert und darf nicht durch einen älteren Firebase-Katalog überschrieben werden.
-    const initial=medicalInitialQuestions.map(q=>byId.get(q.id)?{...q,...q,order:q.order}:q);
+    const initial=medicalInitialQuestions.map(q=>byId.get(q.id)?{...q,...byId.get(q.id),order:q.order}:q);
     qs=qs.filter(q=>!medicalInitialQuestions.some(i=>i.id===q.id));
     qs=[...initial,...qs];
   }
-  qs.sort((a,b)=>(Number(a.order)||999999)-(Number(b.order)||999999));
   if(mode==="vu"||mode==="wasser") qs=qs.filter(q=>q.id!=="thl_art");
   return qs;
 }
@@ -230,8 +227,6 @@ function render(){
   if(reaShown)return;
   const q=nextQuestion();
   if(!q){finish();return;}
-  const prev=$("previousBtn");
-  if(prev){ prev.disabled=history.length===0; prev.title=history.length?"Zur vorherigen Frage zurück":"Noch keine vorherige Frage vorhanden"; }
   $("categoryTitle").textContent=title();
   $("progress").textContent=`Frage ${steps+1}`;
   updatePhase();
@@ -244,7 +239,7 @@ function render(){
     area.appendChild(note);
   }
   if(q.type==="choice"){
-    const wrap=document.createElement("div");const optionCount=(q.options||[]).filter(v=>String(v).trim()).length;wrap.className=`answer-options answer-count-${optionCount>=7?"many":optionCount}`;
+    const wrap=document.createElement("div");wrap.className="answer-options";
     (q.options||[]).filter(v=>String(v).trim()).forEach(v=>{const b=document.createElement("button");b.type="button";b.className="answer-option";b.textContent=v;b.onclick=()=>{pushHistory();answers[q.id]=v;steps++;if(category==="medizin"&&answers.bewusstsein==="Bewusstlos"&&["Keine normale Atmung","Atemstillstand"].includes(answers.atmung))return showREA();render();};wrap.appendChild(b);});
     area.appendChild(wrap);
   }else if(q.type==="multi"){
@@ -441,7 +436,7 @@ function stopBreath(){if(breathTimer){clearInterval(breathTimer);breathTimer=nul
 
 $("deteriorationBtn").onclick=openDeterioration;$("interimBtn").onclick=openInterim;$("remarkBtn").onclick=openRemark;$("exitBtn").onclick=finish;$("afBtn").onclick=openAF;$("remarkQuick")?.addEventListener("input",e=>answers.abfrage_bemerkung=e.target.value);
 $("previousBtn")?.addEventListener("click",()=>{
-  if(!history.length || reaShown) return;
+  if(!history.length||reaShown)return;
   const last=history.pop();
   answers=clone(last.answers);
   steps=last.steps;

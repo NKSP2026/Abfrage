@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fragenkatalog Verwaltung</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .condition-box{margin-top:18px;padding:18px;border:1px solid rgba(255,255,255,.14);border-radius:16px;background:rgba(0,0,0,.12)}
+  .condition-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:end;margin:10px 0}
+  .condition-row.three{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) auto}
+  .condition-row label{margin:0}
+  .small-btn{padding:9px 12px!important;min-height:42px}
+  .condition-help{margin-top:8px}
+  details.advanced{margin-top:18px}
+  details.advanced summary{cursor:pointer;font-weight:700;padding:8px 0}
+  .required{color:#ffb4b4}
+  @media(max-width:700px){.condition-row,.condition-row.three{grid-template-columns:1fr}.condition-row .remove-condition{width:100%}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div><h1>🧩 Fragenkatalog / Entscheidungsbaum</h1><div id="status">Wird geladen …</div></div>
+  <div class="top-actions"><button id="loginBtn" class="secondary">🔐 Anmelden</button><button id="logoutBtn" class="secondary">Abmelden</button><a class="button secondary" href="index.html">🏠 Startseite</a></div>
+</header>
+
+<main class="container">
+<section class="card warning">
+  <h2>Firebase-Fragenkatalog</h2>
+  <p>Hier verwaltest du den Fragenbaum direkt in Firebase. <b>Du musst dafür keinen Programmiercode eingeben.</b></p>
+  <p class="hint">Folgefragen werden mit normalen Auswahlfeldern festgelegt. Die benötigten technischen Bedingungen erzeugt die Seite automatisch.</p>
+  <div class="nav-row"><button id="seed" class="next-free">☁️ Grundkatalog in Firebase übernehmen</button><button id="reload" class="secondary">↻ Neu laden</button></div>
+  <p id="seedStatus" class="hint"></p>
+</section>
+
+<section class="card">
+  <div class="form-grid">
+    <label>Kategorie
+      <select id="category"><option value="medizin">🚑 Medizin</option><option value="brand">🔥 Brand</option><option value="thl">🛠️ THL</option><option value="abc">☣️ ABC</option></select>
+    </label>
+    <label>Frage auswählen
+      <select id="questionSelect"></select>
+    </label>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Frage bearbeiten</h2>
+  <div class="form-grid">
+    <label>ID <span class="hint">(interne Bezeichnung)</span>
+      <input id="id" placeholder="z.B. bauch_lokal">
+    </label>
+    <label>Reihenfolge / Priorität
+      <input id="order" type="number" value="100">
+    </label>
+    <label>Fragetyp
+      <select id="type">
+        <option value="choice">Einzelauswahl</option>
+        <option value="multi">Mehrfachauswahl</option>
+        <option value="text">Freitext</option>
+        <option value="date">Datum</option>
+        <option value="datetime-local">Datum + Uhrzeit</option>
+        <option value="number">Zahl</option>
+        <option value="demographics">Patientendaten (Alter, Geburtsdatum, Geschlecht)</option>
+      </select>
+    </label>
+    <label class="wide">Fragetext <span class="required">*</span>
+      <textarea id="text" rows="3" placeholder="z.B. Ist die Person bei Bewusstsein?"></textarea>
+    </label>
+    <label class="wide" id="optionsWrap">Antwortmöglichkeiten – eine pro Zeile
+      <textarea id="options" rows="6" placeholder="Ja&#10;Nein&#10;Unklar"></textarea>
+    </label>
+  </div>
+
+  <div class="condition-box">
+    <h3>Wann soll diese Frage erscheinen?</h3>
+    <p class="hint">Hier brauchst du <b>keinen JSON-Code</b>. Wähle einfach die vorherige Frage und die passende Antwort.</p>
+
+    <label>Anzeige-Regel
+      <select id="conditionMode">
+        <option value="always">Immer anzeigen</option>
+        <option value="single">Wenn eine Antwort zutrifft</option>
+        <option value="all">Wenn ALLE Bedingungen zutreffen</option>
+        <option value="any">Wenn MINDESTENS EINE Bedingung zutrifft</option>
+        <option value="not">Wenn eine Antwort NICHT zutrifft</option>
+        <option value="text">Wenn ein Freitext bestimmte Wörter enthält</option>
+      </select>
+    </label>
+
+    <div id="conditionRows"></div>
+    <button id="addCondition" class="secondary small-btn" type="button">＋ Weitere Bedingung</button>
+    <p class="hint condition-help">Beispiel: Du wählst „Wenn eine Antwort zutrifft“ → „Leitsymptom“ → „Bauchschmerzen / Bauchbeschwerden“. Dann erscheint diese Frage nur in diesem Fall.</p>
+  </div>
+
+  <details class="advanced">
+    <summary>⚙️ Weitere Einstellungen</summary>
+    <div class="form-grid" style="margin-top:12px">
+      <label>Vorschlagsgruppe
+        <input id="suggestionGroup" placeholder="z.B. verdachtsdiagnosen">
+      </label>
+      <label>Platzhalter
+        <input id="placeholder" placeholder="Bitte hier eingeben …">
+      </label>
+      <label class="check"><input id="allowEmpty" type="checkbox"> Leere Antwort erlauben</label>
+    </div>
+  </details>
+
+  <div class="nav-row" style="margin-top:18px">
+    <button id="save">💾 In Firebase speichern</button>
+    <button id="new" class="secondary">＋ Neue Frage</button>
+    <button id="delete" class="secondary">🗑️ Frage löschen</button>
+  </div>
+  <p id="message" class="hint"></p>
+</section>
+
+<section class="card"><h2>Fragen im aktuellen Zweig</h2><div id="list"></div></section>
+</main>
+<script type="module" src="fragen.js?v=20260915v22"></script>
+</body>
+</html>

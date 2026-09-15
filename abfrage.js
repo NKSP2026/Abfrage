@@ -266,7 +266,7 @@ function render(){
     const ageInput=box.querySelector("#demoAge"), birthInput=box.querySelector("#demoBirth");
     const parseBirthdate=(value)=>{
       const raw=String(value||"").trim();
-      const m=raw.match(/^(\\d{1,2})[.\\-/](\\d{1,2})[.\\-/](\\d{4})$/);
+      const m=raw.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
       if(!m)return "";
       const dd=String(m[1]).padStart(2,"0"), mm=String(m[2]).padStart(2,"0"), yyyy=m[3];
       const dt=new Date(`${yyyy}-${mm}-${dd}T00:00:00`);

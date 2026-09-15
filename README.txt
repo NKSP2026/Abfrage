@@ -1,6 +1,3 @@
-NABS V41
-Ergänzung gegenüber V40:
-- Abfragekopf responsiv: Abfragedauer und AF bleiben rechts bzw. nebeneinander.
-- Geburtsdatum kann per Tastatur als TT.MM.JJJJ eingegeben werden.
-- Alter wird aus dem Geburtsdatum automatisch berechnet.
-- Bestehender Fragenkatalog und Entscheidungslogik bleiben erhalten.
+NABS V42
+V41-Funktionsfix: Fehler in der Geburtsdatum-RegExp behoben, der das komplette abfrage.js-Modul am Browserstart blockierte.
+V40/V41-Funktionen bleiben erhalten: responsiver Header, AF, Zurück, zweispaltige Antworten und Geburtsdatum per Tastatur mit automatischer Altersberechnung.

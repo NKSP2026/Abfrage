@@ -36,21 +36,99 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 
 .guideline-note{margin:0 0 16px;padding:14px 16px;border:1px solid #6b7280;border-radius:14px;background:#111827;color:#e5e7eb;line-height:1.45;font-size:.95rem}.guideline-note b{display:block;margin-bottom:6px;color:#fff}
 
-/* V29 – EAS Launcher / eigene Anwendung */
+/* V29 – NABS Launcher / eigene Anwendung */
 .launcher-body{min-height:100vh;background:radial-gradient(circle at 50% 35%,#252b34 0,#111419 48%,#090b0e 100%);color:#f3f4f6;font-family:Arial,Helvetica,sans-serif}.launcher-menubar{height:48px;background:#e7e7e7;color:#222;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #777;box-shadow:0 2px 5px #0007;position:relative;z-index:5}.menu-left,.menu-right{display:flex;align-items:center;gap:18px;font-size:.86rem}.menu-left strong{font-size:1rem}.brand-mini{color:#bd1723;font-size:1.2rem}.menu-right a,.menu-button{color:#222;text-decoration:none;background:transparent;border:0;border-radius:0;padding:6px 7px;font-size:.84rem;font-weight:600;cursor:pointer}.menu-button:hover,.menu-right a:hover{background:#d4d4d4}.menu-button.close{color:#8b1118}.launcher-main{min-height:calc(100vh - 48px);display:flex;align-items:center;justify-content:center;padding:30px 16px}.launcher-window{width:min(760px,96vw);background:linear-gradient(#20252c,#111419);border:1px solid #59616c;box-shadow:0 18px 60px #000b;border-radius:4px;overflow:hidden}.launcher-titlebar{min-height:62px;padding:11px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #4a515a;background:linear-gradient(#3a3f45,#22262b)}.launcher-title{font-size:2rem;font-weight:900;letter-spacing:.08em}.launcher-subtitle{display:block;color:#c9cdd1;font-size:.72rem;margin-top:-2px}.launcher-titlebar #launcherHint{font-size:.78rem;color:#e3e5e8}.launcher-content{padding:22px 28px 12px}.site-title{text-align:center;color:#70cfff;font-size:1rem;font-weight:700;font-style:italic;margin:0 0 18px}.launcher-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;max-width:600px;margin:auto}.launcher-tile{min-height:130px;background:linear-gradient(#f5f5f5,#dcdcdc);color:#333;border:1px solid #9da1a5;box-shadow:inset 0 0 0 1px #fff,0 3px 8px #0008;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer;position:relative;border-radius:2px}.launcher-tile:hover:not(:disabled){background:linear-gradient(#fff,#e7e7e7);transform:translateY(-1px)}.launcher-tile:active:not(:disabled){transform:translateY(1px)}.launcher-tile .tile-icon{font-size:2.45rem;color:#b8bdc2;line-height:1}.launcher-tile .tile-name{font-size:1.1rem;color:#8b1f2b;letter-spacing:.03em;font-weight:800}.launcher-tile .tile-desc{font-size:.72rem;color:#666}.launcher-tile.admin-only.locked{opacity:.52;filter:grayscale(.25);cursor:not-allowed}.launcher-tile.admin-only.locked:after{content:'🔒';position:absolute;right:7px;top:6px;font-size:.8rem}.launcher-tile.ils{outline:2px solid #438bd1;outline-offset:-3px}.launcher-pager{height:45px;display:flex;justify-content:center;align-items:center;gap:12px;color:#aeb4bb;font-size:.75rem}.launcher-pager .pager-active{background:#eee;color:#333;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-weight:800}.pager-arrow{margin-left:150px;font-size:1.7rem;color:#6f757d}.launcher-footer{border-top:1px solid #50565d;padding:9px 15px;display:flex;justify-content:space-between;color:#8e959d;font-size:.68rem;background:#0d0f12}.ils-wrap{min-height:calc(100vh - 48px);display:flex;align-items:center;justify-content:center;padding:30px 16px}.ils-panel{width:min(1000px,96vw);background:#15191e;border:1px solid #555d66;box-shadow:0 15px 55px #0009;padding:24px}.ils-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-bottom:1px solid #424850;padding-bottom:16px;margin-bottom:20px}.ils-kicker{color:#70cfff;font-size:.74rem;font-weight:800;letter-spacing:.12em;margin-bottom:4px}.ils-heading h1,.module-head h1{margin:0;font-size:1.65rem}.ils-heading p,.module-head p{margin:7px 0 0;color:#aeb6c0}.ils-status{background:#132b1b;color:#78e09b;border:1px solid #2c6841;padding:8px 11px;border-radius:3px;font-size:.8rem}.ils-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.ils-tile{min-height:180px;text-decoration:none;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:1px solid #8b939d;border-radius:3px;box-shadow:0 4px 12px #0008;position:relative;overflow:hidden}.ils-tile:after{content:"";position:absolute;inset:auto 0 0;height:50%;background:linear-gradient(transparent,#0005);pointer-events:none}.ils-tile>*{position:relative;z-index:1}.ils-tile b{font-size:3rem}.ils-tile strong{font-size:1.05rem}.ils-tile small{font-size:.75rem;opacity:.9;text-align:center;padding:0 7px}.ils-tile.med{background:#087fc1}.ils-tile.fire{background:#c91c25}.ils-tile.vu{background:#b78300}.ils-tile.water{background:#008fa2}.ils-tile.major{background:#6e2ba6}.ils-footer{margin-top:20px;padding-top:12px;border-top:1px solid #424850;display:flex;justify-content:space-between;gap:12px;color:#8f98a3;font-size:.8rem}.launcher-back{color:#dbe4ef;text-decoration:none}.module-wrap{width:min(1050px,96vw);margin:0 auto;padding:34px 16px 50px}.module-head{background:#15191e;border:1px solid #555d66;padding:22px;margin-bottom:16px;box-shadow:0 8px 30px #0007}.module-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.module-card{min-height:150px;text-decoration:none;color:#f4f6fa;background:#1b2027;border:1px solid #4a535e;border-radius:4px;padding:18px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:9px;text-align:left;cursor:pointer}.module-card:hover{background:#242a32;transform:translateY(-1px)}.module-card>span{font-size:2rem}.module-card b{font-size:1.05rem}.module-card small{color:#aeb8c4;line-height:1.4}.module-card.admin-blue{border-top:4px solid #2787c7}.module-card.admin-red{border-top:4px solid #c92732}.module-card.admin-orange{border-top:4px solid #c98b18}.module-card.admin-purple{border-top:4px solid #8650ba}.module-card.admin-gray{border-top:4px solid #7d8792}.module-status,.module-note,.quality-panel{margin-top:16px;padding:14px;background:#11151a;border:1px solid #424a54;color:#aeb8c4;line-height:1.5}.module-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.quality-panel h2{margin-top:0;color:#fff}.quality-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.quality-grid>div{background:#1b2027;border:1px solid #3e4650;padding:12px;display:flex;flex-direction:column;gap:6px}.quality-grid b{color:#dfe4e9}.quality-grid span{color:#9eabb8}.quality-panel pre{white-space:pre-wrap;background:#0d1116;border:1px solid #3c4550;padding:13px;color:#e5e7eb}.module-card:disabled{cursor:not-allowed}.module-card:disabled:hover{transform:none;background:#1b2027}
 @media(max-width:850px){.launcher-grid{grid-template-columns:repeat(2,1fr)}.ils-grid{grid-template-columns:repeat(2,1fr)}.module-grid{grid-template-columns:repeat(2,1fr)}.quality-grid{grid-template-columns:repeat(2,1fr)}.pager-arrow{margin-left:50px}.launcher-titlebar{gap:10px}.menu-left span:nth-child(3){display:none}.menu-right{gap:3px}}
 @media(max-width:560px){.launcher-menubar{height:auto;min-height:48px;align-items:flex-start;padding:7px}.menu-left{gap:8px}.menu-left span:nth-child(4){display:none}.menu-right #loggedUser{display:none}.launcher-main{padding:15px 8px}.launcher-window{width:100%}.launcher-content{padding:18px 14px 8px}.launcher-grid{gap:9px}.launcher-tile{min-height:118px}.launcher-title{font-size:1.55rem}.launcher-titlebar #launcherHint{font-size:.68rem}.ils-wrap{padding:12px 8px}.ils-panel{padding:15px}.ils-grid{grid-template-columns:1fr 1fr;gap:9px}.ils-tile{min-height:135px}.ils-heading{flex-direction:column}.ils-footer{flex-direction:column}.module-wrap{padding:18px 8px}.module-grid{grid-template-columns:1fr}.quality-grid{grid-template-columns:1fr}.module-head{padding:17px}.launcher-footer{font-size:.6rem}}
 .app-user-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.app-user-actions .button{padding:9px 11px;font-size:.85rem}@media(max-width:760px){.app-user-actions .button{padding:8px 9px;font-size:.78rem}}
 
-/* V29 EAS branding */
-.eas-logo-mini{display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:24px;padding:0 7px;border-radius:4px;background:#17395b;color:#fff;font-weight:900;letter-spacing:.08em;font-size:.72rem;box-shadow:inset 0 0 0 1px #4f80a8}
-.eas-brand{text-align:center;margin:4px 0 22px}.eas-logo{font-size:3.7rem;line-height:1;font-weight:900;letter-spacing:.08em;color:#f5f7fa;text-shadow:2px 3px 5px #000b}.eas-pulse{font-size:.9em;color:#d7192a;letter-spacing:-.1em;margin-left:5px}.eas-subtitle{font-size:1.35rem;color:#e7e9ec;margin-top:9px;letter-spacing:.01em}
-@media(max-width:560px){.eas-logo{font-size:3rem}.eas-subtitle{font-size:1.05rem}.menu-left strong{font-size:.82rem}}
+/* V29 NABS branding */
+.nabs-logo-mini{display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:24px;padding:0 7px;border-radius:4px;background:#17395b;color:#fff;font-weight:900;letter-spacing:.08em;font-size:.72rem;box-shadow:inset 0 0 0 1px #4f80a8}
+.nabs-brand{text-align:center;margin:4px 0 22px}.nabs-logo{font-size:3.7rem;line-height:1;font-weight:900;letter-spacing:.08em;color:#f5f7fa;text-shadow:2px 3px 5px #000b}.nabs-pulse{font-size:.9em;color:#d7192a;letter-spacing:-.1em;margin-left:5px}.nabs-subtitle{font-size:1.35rem;color:#e7e9ec;margin-top:9px;letter-spacing:.01em}
+@media(max-width:560px){.nabs-logo{font-size:3rem}.nabs-subtitle{font-size:1.05rem}.menu-left strong{font-size:.82rem}}
 
-/* EAS – eigenes Logo, bewusst unabhängig von fremden fremden Logos */
-.eas-logo{display:inline-flex;align-items:center;justify-content:center;gap:10px}.eas-logo:before{content:'E';display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:12px;background:#17395b;border:2px solid #5da0d8;color:#fff;font-size:2.5rem;letter-spacing:0;box-shadow:0 5px 15px #0008}.eas-pulse{display:inline-flex;align-items:center;color:#d7192a;font-size:1.45rem;letter-spacing:-.12em}.eas-pulse:after{content:'✓';color:#70cfff;font-size:1.25rem;margin-left:10px;letter-spacing:0}
-@media(max-width:560px){.eas-logo:before{width:52px;height:52px;font-size:2rem}.eas-pulse{font-size:1.1rem}}
+/* NABS – eigenes Logo, bewusst unabhängig von fremden fremden Logos */
+.nabs-logo{display:inline-flex;align-items:center;justify-content:center;gap:10px}.nabs-logo:before{display:none}.nabs-pulse{display:inline-flex;align-items:center;color:#d7192a;font-size:1.45rem;letter-spacing:-.12em}.nabs-pulse:after{content:'✓';color:#70cfff;font-size:1.25rem;margin-left:10px;letter-spacing:0}
+@media(max-width:560px){.nabs-pulse{font-size:1.1rem}}
 
-/* V30: EAS Abfrageoberfläche nach Referenzbild */
+/* V31: NABS Abfrageoberfläche nach Referenzbild */
 .app-header-main{min-width:0;flex:1}.af-header-btn{margin-left:auto;min-width:86px;min-height:52px;font-size:1rem;box-shadow:0 3px 10px #0005}.status-line{width:100%}.question-top{display:block}.question-shell{margin-bottom:100px}.quick-remark{display:none!important}
 @media(max-width:760px){.app-top{align-items:flex-start}.app-header-main{width:100%}.status-line{gap:7px}.af-header-btn{margin-left:auto;min-width:76px;min-height:48px;padding:9px 12px}.app-user-actions{width:100%;justify-content:flex-end}.app-user-actions .button{padding:7px 9px;font-size:.76rem}}
+
+
+/* V31 – NABS eigenes, geometrisches Logo: bewusst ohne Telefon, Funkwellen oder NOAS-ähnliche Elemente */
+.nabs-logo-mini{width:34px;min-width:34px;height:28px;padding:0;border-radius:8px;background:#17395b;border:1px solid #5da0d8;color:#fff;font-weight:900;font-size:.9rem;letter-spacing:0;box-shadow:0 2px 7px #0007;position:relative;overflow:hidden}
+.nabs-logo-mini:before,.nabs-logo-mini:after{content:"";position:absolute;width:5px;height:5px;border-radius:50%;background:#70cfff;opacity:.9}
+.nabs-logo-mini:before{left:5px;top:5px}.nabs-logo-mini:after{right:5px;bottom:5px}
+.nabs-brand{text-align:center;margin:4px 0 22px}.nabs-logo{display:inline-flex;align-items:center;justify-content:center;gap:14px;font-size:3.7rem;line-height:1;font-weight:900;letter-spacing:.06em;color:#f5f7fa;text-shadow:2px 3px 5px #000b}.nabs-word{display:inline-block}.nabs-mark{width:72px;height:72px;border-radius:18px;background:linear-gradient(145deg,#214d76,#102a45);border:2px solid #63a9df;box-shadow:inset 0 0 0 1px #9bd3ff55,0 6px 18px #0009;display:inline-flex;align-items:center;justify-content:center;position:relative;overflow:hidden;transform:rotate(0deg)}
+.nabs-mark span{font-size:2.75rem;color:#fff;z-index:2;font-weight:900;text-shadow:2px 3px 5px #000b}.nabs-mark:before,.nabs-mark:after,.nabs-mark i,.nabs-mark b{content:"";position:absolute;border-radius:50%;border:2px solid #70cfff55;width:42px;height:42px}.nabs-mark:before{left:-25px;top:-25px}.nabs-mark:after{right:-25px;bottom:-25px}.nabs-mark i{width:7px;height:7px;background:#e12b36;border:0;left:10px;bottom:11px}.nabs-mark b{width:7px;height:7px;background:#70cfff;border:0;right:10px;top:11px}
+.nabs-subtitle{font-size:1.35rem;color:#e7e9ec;margin-top:9px;letter-spacing:.01em}.nabs-pulse{display:none!important}
+@media(max-width:560px){.nabs-logo{font-size:3rem;gap:10px}.nabs-mark{width:55px;height:55px;border-radius:14px}.nabs-mark span{font-size:2.05rem}.nabs-subtitle{font-size:1.05rem}.nabs-logo-mini{width:32px;min-width:32px;height:26px}.menu-left strong{font-size:.82rem}}
+
+
+/* V33 – Abfragekopf kompakt: Status links, Abfragedauer + AF rechts */
+.abfrage-page .status-line{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;width:100%;margin-top:7px;flex-wrap:nowrap}
+.abfrage-page .status-info{display:flex;align-items:center;gap:8px;min-width:0;flex:1;flex-wrap:wrap}
+.abfrage-page .status-info #status{min-width:0}
+.abfrage-page .status-tools{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:0 0 auto}
+.abfrage-page .duration-badge{white-space:nowrap}
+.abfrage-page .af-header-btn{margin-left:0;min-width:76px;min-height:48px;padding:9px 12px;white-space:nowrap}
+@media(max-width:760px){
+  .abfrage-page .status-line{gap:8px;align-items:center}
+  .abfrage-page .status-info{align-items:flex-start;flex-direction:column;gap:6px;font-size:.88rem}
+  .abfrage-page .status-tools{flex-direction:column;align-items:stretch;gap:6px}
+  .abfrage-page .duration-badge{padding:7px 9px;text-align:center}
+  .abfrage-page .af-header-btn{width:100%;min-width:72px;min-height:48px}
+}
+@media(max-width:430px){
+  .abfrage-page .status-line{gap:7px}
+  .abfrage-page .status-tools{min-width:116px}
+  .abfrage-page .duration-badge{font-size:.82rem}
+  .abfrage-page .af-header-btn{font-size:.9rem}
+}
+
+/* V35 – Antwortkacheln übersichtlich in 2 bzw. 3 Spalten */
+.answer-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%}
+.answer-options.answer-count-many{grid-template-columns:repeat(3,minmax(0,1fr))}
+.answer-option{min-width:0;min-height:62px;padding:14px 16px;white-space:normal;overflow-wrap:anywhere;line-height:1.25}
+.multi-options.answer-count-many{grid-template-columns:repeat(3,minmax(0,1fr))}
+/* V35 – Bedienaktionen aus dem Inhaltsbereich herausnehmen */
+.persistent-actions{left:auto;right:12px;bottom:50%;transform:translateY(50%);width:min(230px,20vw);max-width:230px;grid-template-columns:1fr;gap:7px;padding:8px;border:1px solid #3b4554;border-radius:12px;background:#151a22;box-shadow:0 8px 24px #0009}
+.persistent-actions button{min-height:48px;font-size:.92rem}
+@media(max-width:760px){
+  .answer-options,.answer-options.answer-count-many,.multi-options.answer-count-many{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .answer-option{min-height:58px;padding:12px 11px;font-size:.98rem}
+  .persistent-actions{left:7px;right:7px;bottom:7px;transform:none;width:auto;max-width:none;grid-template-columns:repeat(2,1fr);padding:7px;z-index:1000}
+}
+@media(min-width:761px){body.abfrage-page{padding-right:245px}.question-shell{margin-right:0}.persistent-actions{z-index:1000}}
+
+/* V36 – Abfragebereich sauber aufteilen: Fragen links, Bedienung rechts */
+.abfrage-page .app-container{max-width:1250px}
+.abfrage-page .abfrage-layout{display:grid;grid-template-columns:minmax(0,1fr) 205px;gap:16px;align-items:start}
+.abfrage-page .question-shell{margin:16px 0 100px;min-width:0}
+.abfrage-page .persistent-actions{position:sticky;left:auto;right:auto;bottom:auto;top:92px;transform:none;width:auto;max-width:none;display:grid;grid-template-columns:1fr;gap:8px;padding:9px;border:1px solid #3b4554;border-radius:14px;background:#151a22;box-shadow:0 8px 24px #0009;z-index:10}
+.abfrage-page .persistent-actions button{min-height:50px;font-size:.92rem}
+.abfrage-page .question-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.abfrage-page .question-heading{min-width:0;flex:1}
+.abfrage-page .previous-btn{flex:0 0 auto;background:#475569;border:1px solid #64748b;min-height:46px;padding:10px 15px;border-radius:10px;font-weight:800;color:#fff}
+.abfrage-page .previous-btn:disabled{opacity:.38;cursor:not-allowed}
+
+@media(max-width:900px) and (min-width:761px){
+  .abfrage-page .abfrage-layout{grid-template-columns:minmax(0,1fr) 175px;gap:12px}
+  .abfrage-page .persistent-actions{padding:7px}
+  .abfrage-page .persistent-actions button{font-size:.84rem;padding:10px 7px}
+}
+
+@media(max-width:760px){
+  .abfrage-page .abfrage-layout{display:block}
+  .abfrage-page .question-shell{margin-bottom:150px}
+  .abfrage-page .persistent-actions{position:fixed;left:7px;right:7px;bottom:7px;top:auto;width:auto;max-width:none;grid-template-columns:repeat(2,minmax(0,1fr));padding:7px;z-index:1000}
+  .abfrage-page .question-top{gap:8px}
+  .abfrage-page .previous-btn{min-height:42px;padding:8px 11px;font-size:.9rem}
+}
+
+/* NABS V37 – saubere Abfrage-Navigation */
+.previous-btn{min-width:110px;min-height:42px;background:#475569;border:1px solid #64748b;border-radius:9px;color:#fff;font-weight:800;cursor:pointer;padding:8px 12px}
+.previous-btn:disabled{opacity:.45;cursor:not-allowed}
+@media (min-width:900px){.abfrage-layout{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:18px;align-items:start}.persistent-actions{position:sticky;top:18px;left:auto;right:auto;bottom:auto;display:flex;flex-direction:column;padding:10px;background:#151a22;border:1px solid #3b4554;border-radius:12px;box-shadow:0 8px 22px #0008}.persistent-actions button{width:100%;min-height:48px}.question-shell{margin-bottom:30px}}
+@media (max-width:899px){.persistent-actions{position:fixed;left:0;right:0;bottom:0}.question-top{gap:8px}.previous-btn{min-width:92px}}

@@ -261,14 +261,53 @@ function render(){
   }else if(q.type==="demographics") {
     const box=document.createElement("div"); box.className="demographics-box";
     const d=answers[q.id]&&typeof answers[q.id]==="object"?answers[q.id]:{};
-    box.innerHTML=`<div class="demo-grid"><label>Alter in Jahren<input id="demoAge" class="free-input" type="number" min="0" max="120" inputmode="numeric" value="${d.age??""}" placeholder="z. B. 66"></label><label>Geburtsdatum<input id="demoBirth" class="free-input" type="date" value="${d.birthdate??""}"></label></div><div class="demo-gender"><div class="answer-label">Geschlecht</div><div class="gender-options"></div></div>`;
+    box.innerHTML=`<div class="demo-grid"><label>Alter in Jahren<input id="demoAge" class="free-input" type="number" min="0" max="120" inputmode="numeric" value="${d.age??""}" placeholder="z. B. 66"></label><label>Geburtsdatum<input id="demoBirth" class="free-input birthdate-keyboard" type="text" inputmode="numeric" autocomplete="bday" maxlength="10" value="${d.birthdate?String(d.birthdate).split("-").reverse().join("."):""}" placeholder="TT.MM.JJJJ"></label></div><div class="demo-gender"><div class="answer-label">Geschlecht</div><div class="gender-options"></div></div>`;
     const g=box.querySelector(".gender-options"); (q.fields?.genderOptions||["Männlich","Weiblich","Divers","Unbekannt"]).forEach(v=>{const label=document.createElement("label");label.className="gender-option";label.innerHTML=`<input type="radio" name="demoGender" value="${v}"> <span>${v}</span>`;if(d.gender===v)label.querySelector("input").checked=true;g.appendChild(label);});
     const ageInput=box.querySelector("#demoAge"), birthInput=box.querySelector("#demoBirth");
-    const calcAge=(iso)=>{if(!iso)return "";const d=new Date(iso+"T00:00:00");if(Number.isNaN(d.getTime()))return "";const now=new Date();let age=now.getFullYear()-d.getFullYear();const beforeBirthday=(now.getMonth()<d.getMonth())||(now.getMonth()===d.getMonth()&&now.getDate()<d.getDate());if(beforeBirthday)age--;return age>=0&&age<=130?String(age):"";};
-    birthInput.addEventListener("change",()=>{const a=calcAge(birthInput.value);if(a)ageInput.value=a;});
+    const parseBirthdate=(value)=>{
+      const raw=String(value||"").trim();
+      const m=raw.match(/^(\\d{1,2})[.\\-/](\\d{1,2})[.\\-/](\\d{4})$/);
+      if(!m)return "";
+      const dd=String(m[1]).padStart(2,"0"), mm=String(m[2]).padStart(2,"0"), yyyy=m[3];
+      const dt=new Date(`${yyyy}-${mm}-${dd}T00:00:00`);
+      if(Number.isNaN(dt.getTime())||dt.getFullYear()!=Number(yyyy)||dt.getMonth()+1!=Number(mm)||dt.getDate()!=Number(dd))return "";
+      return `${yyyy}-${mm}-${dd}`;
+    };
+    const calcAge=(iso)=>{
+      if(!iso)return "";
+      const d=new Date(iso+"T00:00:00");
+      if(Number.isNaN(d.getTime()))return "";
+      const now=new Date();
+      let age=now.getFullYear()-d.getFullYear();
+      const beforeBirthday=(now.getMonth()<d.getMonth())||(now.getMonth()===d.getMonth()&&now.getDate()<d.getDate());
+      if(beforeBirthday)age--;
+      return age>=0&&age<=130?String(age):"";
+    };
+    const formatBirthdateInput=(value)=>{
+      let digits=String(value||"").replace(/\\D/g,"").slice(0,8);
+      if(digits.length>4) return `${digits.slice(0,2)}.${digits.slice(2,4)}.${digits.slice(4)}`;
+      if(digits.length>2) return `${digits.slice(0,2)}.${digits.slice(2)}`;
+      return digits;
+    };
+    birthInput.addEventListener("input",()=>{
+      const formatted=formatBirthdateInput(birthInput.value);
+      if(birthInput.value!==formatted) birthInput.value=formatted;
+      const iso=parseBirthdate(formatted);
+      const a=calcAge(iso);
+      if(a) ageInput.value=a;
+    });
+    birthInput.addEventListener("blur",()=>{
+      const iso=parseBirthdate(birthInput.value);
+      if(iso){
+        const [yyyy,mm,dd]=iso.split("-");
+        birthInput.value=`${dd}.${mm}.${yyyy}`;
+        const a=calcAge(iso);
+        if(a) ageInput.value=a;
+      }
+    });
     ageInput.addEventListener("input",()=>{if(ageInput.value!=="") birthInput.dataset.manualAge="1";});
     const actions=document.createElement("div");actions.className="free-actions";
-    const next=document.createElement("button");next.className="next-free";next.textContent="Weiter →";next.onclick=()=>{const age=String(ageInput.value||"").trim();const birthdate=birthInput.value||"";const gender=box.querySelector("input[name=demoGender]:checked")?.value||"Unbekannt";const calculatedAge=calcAge(birthdate);const finalAge=calculatedAge||age;pushHistory();answers[q.id]={age:finalAge,birthdate,gender};steps++;render();};
+    const next=document.createElement("button");next.className="next-free";next.textContent="Weiter →";next.onclick=()=>{const age=String(ageInput.value||"").trim();const birthdate=parseBirthdate(birthInput.value);const gender=box.querySelector("input[name=demoGender]:checked")?.value||"Unbekannt";const calculatedAge=calcAge(birthdate);const finalAge=calculatedAge||age;pushHistory();answers[q.id]={age:finalAge,birthdate,gender};steps++;render();};
     const noData=document.createElement("button");noData.className="secondary unknown-btn";noData.textContent="Keine Angaben vorhanden";noData.onclick=()=>{pushHistory();answers[q.id]={age:"",birthdate:"",gender:"Unbekannt"};steps++;render();};
     actions.append(next,noData);box.appendChild(actions);area.appendChild(box);
   }else{

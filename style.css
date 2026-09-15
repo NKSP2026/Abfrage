@@ -66,25 +66,87 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 @media(max-width:560px){.nabs-logo{font-size:3rem;gap:10px}.nabs-mark{width:55px;height:55px;border-radius:14px}.nabs-mark span{font-size:2.05rem}.nabs-subtitle{font-size:1.05rem}.nabs-logo-mini{width:32px;min-width:32px;height:26px}.menu-left strong{font-size:.82rem}}
 
 
-/* V33 – Abfragekopf kompakt: Status links, Abfragedauer + AF rechts */
-.abfrage-page .status-line{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;width:100%;margin-top:7px;flex-wrap:nowrap}
-.abfrage-page .status-info{display:flex;align-items:center;gap:8px;min-width:0;flex:1;flex-wrap:wrap}
-.abfrage-page .status-info #status{min-width:0}
-.abfrage-page .status-tools{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:0 0 auto}
-.abfrage-page .duration-badge{white-space:nowrap}
-.abfrage-page .af-header-btn{margin-left:0;min-width:76px;min-height:48px;padding:9px 12px;white-space:nowrap}
-@media(max-width:760px){
-  .abfrage-page .status-line{gap:8px;align-items:center}
-  .abfrage-page .status-info{align-items:flex-start;flex-direction:column;gap:6px;font-size:.88rem}
-  .abfrage-page .status-tools{flex-direction:column;align-items:stretch;gap:6px}
-  .abfrage-page .duration-badge{padding:7px 9px;text-align:center}
-  .abfrage-page .af-header-btn{width:100%;min-width:72px;min-height:48px}
+/* V41 – Abfragekopf wirklich responsiv: Dauer + AF rechts, niemals untereinander */
+.abfrage-page .app-top{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:start;
+  gap:18px;
 }
-@media(max-width:430px){
-  .abfrage-page .status-line{gap:7px}
-  .abfrage-page .status-tools{min-width:116px}
-  .abfrage-page .duration-badge{font-size:.82rem}
-  .abfrage-page .af-header-btn{font-size:.9rem}
+.abfrage-page .app-header-main{min-width:0}
+.abfrage-page .status-line{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:14px;
+  width:100%;
+  margin-top:7px;
+}
+.abfrage-page .status-info{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+  flex-wrap:wrap;
+}
+.abfrage-page .status-info #status{min-width:0}
+.abfrage-page .status-tools{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex:0 0 auto;
+  white-space:nowrap;
+}
+.abfrage-page .duration-badge{
+  white-space:nowrap;
+  padding:8px 10px;
+}
+.abfrage-page .af-header-btn{
+  margin:0;
+  min-width:82px;
+  min-height:46px;
+  padding:8px 12px;
+  white-space:nowrap;
+}
+@media(max-width:760px){
+  .abfrage-page .app-top{
+    grid-template-columns:1fr;
+    gap:9px;
+  }
+  .abfrage-page .status-line{
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:8px;
+  }
+  .abfrage-page .status-info{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:5px;
+    font-size:.84rem;
+  }
+  .abfrage-page .status-tools{
+    flex-direction:row;
+    align-items:center;
+    gap:6px;
+  }
+  .abfrage-page .duration-badge{
+    font-size:.82rem;
+    padding:7px 8px;
+  }
+  .abfrage-page .af-header-btn{
+    width:auto;
+    min-width:72px;
+    min-height:44px;
+    font-size:.9rem;
+  }
+  .abfrage-page .app-user-actions{
+    justify-content:flex-start;
+  }
+}
+@media(max-width:390px){
+  .abfrage-page .status-line{grid-template-columns:minmax(0,1fr) auto}
+  .abfrage-page .duration-badge{font-size:.76rem;padding:6px 7px}
+  .abfrage-page .af-header-btn{min-width:64px;padding:7px 9px;font-size:.82rem}
 }
 
 /* V40 – Antwortmöglichkeiten: ab 4 Antworten zwei Spalten, auch mobil. Lange Texte bleiben lesbar. */

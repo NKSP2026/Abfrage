@@ -1,6 +1,6 @@
 // Einsatzabfrage V20 – dynamischer Entscheidungsbaum mit permanenter Aktionsleiste
-import { startupDefaults } from "./startup-data.js?v=20260915v38";
-import { anonymous, read, authState } from "./firebase-rest.js?v=20260915v38";
+import { startupDefaults } from "./startup-data.js?v=20260915v39";
+import { anonymous, read, authState } from "./firebase-rest.js?v=20260915v39";
 
 const $ = id => document.getElementById(id);
 const mainCategories = [
@@ -52,7 +52,7 @@ function mergeDeep(base,incoming){
 async function loadLocalCategoryInBackground(){
   if(!category || category==="grossschaden") return false;
   try{
-    const mod=await import(`./catalog-${category}.js?v=20260915v38`);
+    const mod=await import(`./catalog-${category}.js?v=20260915v39`);
     data.catalog[category]=mod.catalog||{};
     render();
     if($("status")) $("status").textContent="● Abfrage aktiv · Fragenkatalog bereit";
@@ -225,13 +225,18 @@ function updatePhase(){
 
 function render(){
   if(reaShown)return;
+  // Zurück-Button bei jedem Rendern korrekt aktivieren/deaktivieren.
+  // Die History enthält den vollständigen Zustand vor der jeweils letzten Antwort.
+  const previousBtn=$("previousBtn");
+  if(previousBtn){
+    previousBtn.disabled=history.length===0;
+    previousBtn.title=history.length?"Zur vorherigen Frage zurückgehen":"Noch keine vorherige Frage vorhanden";
+  }
   const q=nextQuestion();
   if(!q){finish();return;}
   $("categoryTitle").textContent=title();
   $("progress").textContent=`Frage ${steps+1}`;
   updatePhase();
-  const backBtn=$("previousBtn");
-  if(backBtn) backBtn.disabled = history.length===0;
   $("questionText").textContent=q.text;
   const area=$("answerArea");area.innerHTML="";
   if(q.id.startsWith("erkrankung_Fieber_")){
@@ -241,45 +246,29 @@ function render(){
     area.appendChild(note);
   }
   if(q.type==="choice"){
-    const wrap=document.createElement("div");wrap.className="answer-options";
+    const wrap=document.createElement("div");
+    const optionCount=(q.options||[]).filter(v=>String(v).trim()).length;
+    wrap.className="answer-options"+(optionCount>=4?" answer-options-2col":"");
     (q.options||[]).filter(v=>String(v).trim()).forEach(v=>{const b=document.createElement("button");b.type="button";b.className="answer-option";b.textContent=v;b.onclick=()=>{pushHistory();answers[q.id]=v;steps++;if(category==="medizin"&&answers.bewusstsein==="Bewusstlos"&&["Keine normale Atmung","Atemstillstand"].includes(answers.atmung))return showREA();render();};wrap.appendChild(b);});
     area.appendChild(wrap);
   }else if(q.type==="multi"){
-    const wrap=document.createElement("div");wrap.className="answer-options multi-options";const selected=new Set(Array.isArray(answers[q.id])?answers[q.id]:[]);
+    const wrap=document.createElement("div");
+    const optionCount=(q.options||[]).filter(v=>String(v).trim()).length;
+    wrap.className="answer-options multi-options"+(optionCount>=4?" answer-options-2col":"");
+    const selected=new Set(Array.isArray(answers[q.id])?answers[q.id]:[]);
     (q.options||[]).forEach(v=>{const b=document.createElement("button");b.type="button";b.className="answer-option multi-option";const paint=()=>b.textContent=(selected.has(v)?"✓ ":"")+v;paint();b.onclick=()=>{selected.has(v)?selected.delete(v):selected.add(v);paint();};wrap.appendChild(b);});
     const actions=document.createElement("div");actions.className="free-actions";const next=document.createElement("button");next.className="next-free";next.textContent="Weiter →";next.onclick=()=>{if(!selected.size)return;pushHistory();answers[q.id]=[...selected];steps++;render();};const none=document.createElement("button");none.className="secondary unknown-btn";none.textContent="Keine / unklar";none.onclick=()=>{pushHistory();answers[q.id]=["Unklar"];steps++;render();};actions.append(next,none);area.append(wrap,actions);
   }else if(q.type==="demographics") {
     const box=document.createElement("div"); box.className="demographics-box";
     const d=answers[q.id]&&typeof answers[q.id]==="object"?answers[q.id]:{};
-    const storedBirth=d.birthdate||"";
-    const displayBirth=storedBirth && /^\d{4}-\d{2}-\d{2}$/.test(storedBirth) ? storedBirth.split("-").reverse().join(".") : storedBirth;
-    box.innerHTML=`<div class="demo-grid"><label>Alter in Jahren<input id="demoAge" class="free-input" type="number" min="0" max="130" inputmode="numeric" value="${d.age??""}" placeholder="wird aus Geburtsdatum berechnet"></label><label>Geburtsdatum<input id="demoBirth" class="free-input" type="text" inputmode="numeric" autocomplete="bday" maxlength="10" value="${displayBirth}" placeholder="TT.MM.JJJJ"></label></div><div class="hint birthdate-hint">Geburtsdatum z. B. <b>15.07.1990</b> eingeben – das Alter wird automatisch berechnet.</div><div class="demo-gender"><div class="answer-label">Geschlecht</div><div class="gender-options"></div></div>`;
+    box.innerHTML=`<div class="demo-grid"><label>Alter in Jahren<input id="demoAge" class="free-input" type="number" min="0" max="120" inputmode="numeric" value="${d.age??""}" placeholder="z. B. 66"></label><label>Geburtsdatum<input id="demoBirth" class="free-input" type="date" value="${d.birthdate??""}"></label></div><div class="demo-gender"><div class="answer-label">Geschlecht</div><div class="gender-options"></div></div>`;
     const g=box.querySelector(".gender-options"); (q.fields?.genderOptions||["Männlich","Weiblich","Divers","Unbekannt"]).forEach(v=>{const label=document.createElement("label");label.className="gender-option";label.innerHTML=`<input type="radio" name="demoGender" value="${v}"> <span>${v}</span>`;if(d.gender===v)label.querySelector("input").checked=true;g.appendChild(label);});
     const ageInput=box.querySelector("#demoAge"), birthInput=box.querySelector("#demoBirth");
-    const normalizeBirth=(value)=>{
-      let v=String(value||"").trim().replace(/\s+/g,"");
-      if(/^\d{8}$/.test(v)) v=`${v.slice(0,2)}.${v.slice(2,4)}.${v.slice(4)}`;
-      if(/^\d{4}[-.]\d{2}[-.]\d{2}$/.test(v)){const [y,m,d]=v.split(/[-.]/);return `${y}-${m}-${d}`;}
-      const m=v.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})$/);
-      if(!m)return "";
-      const day=m[1].padStart(2,"0"), month=m[2].padStart(2,"0"), year=m[3];
-      const iso=`${year}-${month}-${day}`;
-      const dt=new Date(`${iso}T00:00:00`);
-      if(Number.isNaN(dt.getTime()) || dt.getFullYear()!==Number(year) || dt.getMonth()+1!==Number(month) || dt.getDate()!==Number(day)) return "";
-      return iso;
-    };
-    const calcAge=(birth)=>{
-      const iso=normalizeBirth(birth); if(!iso)return "";
-      const d=new Date(iso+"T00:00:00"), now=new Date();
-      let age=now.getFullYear()-d.getFullYear();
-      if(now.getMonth()<d.getMonth() || (now.getMonth()===d.getMonth() && now.getDate()<d.getDate())) age--;
-      return age>=0&&age<=130?String(age):"";
-    };
-    const updateAge=()=>{const a=calcAge(birthInput.value);if(a) ageInput.value=a;};
-    birthInput.addEventListener("input",updateAge);
-    birthInput.addEventListener("change",updateAge);
+    const calcAge=(iso)=>{if(!iso)return "";const d=new Date(iso+"T00:00:00");if(Number.isNaN(d.getTime()))return "";const now=new Date();let age=now.getFullYear()-d.getFullYear();const beforeBirthday=(now.getMonth()<d.getMonth())||(now.getMonth()===d.getMonth()&&now.getDate()<d.getDate());if(beforeBirthday)age--;return age>=0&&age<=130?String(age):"";};
+    birthInput.addEventListener("change",()=>{const a=calcAge(birthInput.value);if(a)ageInput.value=a;});
+    ageInput.addEventListener("input",()=>{if(ageInput.value!=="") birthInput.dataset.manualAge="1";});
     const actions=document.createElement("div");actions.className="free-actions";
-    const next=document.createElement("button");next.className="next-free";next.textContent="Weiter →";next.onclick=()=>{const age=String(ageInput.value||"").trim();const birthdate=normalizeBirth(birthInput.value);const gender=box.querySelector("input[name=demoGender]:checked")?.value||"Unbekannt";const calculatedAge=calcAge(birthInput.value);const finalAge=calculatedAge||age;pushHistory();answers[q.id]={age:finalAge,birthdate,gender};steps++;render();};
+    const next=document.createElement("button");next.className="next-free";next.textContent="Weiter →";next.onclick=()=>{const age=String(ageInput.value||"").trim();const birthdate=birthInput.value||"";const gender=box.querySelector("input[name=demoGender]:checked")?.value||"Unbekannt";const calculatedAge=calcAge(birthdate);const finalAge=calculatedAge||age;pushHistory();answers[q.id]={age:finalAge,birthdate,gender};steps++;render();};
     const noData=document.createElement("button");noData.className="secondary unknown-btn";noData.textContent="Keine Angaben vorhanden";noData.onclick=()=>{pushHistory();answers[q.id]={age:"",birthdate:"",gender:"Unbekannt"};steps++;render();};
     actions.append(next,noData);box.appendChild(actions);area.appendChild(box);
   }else{
@@ -288,7 +277,7 @@ function render(){
     if(q.id==="verdachtsdiagnose"){
       const rec=diagnosisSuggestion()||{primary:"Keine eindeutige Verdachtsdiagnose ableitbar",alternatives:["Unklare Ursache"]};const recBox=document.createElement("div");recBox.className="diagnosis-recommendation";recBox.innerHTML=`<div class="diagnosis-recommendation-title">🤖 Algorithmischer Verdachtsvorschlag</div><div class="diagnosis-recommendation-main">${rec.primary}</div><div class="hint">Nur Entscheidungshilfe – die Auswahl trifft der Disponent.</div>`;const use=document.createElement("button");use.className="next-free";use.textContent="✓ Diesen Vorschlag übernehmen";use.onclick=()=>{input.value=rec.primary;answers[q.id]=rec.primary;};recBox.appendChild(use);const alt=document.createElement("div");alt.className="suggestions";(rec.alternatives||[]).forEach(x=>{const b=document.createElement("button");b.className="suggestion-btn";b.textContent=x;b.onclick=()=>{input.value=x;answers[q.id]=x;};alt.appendChild(b);});recBox.appendChild(alt);box.appendChild(recBox);
     }
-    input.oninput=()=>{};box.appendChild(input);
+    input.oninput=()=>answers[q.id]=input.value;box.appendChild(input);
     const actions=document.createElement("div");actions.className="free-actions";const next=document.createElement("button");next.className="next-free";next.textContent="Weiter →";next.onclick=()=>{const value=String(input.value??"").trim();if(!value&&!q.allowEmpty){input.focus();return;}pushHistory();answers[q.id]=value;steps++;render();};actions.appendChild(next);
     if(q.allowEmpty){const b=document.createElement("button");b.className="secondary unknown-btn";b.textContent="Leer lassen";b.onclick=()=>{pushHistory();answers[q.id]="";steps++;render();};actions.appendChild(b);}const unk=document.createElement("button");unk.className="secondary unknown-btn";unk.textContent="Unbekannt / keine Angabe";unk.onclick=()=>{pushHistory();answers[q.id]="Unbekannt";steps++;render();};actions.appendChild(unk);box.appendChild(actions);area.appendChild(box);setTimeout(()=>input.focus(),50);
   }

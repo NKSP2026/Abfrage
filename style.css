@@ -87,86 +87,22 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
   .abfrage-page .af-header-btn{font-size:.9rem}
 }
 
-.birthdate-hint{margin-top:-8px;margin-bottom:14px;font-size:.92rem}
-#demoBirth{letter-spacing:.04em}
-
-
-/* V39 – responsiver Abfragekopf: Abfragedauer und AF kompakt rechts */
-.abfrage-page .app-top{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:18px;
-  padding:16px 20px;
+/* V40 – Antwortmöglichkeiten: ab 4 Antworten zwei Spalten, auch mobil. Lange Texte bleiben lesbar. */
+.answer-options-2col{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:stretch;
 }
-.abfrage-page .app-header-main{flex:1 1 auto;min-width:0;width:auto}
-.abfrage-page .app-header-main>h1{line-height:1.15}
-.abfrage-page .status-line{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  align-items:center;
-  column-gap:18px;
+.answer-options-2col .answer-option{
   width:100%;
-  margin-top:8px;
-}
-.abfrage-page .status-info{
   min-width:0;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  line-height:1.25;
+  padding:14px 16px;
   display:flex;
-  flex-direction:row;
   align-items:center;
-  gap:8px;
-  flex-wrap:wrap;
 }
-.abfrage-page .status-info #status{min-width:0;overflow-wrap:anywhere}
-.abfrage-page .status-tools{
-  display:flex;
-  flex-direction:row;
-  align-items:center;
-  justify-content:flex-end;
-  gap:8px;
-  min-width:max-content;
-}
-.abfrage-page .duration-badge{white-space:nowrap;padding:8px 11px}
-.abfrage-page .af-header-btn{
-  width:auto;
-  min-width:76px;
-  min-height:44px;
-  margin:0;
-  padding:8px 13px;
-  white-space:nowrap;
-}
-.abfrage-page .app-user-actions{flex:0 0 auto;width:auto}
-
-@media (max-width:760px){
-  .abfrage-page .app-top{padding:12px 14px;gap:10px}
-  .abfrage-page .app-header-main{width:100%}
-  .abfrage-page .status-line{
-    grid-template-columns:minmax(0,1fr) auto;
-    column-gap:10px;
-    align-items:center;
-  }
-  .abfrage-page .status-info{
-    flex-direction:row;
-    align-items:center;
-    gap:5px 7px;
-    font-size:.82rem;
-  }
-  .abfrage-page .status-info #status{max-width:100%}
-  .abfrage-page .status-tools{flex-direction:row;gap:6px;min-width:max-content}
-  .abfrage-page .duration-badge{font-size:.82rem;padding:7px 8px}
-  .abfrage-page .af-header-btn{
-    width:auto;
-    min-width:64px;
-    min-height:44px;
-    padding:8px 10px;
-    font-size:.88rem;
-  }
-}
-@media (max-width:430px){
-  .abfrage-page .app-top{padding:10px 10px}
-  .abfrage-page .status-line{column-gap:7px}
-  .abfrage-page .status-info{font-size:.76rem;gap:4px 6px}
-  .abfrage-page .status-tools{gap:5px}
-  .abfrage-page .duration-badge{font-size:.75rem;padding:6px 7px}
-  .abfrage-page .af-header-btn{min-width:58px;min-height:42px;padding:7px 8px;font-size:.82rem}
+@media(max-width:360px){
+  .answer-options-2col{grid-template-columns:1fr}
 }

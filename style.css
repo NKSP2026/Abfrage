@@ -86,3 +86,6 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
   .abfrage-page .duration-badge{font-size:.82rem}
   .abfrage-page .af-header-btn{font-size:.9rem}
 }
+
+.birthdate-hint{margin-top:-8px;margin-bottom:14px;font-size:.92rem}
+#demoBirth{letter-spacing:.04em}

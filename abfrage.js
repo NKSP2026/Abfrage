@@ -659,6 +659,10 @@ function strokeIndicated(){
 }
 function visible(q){
   if(String(q?.id||"").startsWith("stroke_")&&!strokeIndicated()) return false;
+  if(q?.id==="verletzung_v50_koerperflaeche"){
+    const mechanism=String(answers.verletzung_v49_mechanismus||"");
+    if(!["Verbrennung / Verbrühung","Verätzungen"].includes(mechanism)) return false;
+  }
   if(q.whenQuestion && q.whenQuestion==="med_grund" && q.whenValue==="Verletzung" && answers.med_grund==="Arbeits- / Betriebs- / Schulunfall") { /* gleicher Verletzungspfad */ } else if(q.whenQuestion&&!matches(answers[q.whenQuestion],q.whenValue)) return false;
   if(q.skipWhenQuestion&&matches(answers[q.skipWhenQuestion],q.skipWhenValue)) return false;
   if(q.whenAll&&!q.whenAll.every(condition)) return false;
@@ -701,9 +705,14 @@ function medicalBranchCount(){
   return Object.keys(answers).filter(id=>ids.has(id) && !["med_wem","med_personen","med_spricht","med_demografie","med_grund","verdachtsdiagnose"].includes(id)).length;
 }
 function nextQuestion(){
-  if(category==="medizin" && isInjuryReason() && answers.verletzung_v49_zugang!==undefined){
+  // Verletzungspfad: Körperkarten und alle relevanten Verletzungsfragen
+  // müssen vor der Verdachtsdiagnose abgearbeitet werden.
+  if(category==="medizin" && isInjuryReason()){
+    const injuryQs=questions().filter(q=>visible(q)&&answers[q.id]===undefined && q.id!=="verdachtsdiagnose");
+    const priorityIds=["verletzung_v49_mechanismus","verletzung_v51_muster","verletzung_v51_koerperkarte","verletzung_v50_koerperflaeche","verletzung_v49_lokalisation","verletzung_v49_tierart","verletzung_v49_tierort","verletzung_v49_tiergefahr","verletzung_v49_stromart","verletzung_v49_stromfrei","verletzung_v49_stromverbrennung","verletzung_v49_taeter","verletzung_v49_einvernehmlich","verletzung_v49_sexverletzung","verletzung_v49_vuenergie","verletzung_v49_vueingeklemmt","verletzung_v49_exposition","verletzung_v49_expositionsquelle","verletzung_v49_stichort","verletzung_v49_sturzhoehe","verletzung_v49_blutung","verletzung_v49_atmung","verletzung_v49_bewusstsein","verletzung_v49_schmerz","verletzung_v49_weitere","verletzung_v49_zugang","verletzung_v49_zugang_grund"];
+    for(const id of priorityIds){ const q=injuryQs.find(x=>x.id===id); if(q) return q; }
     const diagnosis=Object.values(data.catalog?.medizin||{}).find(q=>q.id==="verdachtsdiagnose");
-    return diagnosis||null;
+    return diagnosis||injuryQs[0]||null;
   }
   const qs=questions().filter(q=>visible(q)&&answers[q.id]===undefined);
   if(!qs.length)return null;
@@ -768,8 +777,9 @@ function diagnosisSuggestion(){
     if(m==="Verkehrsunfall") return {primary:"Verkehrsunfall mit Verletzung – Unfallmechanik gemäß Abfrage",alternatives:["Mehrfachverletzung möglich","Andere Unfallfolge"]};
     if(m==="Vergewaltigung / sexueller Übergriff") return {primary:"Mögliche Verletzungsfolge nach sexuellem Übergriff",alternatives:["Akute Verletzung","Psychische Belastungsreaktion / weitere Abklärung"]};
     if(m==="Verbrennung / Verbrühung" || m==="Verätzungen") {
-      const vk=Array.isArray(answers.verletzung_v50_koerperflaeche)?burnMapValue(new Set(answers.verletzung_v50_koerperflaeche)):0;
-      return {primary:`${m} – betroffene Körperoberfläche ca. ${vk.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})} %`,alternatives:["Thermische Verletzung / Verbrennung","Verbrühung / Verätzung"]};
+      const hasBurnMap=Array.isArray(answers.verletzung_v50_koerperflaeche) && answers.verletzung_v50_koerperflaeche.length>0;
+      const vk=hasBurnMap?burnMapValue(new Set(answers.verletzung_v50_koerperflaeche)):0;
+      return {primary:hasBurnMap?`${m} – betroffene Körperoberfläche ca. ${vk.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})} %`:m,alternatives:["Thermische Verletzung / Verbrennung","Verbrühung / Verätzung"]};
     }
     return {primary:"Akute Verletzung / Trauma – Schweregrad gemäß Abfrage",alternatives:["Kopf-/Wirbelsäulentrauma","Extremitäten-/Weichteilverletzung"]};
   }

@@ -1,4 +1,4 @@
-NABS V53
+NABS V54
 
 Fehlerkorrektur: Verletzungskarte hatte einen fehlenden Objekttrenner, dadurch konnte abfrage.js nicht geladen werden.
 Launcher: nicht benötigte Pagination (1 • • ») entfernt.

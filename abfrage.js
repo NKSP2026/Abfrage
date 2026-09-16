@@ -261,7 +261,7 @@ function render(){
   }else if(q.type==="demographics") {
     const box=document.createElement("div"); box.className="demographics-box";
     const d=answers[q.id]&&typeof answers[q.id]==="object"?answers[q.id]:{};
-    box.innerHTML=`<div class="demo-grid"><label>Alter in Jahren<input id="demoAge" class="free-input" type="number" min="0" max="120" inputmode="numeric" value="${d.age??""}" placeholder="z. B. 66"></label><label>Geburtsdatum<input id="demoBirth" class="free-input birthdate-keyboard" type="text" inputmode="numeric" autocomplete="bday" maxlength="10" value="${d.birthdate?String(d.birthdate).split("-").reverse().join("."):""}" placeholder="TT.MM.JJJJ"></label></div><div class="demo-gender"><div class="answer-label">Geschlecht</div><div class="gender-options"></div></div>`;
+    box.innerHTML=`<div class="demo-grid"><label>Alter in Jahren<input id="demoAge" class="free-input" type="number" min="0" max="120" inputmode="numeric" value="${d.age??""}" placeholder="z. B. 66"></label><label>Geburtsdatum<input id="demoBirth" class="free-input birthdate-keyboard" type="text" inputmode="text" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="10" value="${d.birthdate?String(d.birthdate).split("-").reverse().join("."):""}" placeholder="TT.MM.JJJJ"></label></div><div class="demo-gender"><div class="answer-label">Geschlecht</div><div class="gender-options"></div></div>`;
     const g=box.querySelector(".gender-options"); (q.fields?.genderOptions||["Männlich","Weiblich","Divers","Unbekannt"]).forEach(v=>{const label=document.createElement("label");label.className="gender-option";label.innerHTML=`<input type="radio" name="demoGender" value="${v}"> <span>${v}</span>`;if(d.gender===v)label.querySelector("input").checked=true;g.appendChild(label);});
     const ageInput=box.querySelector("#demoAge"), birthInput=box.querySelector("#demoBirth");
     const parseBirthdate=(value)=>{
@@ -284,7 +284,7 @@ function render(){
       return age>=0&&age<=130?String(age):"";
     };
     const formatBirthdateInput=(value)=>{
-      let digits=String(value||"").replace(/\\D/g,"").slice(0,8);
+      let digits=String(value||"").replace(/\D/g,"").slice(0,8);
       if(digits.length>4) return `${digits.slice(0,2)}.${digits.slice(2,4)}.${digits.slice(4)}`;
       if(digits.length>2) return `${digits.slice(0,2)}.${digits.slice(2)}`;
       return digits;

@@ -48,11 +48,48 @@ const injurySupplementQuestions = {
     "whenQuestion": "med_grund",
     "whenValue": "Verletzung"
   },
+  "verletzung_v51_muster": {
+    "id": "verletzung_v51_muster",
+    "text": "Welche Verletzungsart wird vermutet bzw. soll genauer lokalisiert werden?",
+    "type": "choice",
+    "order": 9670.5,
+    "options": [
+      "Frakturverdacht / Knochenverletzung",
+      "Luxations- / Gelenkverletzungsverdacht",
+      "Prellung / Quetschung",
+      "Schnitt- / Riss- / Platzwunde",
+      "Stich- / Pfählungsverletzung",
+      "Biss- / Stichverletzung",
+      "Elektrische Verletzung / Strommarke",
+      "Sonstige Verletzung / unklar"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": [
+      "Anprall gegen festes Hindernis",
+      "Blitzschlag",
+      "Erfrieren",
+      "Hiebverletzung / Schlägerei",
+      "Hohe Krafteinwirkung",
+      "Kollision / Zusammenprall",
+      "Hochgeschwindigkeitsverletzung",
+      "Schnittverletzung",
+      "Stich- / Pfählungsverletzung",
+      "Stromunfall",
+      "Sturz / gestürzt",
+      "Sturz über 3 m / mehrere Treppenstufen",
+      "Tierbisse / Tierstiche",
+      "Vergewaltigung / sexueller Übergriff",
+      "Verkehrsunfall",
+      "Sonstige mechanische Einwirkung / unklarer Mechanismus"
+    ]
+  },
   "verletzung_v49_lokalisation": {
     "id": "verletzung_v49_lokalisation",
     "text": "Wo befindet sich die Verletzung hauptsächlich?",
     "type": "choice",
     "order": 9671,
+    "skipWhenQuestion": "verletzung_v51_koerperkarte",
+    "skipWhenValue": "*",
     "options": [
       "Kopf / Gesicht",
       "Hals",
@@ -492,6 +529,23 @@ const injurySupplementQuestions = {
       "Verätzungen"
     ]
   }
+  "verletzung_v51_koerperkarte": {
+    "id": "verletzung_v51_koerperkarte",
+    "text": "Wo befindet sich die vermutete Verletzung? Bitte direkt am Körperschema markieren.",
+    "type": "injurymap",
+    "order": 9686.5,
+    "whenQuestion": "verletzung_v51_muster",
+    "whenValue": [
+      "Frakturverdacht / Knochenverletzung",
+      "Luxations- / Gelenkverletzungsverdacht",
+      "Prellung / Quetschung",
+      "Schnitt- / Riss- / Platzwunde",
+      "Stich- / Pfählungsverletzung",
+      "Biss- / Stichverletzung",
+      "Elektrische Verletzung / Strommarke",
+      "Sonstige Verletzung / unklar"
+    ]
+  },
   "verletzung_v50_koerperflaeche": {
     "id": "verletzung_v50_koerperflaeche",
     "text": "Welche Körperflächen sind durch Verbrennung, Verbrühung oder Verätzung betroffen?",
@@ -700,6 +754,13 @@ function diagnosisSuggestion(){
   if(g==="Geburt / Schwangerschaft") return {primary:"Geburtshilflicher Notfall / Schwangerschaftsbeschwerden",alternatives:["Geburtsbeginn","Andere geburtshilfliche Ursache"]};
   if(g==="Verletzung" || g==="Arbeits- / Betriebs- / Schulunfall") {
     const m=String(answers.verletzung_v49_mechanismus||"");
+    if(answers.verletzung_v51_muster){
+      const mstr=String(answers.verletzung_v51_muster);
+      const ids=Array.isArray(answers.verletzung_v51_koerperkarte)?answers.verletzung_v51_koerperkarte:[];
+      const labels=ids.map(id=>injuryMapRegions.find(r=>r.id===id)?.label||id);
+      if(mstr.startsWith("Fraktur") && labels.length) return {primary:`Verdacht Fraktur – ${labels.join(", ")}`,alternatives:["Prellung / Quetschung","Luxations- / Gelenkverletzung"]};
+      if(mstr.startsWith("Luxations") && labels.length) return {primary:`Verdacht Luxation – ${labels.join(", ")}`,alternatives:["Frakturverdacht","Band-/Gelenkverletzung"]};
+    }
     if(m==="Stromunfall") return {primary:"Stromunfall / elektrische Verletzung möglich",alternatives:["Elektrische Verletzung mit Verbrennung","Andere Unfallfolge"]};
     if(m==="Tierbisse / Tierstiche") return {primary:"Tierbiss / Tierstich – Verletzungs- und ggf. allergische Reaktion möglich",alternatives:["Biss-/Stichverletzung","Andere Verletzungsfolge"]};
     if(m==="Stich- / Pfählungsverletzung") return {primary:"Penetrierende Verletzung / Stich- oder Pfählungstrauma möglich",alternatives:["Weichteilverletzung","Andere Verletzungsfolge"]};
@@ -731,6 +792,82 @@ function updatePhase(){
   if(el) el.textContent=phaseText();
 }
 
+const injuryMapRegions=[
+  {id:"front_head",label:"Kopf",x:22.5,y:5.5,w:8,h:14},
+  {id:"front_face",label:"Gesicht",x:24,y:8.5,w:5.2,h:7},
+  {id:"front_neck",label:"Hals",x:24.2,y:18,w:5.2,h:6},
+  {id:"front_shoulder_l",label:"Schulter links",x:29,y:20,w:7,h:9},
+  {id:"front_shoulder_r",label:"Schulter rechts",x:16,y:20,w:7,h:9},
+  {id:"front_upperarm_l",label:"Oberarm links",x:31.5,y:27,w:6,h:15},
+  {id:"front_upperarm_r",label:"Oberarm rechts",x:14,y:27,w:6,h:15},
+  {id:"front_elbow_l",label:"Ellenbogen links",x:34,y:40,w:5,h:6},
+  {id:"front_elbow_r",label:"Ellenbogen rechts",x:12.5,y:40,w:5,h:6},
+  {id:"front_forearm_l",label:"Unterarm links",x:34.5,y:45,w:6.5,h:17},
+  {id:"front_forearm_r",label:"Unterarm rechts",x:10.5,y:45,w:6.5,h:17},
+  {id:"front_wrist_l",label:"Handgelenk links",x:36.5,y:61,w:5,h:5},
+  {id:"front_wrist_r",label:"Handgelenk rechts",x:9.5,y:61,w:5,h:5},
+  {id:"front_hand_l",label:"Hand links",x:35,y:64,w:8,h:9},
+  {id:"front_hand_r",label:"Hand rechts",x:8,y:64,w:8,h:9},
+  {id:"front_chest",label:"Brustkorb",x:20,y:23,w:12,h:20},
+  {id:"front_abdomen",label:"Bauch",x:21,y:42,w:10,h:10},
+  {id:"front_pelvis",label:"Becken",x:20.5,y:49,w:11,h:10},
+  {id:"front_thigh_l",label:"Oberschenkel links",x:26,y:58,w:7,h:20},
+  {id:"front_thigh_r",label:"Oberschenkel rechts",x:19,y:58,w:7,h:20},
+  {id:"front_knee_l",label:"Knie links",x:26.5,y:77,w:6.5,h:7},
+  {id:"front_knee_r",label:"Knie rechts",x:19.5,y:77,w:6.5,h:7},
+  {id:"front_lowerleg_l",label:"Unterschenkel links",x:26.5,y:83,w:6.5,h:17},
+  {id:"front_lowerleg_r",label:"Unterschenkel rechts",x:19.5,y:83,w:6.5,h:17},
+  {id:"front_ankle_l",label:"Sprunggelenk links",x:27,y:98,w:6,h:4},
+  {id:"front_ankle_r",label:"Sprunggelenk rechts",x:19,y:98,w:6,h:4},
+  {id:"front_foot_l",label:"Fuß links",x:26.5,y:99,w:7,h:5},
+  {id:"front_foot_r",label:"Fuß rechts",x:18.5,y:99,w:7,h:5},
+  {id:"back_head",label:"Kopf hinten",x:60.5,y:5.5,w:8,h:14},
+  {id:"back_neck",label:"Nacken",x:62,y:18,w:5.2,h:6},
+  {id:"back_shoulder_l",label:"Schulter links hinten",x:67,y:20,w:7,h:9},
+  {id:"back_shoulder_r",label:"Schulter rechts hinten",x:54,y:20,w:7,h:9},
+  {id:"back_upperarm_l",label:"Oberarm links hinten",x:69.5,y:27,w:6,h:15},
+  {id:"back_upperarm_r",label:"Oberarm rechts hinten",x:52,y:27,w:6,h:15},
+  {id:"back_forearm_l",label:"Unterarm links hinten",x:72.5,y:45,w:6.5,h:17},
+  {id:"back_forearm_r",label:"Unterarm rechts hinten",x:48.5,y:45,w:6.5,h:17},
+  {id:"back_hand_l",label:"Hand links hinten",x:73,y:64,w:8,h:9},
+  {id:"back_hand_r",label:"Hand rechts hinten",x:46,y:64,w:8,h:9},
+  {id:"back_spine",label:"Wirbelsäule / Rücken",x:58,y:24,w:13,h:28},
+  {id:"back_pelvis",label:"Becken hinten",x:58.5,y:49,w:11,h:10},
+  {id:"back_thigh_l",label:"Oberschenkel links hinten",x:64,y:58,w:7,h:20},
+  {id:"back_thigh_r",label:"Oberschenkel rechts hinten",x:57,y:58,w:7,h:20},
+  {id:"back_knee_l",label:"Knie links hinten",x:64.5,y:77,w:6.5,h:7},
+  {id:"back_knee_r",label:"Knie rechts hinten",x:57.5,y:77,w:6.5,h:7},
+  {id:"back_lowerleg_l",label:"Unterschenkel links hinten",x:64.5,y:83,w:6.5,h:17},
+  {id:"back_lowerleg_r",label:"Unterschenkel rechts hinten",x:57.5,y:83,w:6.5,h:17},
+  {id:"back_ankle_l",label:"Sprunggelenk links hinten",x:65,y:98,w:6,h:4},
+  {id:"back_ankle_r",label:"Sprunggelenk rechts hinten",x:57,y:98,w:6,h:4},
+  {id:"back_foot_l",label:"Fuß links hinten",x:64.5,y:99,w:7,h:5},
+  {id:"back_foot_r",label:"Fuß rechts hinten",x:56.5,y:99,w:7,h:5}
+];
+function injuryMapLabel(){
+  const m=String(answers.verletzung_v51_muster||"");
+  return m.replace(" / Knochenverletzung","").replace("- / Gelenkverletzungsverdacht","");
+}
+function renderInjuryMapQuestion(q,area){
+  const selected=new Set(Array.isArray(answers[q.id])?answers[q.id]:[]);
+  const box=document.createElement("div"); box.className="injury-map-box";
+  const modeLabel=injuryMapLabel()||"Verletzung";
+  box.innerHTML=`<div class="injury-map-note"><b>🦴 Verletzungskarte – ${modeLabel}</b><br>Bitte eine oder mehrere betroffene Körperregionen direkt am Körperschema markieren. Die Auswahl wird als <b>Verdacht</b> in den Einsatztext übernommen; sie stellt keine gesicherte Diagnose dar.</div><div class="injury-map-summary">Markiert: <strong id="injuryMapSummary">noch nichts</strong></div><div class="injury-map-stage"><img src="koerperkarte_verbrennung.jpg" alt="Körperschema Vorder- und Rückseite"><div class="injury-map-hotspots"></div></div>`;
+  const stage=box.querySelector('.injury-map-stage'); const hotspots=box.querySelector('.injury-map-hotspots'); const summary=box.querySelector('#injuryMapSummary');
+  const renderSummary=()=>{summary.textContent=selected.size?[...selected].map(id=>injuryMapRegions.find(r=>r.id===id)?.label||id).join(" · "):"noch nichts";};
+  injuryMapRegions.forEach(r=>{
+    const b=document.createElement('button'); b.type='button'; b.className='injury-hotspot'; b.style.left=r.x+'%'; b.style.top=r.y+'%'; b.style.width=r.w+'%'; b.style.height=r.h+'%'; b.title=r.label;
+    if(selected.has(r.id)) b.classList.add('selected');
+    b.textContent="";
+    b.onclick=()=>{if(selected.has(r.id)){selected.delete(r.id);b.classList.remove('selected')}else{selected.add(r.id);b.classList.add('selected')}answers[q.id]=[...selected];renderSummary();};
+    hotspots.appendChild(b);
+  });
+  renderSummary();
+  const actions=document.createElement('div'); actions.className='free-actions';
+  const clear=document.createElement('button'); clear.className='secondary unknown-btn'; clear.textContent='Auswahl löschen'; clear.onclick=()=>{selected.clear();answers[q.id]=[];hotspots.querySelectorAll('.selected').forEach(x=>x.classList.remove('selected'));renderSummary();};
+  const next=document.createElement('button'); next.className='next-free'; next.textContent='Weiter →'; next.onclick=()=>{if(!selected.size)return;pushHistory();answers[q.id]=[...selected];steps++;render();};
+  actions.append(next,clear); box.appendChild(actions); area.appendChild(box);
+}
 const burnMapRegions=[
   {id:"front_head",label:"Kopf / Hals – vorne",side:"Vorderseite",total:4.5,count:9,cls:"front-head"},
   {id:"front_arm_l",label:"Linker Arm – vorne",side:"Vorderseite",total:4.5,count:9,cls:"front-arm-l"},
@@ -802,6 +939,8 @@ function render(){
   }
   if(q.type==="burnmap") {
     renderBurnMapQuestion(q,area);
+  } else if(q.type==="injurymap") {
+    renderInjuryMapQuestion(q,area);
   } else if(q.type==="choice") {
     const wrap=document.createElement("div");
     const optionCount=(q.options||[]).filter(v=>String(v).trim()).length;
@@ -897,8 +1036,7 @@ function evaluateNotarzt(){
     if(answers.neuro_01==="Ja"||answers.neuro_02==="Ja"||answers.neuro_05==="Ja"||answers.neuro_06==="Ja") reasons.push("Akute neurologische Auffälligkeit");
     if(answers.psyche_01==="Ja"||answers.psyche_04==="Ja") reasons.push("Akute Selbst-/Fremdgefährdung");
     if(answers.blutung_03==="Ja"||answers.blutung_25==="Ja") reasons.push("Starke / nicht kontrollierbare Blutung");
-    if(Array.isArray(answers.verletzung_v50_koerperflaeche) && burnMapValue(new Set(answers.verletzung_v50_koerperflaeche))>=10) reasons.push("Relevante thermische/chemische Verletzung – VKOF ab ca. 10 %");
-    if(answers.geburt_07==="Ja"||answers.geburt_12==="Ja"||answers.geburt_19==="Ja") reasons.push("Akuter geburtshilflicher Hochrisikohinweis");
+      if(answers.geburt_07==="Ja"||answers.geburt_12==="Ja"||answers.geburt_19==="Ja") reasons.push("Akuter geburtshilflicher Hochrisikohinweis");
     if(answers.bauch_03==="Ja"&&answers.bauch_19==="Ja") reasons.push("Möglicher Ileus / akuter abdominaler Risikohinweis");
     if(answers.vergiftung_05==="Ja"||answers.vergiftung_06==="Ja"||answers.vergiftung_07==="Ja"||answers.vergiftung_24==="Ja") reasons.push("Schwere Intoxikationszeichen");
   }
@@ -1006,6 +1144,12 @@ function dispatchAnswerFact(q,v){
   if(text.includes("reagiert langsam")) return val==="Ja"?"verlangsamte Reaktion / verändert":"";
   if(text.includes("kopfschmerz")) return val==="Ja"?"Kopfschmerz":`Kopfschmerz: ${val}`;
   if(text.includes("suizid")||text.includes("umbringen")) return val==="Ja"?"Suizidabsicht / Selbstgefährdung":"";
+  if(q?.type==="injurymap" && Array.isArray(v)) {
+    const labels=v.map(id=>injuryMapRegions.find(r=>r.id===id)?.label||id);
+    const m=String(answers.verletzung_v51_muster||"Verletzung");
+    const prefix=m.startsWith("Fraktur")?"Verdacht Fraktur":m.startsWith("Luxations")?"Verdacht Luxation":m.startsWith("Prellung")?"Prellung/Quetschung":m.startsWith("Schnitt")?"Wunde":m.startsWith("Stich")?"Stich-/Pfählungsverletzung":m.startsWith("Biss")?"Biss-/Stichverletzung":m.startsWith("Elektrische")?"Elektrische Verletzung": "Verletzung";
+    return `${prefix}: ${labels.join(", ")}`;
+  }
   if(text.includes("wie kam es zu der verletzung")) return `Unfallmechanismus: ${val}`;
   if(text.includes("um welches tier")) return `Tier: ${val}`;
   if(text.includes("wo wurde die person durch das tier")) return `Verletzungsort: ${val}`;
@@ -1043,6 +1187,12 @@ function importantDispatchFacts(){
   if(answers.erkrankung_bd_02)facts.push(answers.erkrankung_bd_02);
   if(answers.deterioration)facts.push(`Verschlechterung: ${answers.deterioration}`);
   if(answers.verdachtsdiagnose)facts.push(`Verdachtsdiagnose: ${answers.verdachtsdiagnose}`);
+  if(Array.isArray(answers.verletzung_v51_koerperkarte) && answers.verletzung_v51_koerperkarte.length){
+    const labels=answers.verletzung_v51_koerperkarte.map(id=>injuryMapRegions.find(r=>r.id===id)?.label||id);
+    const m=String(answers.verletzung_v51_muster||"Verletzung");
+    const prefix=m.startsWith("Fraktur")?"Verdacht Fraktur":m.startsWith("Luxations")?"Verdacht Luxation":m.startsWith("Prellung")?"Prellung/Quetschung":m.startsWith("Schnitt")?"Wunde":m.startsWith("Stich")?"Stich-/Pfählungsverletzung":m.startsWith("Biss")?"Biss-/Stichverletzung":m.startsWith("Elektrische")?"Elektrische Verletzung":"Verletzung";
+    facts.push(`${prefix}: ${labels.join(", ")}`);
+  }
   if(Array.isArray(answers.verletzung_v50_koerperflaeche) && answers.verletzung_v50_koerperflaeche.length){
     const vk=burnMapValue(new Set(answers.verletzung_v50_koerperflaeche));
     facts.push(`Betroffene Körperoberfläche: ca. ${vk.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})} % VKOF`);

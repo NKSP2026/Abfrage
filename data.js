@@ -18426,6 +18426,478 @@ export const defaults={
         ],
         "whenQuestion": "zugang_01",
         "whenValue": "Nein"
+      },
+      "verletzung_v49_mechanismus": {
+        "id": "verletzung_v49_mechanismus",
+        "text": "Wie kam es zu der Verletzung?",
+        "type": "choice",
+        "order": 9670,
+        "options": [
+          "Anprall gegen festes Hindernis",
+          "Blitzschlag",
+          "Erfrieren",
+          "Hiebverletzung / Schlägerei",
+          "Hohe Krafteinwirkung",
+          "Kollision / Zusammenprall",
+          "Hochgeschwindigkeitsverletzung",
+          "Schnittverletzung",
+          "Stich- / Pfählungsverletzung",
+          "Stromunfall",
+          "Sturz / gestürzt",
+          "Sturz über 3 m / mehrere Treppenstufen",
+          "Tierbisse / Tierstiche",
+          "Verätzungen",
+          "Verbrennung / Verbrühung",
+          "Vergewaltigung / sexueller Übergriff",
+          "Verkehrsunfall",
+          "Sonstige mechanische Einwirkung / unklarer Mechanismus"
+        ],
+        "whenQuestion": "med_grund",
+        "whenValue": "Verletzung"
+      },
+      "verletzung_v49_lokalisation": {
+        "id": "verletzung_v49_lokalisation",
+        "text": "Wo befindet sich die Verletzung hauptsächlich?",
+        "type": "choice",
+        "order": 9671,
+        "options": [
+          "Kopf / Gesicht",
+          "Hals",
+          "Brustkorb",
+          "Bauch / Becken",
+          "Rücken / Wirbelsäule",
+          "Arm / Hand",
+          "Bein / Fuß",
+          "Mehrere Körperregionen",
+          "Unbekannt"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": [
+          "Anprall gegen festes Hindernis",
+          "Blitzschlag",
+          "Erfrieren",
+          "Hiebverletzung / Schlägerei",
+          "Hohe Krafteinwirkung",
+          "Kollision / Zusammenprall",
+          "Hochgeschwindigkeitsverletzung",
+          "Schnittverletzung",
+          "Sturz / gestürzt",
+          "Sonstige mechanische Einwirkung / unklarer Mechanismus"
+        ]
+      },
+      "verletzung_v49_tierart": {
+        "id": "verletzung_v49_tierart",
+        "text": "Um welches Tier handelt es sich?",
+        "type": "choice",
+        "order": 9672,
+        "options": [
+          "Hund",
+          "Katze",
+          "Pferd / Großtier",
+          "Nutztier",
+          "Wildtier",
+          "Insekt / Wespe / Biene",
+          "Reptil / Schlange",
+          "Sonstiges Tier",
+          "Unbekannt"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Tierbisse / Tierstiche"
+      },
+      "verletzung_v49_tierort": {
+        "id": "verletzung_v49_tierort",
+        "text": "Wo wurde die Person durch das Tier verletzt?",
+        "type": "choice",
+        "order": 9673,
+        "options": [
+          "Kopf / Gesicht / Hals",
+          "Brust / Bauch",
+          "Arm / Hand",
+          "Bein / Fuß",
+          "Mehrere Körperregionen",
+          "Unbekannt"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Tierbisse / Tierstiche"
+      },
+      "verletzung_v49_tiergefahr": {
+        "id": "verletzung_v49_tiergefahr",
+        "text": "Ist das Tier noch vor Ort und stellt es eine Gefahr für Patient oder Einsatzkräfte dar?",
+        "type": "choice",
+        "order": 9674,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Tierbisse / Tierstiche"
+      },
+      "verletzung_v49_stromart": {
+        "id": "verletzung_v49_stromart",
+        "text": "Um welche Stromart bzw. Stromquelle handelt es sich?",
+        "type": "choice",
+        "order": 9672,
+        "options": [
+          "Hochspannung",
+          "Niederspannung / Haushaltsstrom",
+          "Bahn / Oberleitung",
+          "Industrieanlage / unbekannte Spannung",
+          "Fahrzeug / Hochvoltsystem",
+          "Unbekannt"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Stromunfall"
+      },
+      "verletzung_v49_stromfrei": {
+        "id": "verletzung_v49_stromfrei",
+        "text": "Ist die Stromquelle sicher abgeschaltet und besteht kein weiterer Stromkontakt?",
+        "type": "choice",
+        "order": 9673,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Stromunfall"
+      },
+      "verletzung_v49_stromverbrennung": {
+        "id": "verletzung_v49_stromverbrennung",
+        "text": "Bestehen sichtbare Strommarken oder Verbrennungen?",
+        "type": "choice",
+        "order": 9674,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Stromunfall"
+      },
+      "verletzung_v49_taeter": {
+        "id": "verletzung_v49_taeter",
+        "text": "Ist der mögliche Täter noch vor Ort?",
+        "type": "choice",
+        "order": 9672,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Vergewaltigung / sexueller Übergriff"
+      },
+      "verletzung_v49_einvernehmlich": {
+        "id": "verletzung_v49_einvernehmlich",
+        "text": "Kann sicher gesagt werden, dass der sexuelle Kontakt nicht einvernehmlich war oder die Person dazu gezwungen wurde?",
+        "type": "choice",
+        "order": 9673,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Vergewaltigung / sexueller Übergriff"
+      },
+      "verletzung_v49_sexverletzung": {
+        "id": "verletzung_v49_sexverletzung",
+        "text": "Sind Verletzungen zurückgeblieben oder bestehen aktuell Blutungen, starke Schmerzen oder andere akute Beschwerden?",
+        "type": "choice",
+        "order": 9674,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Vergewaltigung / sexueller Übergriff"
+      },
+      "verletzung_v49_vuenergie": {
+        "id": "verletzung_v49_vuenergie",
+        "text": "Welche besondere Unfallmechanik liegt vor?",
+        "type": "choice",
+        "order": 9672,
+        "options": [
+          "Hohe Geschwindigkeit",
+          "Überschlag",
+          "Frontal-/Seitenkollision",
+          "Fußgänger / Radfahrer angefahren",
+          "Person aus Fahrzeug geschleudert",
+          "Eingeklemmt / eingeschlossen",
+          "Keine besondere Mechanik bekannt",
+          "Unbekannt"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Verkehrsunfall"
+      },
+      "verletzung_v49_vueingeklemmt": {
+        "id": "verletzung_v49_vueingeklemmt",
+        "text": "Ist eine Person eingeklemmt oder im Fahrzeug eingeschlossen?",
+        "type": "choice",
+        "order": 9673,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Verkehrsunfall"
+      },
+      "verletzung_v49_exposition": {
+        "id": "verletzung_v49_exposition",
+        "text": "Welche Art der Verletzung liegt vor?",
+        "type": "choice",
+        "order": 9672,
+        "options": [
+          "Thermische Verbrennung",
+          "Verbrühung",
+          "Chemische Verätzung",
+          "Rauch / heiße Dämpfe eingeatmet",
+          "Unbekannt"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": [
+          "Verbrennung / Verbrühung",
+          "Verätzungen"
+        ]
+      },
+      "verletzung_v49_expositionsquelle": {
+        "id": "verletzung_v49_expositionsquelle",
+        "text": "Ist die Gefahrenquelle noch vorhanden oder besteht weitere Expositionsgefahr?",
+        "type": "choice",
+        "order": 9673,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": [
+          "Verbrennung / Verbrühung",
+          "Verätzungen"
+        ]
+      },
+      "verletzung_v49_stichort": {
+        "id": "verletzung_v49_stichort",
+        "text": "Wo befindet sich die Stich-/Pfählungsverletzung?",
+        "type": "choice",
+        "order": 9672,
+        "options": [
+          "Kopf / Hals",
+          "Brustkorb",
+          "Bauch / Becken",
+          "Rücken",
+          "Arm / Hand",
+          "Bein / Fuß",
+          "Unbekannt"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Stich- / Pfählungsverletzung"
+      },
+      "verletzung_v49_sturzhoehe": {
+        "id": "verletzung_v49_sturzhoehe",
+        "text": "Aus welcher Höhe bzw. über wie viele Treppenstufen erfolgte der Sturz?",
+        "type": "choice",
+        "order": 9672,
+        "options": [
+          "Unter 1 m",
+          "1–3 m",
+          "Über 3 m",
+          "Mehrere Treppenstufen",
+          "Unbekannt"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Sturz über 3 m / mehrere Treppenstufen"
+      },
+      "verletzung_v49_blutung": {
+        "id": "verletzung_v49_blutung",
+        "text": "Besteht eine starke oder nicht kontrollierbare Blutung?",
+        "type": "choice",
+        "order": 9680,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "*"
+      },
+      "verletzung_v49_atmung": {
+        "id": "verletzung_v49_atmung",
+        "text": "Bestehen aktuell Atemprobleme oder eine zunehmende Atemnot?",
+        "type": "choice",
+        "order": 9681,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "*"
+      },
+      "verletzung_v49_bewusstsein": {
+        "id": "verletzung_v49_bewusstsein",
+        "text": "Ist die Person wach und ansprechbar?",
+        "type": "choice",
+        "order": 9682,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "*"
+      },
+      "verletzung_v49_schmerz": {
+        "id": "verletzung_v49_schmerz",
+        "text": "Bestehen starke oder zunehmende Schmerzen?",
+        "type": "choice",
+        "order": 9683,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "*"
+      },
+      "verletzung_v49_weitere": {
+        "id": "verletzung_v49_weitere",
+        "text": "Sind weitere Verletzungen, Beschwerden oder auffällige Symptome vorhanden?",
+        "type": "choice",
+        "order": 9684,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "*"
+      },
+      "verletzung_v49_zugang": {
+        "id": "verletzung_v49_zugang",
+        "text": "Ist die Person frei zugänglich?",
+        "type": "choice",
+        "order": 9690,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "*"
+      },
+      "verletzung_v49_zugang_grund": {
+        "id": "verletzung_v49_zugang_grund",
+        "text": "Warum ist der Patient nicht frei zugänglich?",
+        "type": "choice",
+        "order": 9691,
+        "options": [
+          "Abgestürzt",
+          "Eingeklemmt",
+          "Verschlossene Wohnung / Türöffnung erforderlich",
+          "Verschüttet / eingestürzt",
+          "Auf Dach / Balkon / Höhe",
+          "In Fahrzeug / Aufzug eingeschlossen",
+          "Unzugängliches Gelände / schwer erreichbar",
+          "Gefahrenbereich / Einsatzstelle nicht sicher",
+          "Sonstiger Zugangshinderungsgrund",
+          "Unbekannt"
+        ],
+        "whenQuestion": "verletzung_v49_zugang",
+        "whenValue": "Nein"
+      },
+      "verletzung_v49_allergie": {
+        "id": "verletzung_v49_allergie",
+        "text": "Bestehen nach Tierbiss/-stich aktuell Atemprobleme, Schwellungen, Kreislaufprobleme oder eine andere allergische Reaktion?",
+        "type": "choice",
+        "order": 9685,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Tierbisse / Tierstiche"
+      },
+      "verletzung_v49_stromsymptome": {
+        "id": "verletzung_v49_stromsymptome",
+        "text": "Bestehen nach dem Stromunfall Bewusstseinsstörung, Herzbeschwerden, Krampfanfall oder andere auffällige Beschwerden?",
+        "type": "choice",
+        "order": 9685,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Stromunfall"
+      },
+      "verletzung_v49_vublutung": {
+        "id": "verletzung_v49_vublutung",
+        "text": "Gibt es neben der Unfallmechanik sichtbare Verletzungen oder Beschwerden, die besonders beachtet werden müssen?",
+        "type": "choice",
+        "order": 9685,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Verkehrsunfall"
+      },
+      "verletzung_v49_sexakut": {
+        "id": "verletzung_v49_sexakut",
+        "text": "Bestehen aktuell starke Blutungen, Bewusstseinsstörungen, Atemprobleme oder andere akute Beschwerden?",
+        "type": "choice",
+        "order": 9685,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": "Vergewaltigung / sexueller Übergriff"
+      },
+      "verletzung_v49_expositionsbereich": {
+        "id": "verletzung_v49_expositionsbereich",
+        "text": "Welche Körperregion ist hauptsächlich betroffen?",
+        "type": "choice",
+        "order": 9686,
+        "options": [
+          "Gesicht / Augen",
+          "Atemwege / Brustkorb",
+          "Arme / Hände",
+          "Beine / Füße",
+          "Bauch / Rücken",
+          "Großflächig / mehrere Körperregionen",
+          "Unbekannt"
+        ],
+        "whenQuestion": "verletzung_v49_mechanismus",
+        "whenValue": [
+          "Verbrennung / Verbrühung",
+          "Verätzungen"
+        ]
       }
     },
     "brand": {
@@ -20956,7 +21428,7 @@ export const defaults={
     ]
   },
   "metadata": {
-    "medicalCatalogVersion": "V48",
-    "medicalQuestionCount": 1054
+    "medicalCatalogVersion": "V49",
+    "medicalQuestionCount": 1083
   }
 };

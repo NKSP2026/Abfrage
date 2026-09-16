@@ -19,6 +19,481 @@ const medicalInitialQuestions = [
   {id:"med_grund",text:"Sagen Sie mir bitte den genauen Grund Ihres Anrufes!",type:"choice",order:50,options:["Allergie / Anaphylaxie","Atemstörung","Bauchschmerzen","Bewusstseinsstörung / Wesensveränderung","Blutungen","Brustschmerzen","Erkrankung / medizinische Hilfeleistung","Geburt / Schwangerschaft","Gefühlsstörung / Lähmung / Sprache / Sehstörung","Herzrhythmusstörungen","Hitze- / Kälteprobleme","Kollaps / Kreislaufstörung","Kopfschmerzen","Krampfanfall","Psychische Erkrankung / Suizid","Sonstige Schmerzen","Unklares Geschehen","Vergiftung","Verletzung","Arbeits- / Betriebs- / Schulunfall"]}
 ];
 const yesNoUnclearOptions=["Ja","Nein","Unsicher (kann nicht beurteilt werden)","Unbekannter (kein Kontakt / keine Angabe möglich)"];
+const injurySupplementQuestions = {
+  "verletzung_v49_mechanismus": {
+    "id": "verletzung_v49_mechanismus",
+    "text": "Wie kam es zu der Verletzung?",
+    "type": "choice",
+    "order": 9670,
+    "options": [
+      "Anprall gegen festes Hindernis",
+      "Blitzschlag",
+      "Erfrieren",
+      "Hiebverletzung / Schlägerei",
+      "Hohe Krafteinwirkung",
+      "Kollision / Zusammenprall",
+      "Hochgeschwindigkeitsverletzung",
+      "Schnittverletzung",
+      "Stich- / Pfählungsverletzung",
+      "Stromunfall",
+      "Sturz / gestürzt",
+      "Sturz über 3 m / mehrere Treppenstufen",
+      "Tierbisse / Tierstiche",
+      "Verätzungen",
+      "Verbrennung / Verbrühung",
+      "Vergewaltigung / sexueller Übergriff",
+      "Verkehrsunfall",
+      "Sonstige mechanische Einwirkung / unklarer Mechanismus"
+    ],
+    "whenQuestion": "med_grund",
+    "whenValue": "Verletzung"
+  },
+  "verletzung_v49_lokalisation": {
+    "id": "verletzung_v49_lokalisation",
+    "text": "Wo befindet sich die Verletzung hauptsächlich?",
+    "type": "choice",
+    "order": 9671,
+    "options": [
+      "Kopf / Gesicht",
+      "Hals",
+      "Brustkorb",
+      "Bauch / Becken",
+      "Rücken / Wirbelsäule",
+      "Arm / Hand",
+      "Bein / Fuß",
+      "Mehrere Körperregionen",
+      "Unbekannt"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": [
+      "Anprall gegen festes Hindernis",
+      "Blitzschlag",
+      "Erfrieren",
+      "Hiebverletzung / Schlägerei",
+      "Hohe Krafteinwirkung",
+      "Kollision / Zusammenprall",
+      "Hochgeschwindigkeitsverletzung",
+      "Schnittverletzung",
+      "Sturz / gestürzt",
+      "Sonstige mechanische Einwirkung / unklarer Mechanismus"
+    ]
+  },
+  "verletzung_v49_tierart": {
+    "id": "verletzung_v49_tierart",
+    "text": "Um welches Tier handelt es sich?",
+    "type": "choice",
+    "order": 9672,
+    "options": [
+      "Hund",
+      "Katze",
+      "Pferd / Großtier",
+      "Nutztier",
+      "Wildtier",
+      "Insekt / Wespe / Biene",
+      "Reptil / Schlange",
+      "Sonstiges Tier",
+      "Unbekannt"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Tierbisse / Tierstiche"
+  },
+  "verletzung_v49_tierort": {
+    "id": "verletzung_v49_tierort",
+    "text": "Wo wurde die Person durch das Tier verletzt?",
+    "type": "choice",
+    "order": 9673,
+    "options": [
+      "Kopf / Gesicht / Hals",
+      "Brust / Bauch",
+      "Arm / Hand",
+      "Bein / Fuß",
+      "Mehrere Körperregionen",
+      "Unbekannt"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Tierbisse / Tierstiche"
+  },
+  "verletzung_v49_tiergefahr": {
+    "id": "verletzung_v49_tiergefahr",
+    "text": "Ist das Tier noch vor Ort und stellt es eine Gefahr für Patient oder Einsatzkräfte dar?",
+    "type": "choice",
+    "order": 9674,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Tierbisse / Tierstiche"
+  },
+  "verletzung_v49_stromart": {
+    "id": "verletzung_v49_stromart",
+    "text": "Um welche Stromart bzw. Stromquelle handelt es sich?",
+    "type": "choice",
+    "order": 9672,
+    "options": [
+      "Hochspannung",
+      "Niederspannung / Haushaltsstrom",
+      "Bahn / Oberleitung",
+      "Industrieanlage / unbekannte Spannung",
+      "Fahrzeug / Hochvoltsystem",
+      "Unbekannt"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Stromunfall"
+  },
+  "verletzung_v49_stromfrei": {
+    "id": "verletzung_v49_stromfrei",
+    "text": "Ist die Stromquelle sicher abgeschaltet und besteht kein weiterer Stromkontakt?",
+    "type": "choice",
+    "order": 9673,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Stromunfall"
+  },
+  "verletzung_v49_stromverbrennung": {
+    "id": "verletzung_v49_stromverbrennung",
+    "text": "Bestehen sichtbare Strommarken oder Verbrennungen?",
+    "type": "choice",
+    "order": 9674,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Stromunfall"
+  },
+  "verletzung_v49_taeter": {
+    "id": "verletzung_v49_taeter",
+    "text": "Ist der mögliche Täter noch vor Ort?",
+    "type": "choice",
+    "order": 9672,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Vergewaltigung / sexueller Übergriff"
+  },
+  "verletzung_v49_einvernehmlich": {
+    "id": "verletzung_v49_einvernehmlich",
+    "text": "Kann sicher gesagt werden, dass der sexuelle Kontakt nicht einvernehmlich war oder die Person dazu gezwungen wurde?",
+    "type": "choice",
+    "order": 9673,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Vergewaltigung / sexueller Übergriff"
+  },
+  "verletzung_v49_sexverletzung": {
+    "id": "verletzung_v49_sexverletzung",
+    "text": "Sind Verletzungen zurückgeblieben oder bestehen aktuell Blutungen, starke Schmerzen oder andere akute Beschwerden?",
+    "type": "choice",
+    "order": 9674,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Vergewaltigung / sexueller Übergriff"
+  },
+  "verletzung_v49_vuenergie": {
+    "id": "verletzung_v49_vuenergie",
+    "text": "Welche besondere Unfallmechanik liegt vor?",
+    "type": "choice",
+    "order": 9672,
+    "options": [
+      "Hohe Geschwindigkeit",
+      "Überschlag",
+      "Frontal-/Seitenkollision",
+      "Fußgänger / Radfahrer angefahren",
+      "Person aus Fahrzeug geschleudert",
+      "Eingeklemmt / eingeschlossen",
+      "Keine besondere Mechanik bekannt",
+      "Unbekannt"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Verkehrsunfall"
+  },
+  "verletzung_v49_vueingeklemmt": {
+    "id": "verletzung_v49_vueingeklemmt",
+    "text": "Ist eine Person eingeklemmt oder im Fahrzeug eingeschlossen?",
+    "type": "choice",
+    "order": 9673,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Verkehrsunfall"
+  },
+  "verletzung_v49_exposition": {
+    "id": "verletzung_v49_exposition",
+    "text": "Welche Art der Verletzung liegt vor?",
+    "type": "choice",
+    "order": 9672,
+    "options": [
+      "Thermische Verbrennung",
+      "Verbrühung",
+      "Chemische Verätzung",
+      "Rauch / heiße Dämpfe eingeatmet",
+      "Unbekannt"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": [
+      "Verbrennung / Verbrühung",
+      "Verätzungen"
+    ]
+  },
+  "verletzung_v49_expositionsquelle": {
+    "id": "verletzung_v49_expositionsquelle",
+    "text": "Ist die Gefahrenquelle noch vorhanden oder besteht weitere Expositionsgefahr?",
+    "type": "choice",
+    "order": 9673,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": [
+      "Verbrennung / Verbrühung",
+      "Verätzungen"
+    ]
+  },
+  "verletzung_v49_stichort": {
+    "id": "verletzung_v49_stichort",
+    "text": "Wo befindet sich die Stich-/Pfählungsverletzung?",
+    "type": "choice",
+    "order": 9672,
+    "options": [
+      "Kopf / Hals",
+      "Brustkorb",
+      "Bauch / Becken",
+      "Rücken",
+      "Arm / Hand",
+      "Bein / Fuß",
+      "Unbekannt"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Stich- / Pfählungsverletzung"
+  },
+  "verletzung_v49_sturzhoehe": {
+    "id": "verletzung_v49_sturzhoehe",
+    "text": "Aus welcher Höhe bzw. über wie viele Treppenstufen erfolgte der Sturz?",
+    "type": "choice",
+    "order": 9672,
+    "options": [
+      "Unter 1 m",
+      "1–3 m",
+      "Über 3 m",
+      "Mehrere Treppenstufen",
+      "Unbekannt"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Sturz über 3 m / mehrere Treppenstufen"
+  },
+  "verletzung_v49_blutung": {
+    "id": "verletzung_v49_blutung",
+    "text": "Besteht eine starke oder nicht kontrollierbare Blutung?",
+    "type": "choice",
+    "order": 9680,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "*"
+  },
+  "verletzung_v49_atmung": {
+    "id": "verletzung_v49_atmung",
+    "text": "Bestehen aktuell Atemprobleme oder eine zunehmende Atemnot?",
+    "type": "choice",
+    "order": 9681,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "*"
+  },
+  "verletzung_v49_bewusstsein": {
+    "id": "verletzung_v49_bewusstsein",
+    "text": "Ist die Person wach und ansprechbar?",
+    "type": "choice",
+    "order": 9682,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "*"
+  },
+  "verletzung_v49_schmerz": {
+    "id": "verletzung_v49_schmerz",
+    "text": "Bestehen starke oder zunehmende Schmerzen?",
+    "type": "choice",
+    "order": 9683,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "*"
+  },
+  "verletzung_v49_weitere": {
+    "id": "verletzung_v49_weitere",
+    "text": "Sind weitere Verletzungen, Beschwerden oder auffällige Symptome vorhanden?",
+    "type": "choice",
+    "order": 9684,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "*"
+  },
+  "verletzung_v49_zugang": {
+    "id": "verletzung_v49_zugang",
+    "text": "Ist die Person frei zugänglich?",
+    "type": "choice",
+    "order": 9690,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "*"
+  },
+  "verletzung_v49_zugang_grund": {
+    "id": "verletzung_v49_zugang_grund",
+    "text": "Warum ist der Patient nicht frei zugänglich?",
+    "type": "choice",
+    "order": 9691,
+    "options": [
+      "Abgestürzt",
+      "Eingeklemmt",
+      "Verschlossene Wohnung / Türöffnung erforderlich",
+      "Verschüttet / eingestürzt",
+      "Auf Dach / Balkon / Höhe",
+      "In Fahrzeug / Aufzug eingeschlossen",
+      "Unzugängliches Gelände / schwer erreichbar",
+      "Gefahrenbereich / Einsatzstelle nicht sicher",
+      "Sonstiger Zugangshinderungsgrund",
+      "Unbekannt"
+    ],
+    "whenQuestion": "verletzung_v49_zugang",
+    "whenValue": "Nein"
+  },
+  "verletzung_v49_allergie": {
+    "id": "verletzung_v49_allergie",
+    "text": "Bestehen nach Tierbiss/-stich aktuell Atemprobleme, Schwellungen, Kreislaufprobleme oder eine andere allergische Reaktion?",
+    "type": "choice",
+    "order": 9685,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Tierbisse / Tierstiche"
+  },
+  "verletzung_v49_stromsymptome": {
+    "id": "verletzung_v49_stromsymptome",
+    "text": "Bestehen nach dem Stromunfall Bewusstseinsstörung, Herzbeschwerden, Krampfanfall oder andere auffällige Beschwerden?",
+    "type": "choice",
+    "order": 9685,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Stromunfall"
+  },
+  "verletzung_v49_vublutung": {
+    "id": "verletzung_v49_vublutung",
+    "text": "Gibt es neben der Unfallmechanik sichtbare Verletzungen oder Beschwerden, die besonders beachtet werden müssen?",
+    "type": "choice",
+    "order": 9685,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Verkehrsunfall"
+  },
+  "verletzung_v49_sexakut": {
+    "id": "verletzung_v49_sexakut",
+    "text": "Bestehen aktuell starke Blutungen, Bewusstseinsstörungen, Atemprobleme oder andere akute Beschwerden?",
+    "type": "choice",
+    "order": 9685,
+    "options": [
+      "Ja",
+      "Nein",
+      "Unsicher (kann nicht beurteilt werden)",
+      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": "Vergewaltigung / sexueller Übergriff"
+  },
+  "verletzung_v49_expositionsbereich": {
+    "id": "verletzung_v49_expositionsbereich",
+    "text": "Welche Körperregion ist hauptsächlich betroffen?",
+    "type": "choice",
+    "order": 9686,
+    "options": [
+      "Gesicht / Augen",
+      "Atemwege / Brustkorb",
+      "Arme / Hände",
+      "Beine / Füße",
+      "Bauch / Rücken",
+      "Großflächig / mehrere Körperregionen",
+      "Unbekannt"
+    ],
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": [
+      "Verbrennung / Verbrühung",
+      "Verätzungen"
+    ]
+  }
+};
+
 function normalizeChoiceOptions(q){
   if(!q || q.type!=="choice" || !Array.isArray(q.options)) return q;
   const vals=q.options.map(v=>String(v).trim().toLowerCase());
@@ -78,7 +553,7 @@ async function loadRemoteInBackground(){
       if(value===null || value===undefined) continue;
       if(path==="catalog") {
         const version=Number(value?._meta?.schemaVersion||0);
-        if(version>=4){ data.catalog=value; changed=true; }
+        if(version>=4){ data.catalog=mergeDeep(data.catalog,value); changed=true; }
       } else { data[path]=mergeDeep(data[path]||{},value); changed=true; }
     }
     if(changed){ render(); if($("status")) $("status").textContent="● Abfrage aktiv · Firebase-Katalog geladen"; }
@@ -138,6 +613,12 @@ function questions(){
     const initial=medicalInitialQuestions.map(q=>byId.get(q.id)?{...q,...byId.get(q.id),order:q.order}:q);
     qs=qs.filter(q=>!medicalInitialQuestions.some(i=>i.id===q.id));
     qs=[...initial,...qs];
+    if(answers.med_grund==="Verletzung") {
+      const supplement=Object.values(injurySupplementQuestions);
+      const oldInjury=qs.filter(q=>q.whenQuestion!=="med_grund" || (q.whenQuestion==="med_grund" && !["Verletzung","Arbeits- / Betriebs- / Schulunfall"].includes(q.whenValue)));
+      const injuryCatalog=qs.filter(q=>q.whenQuestion==="med_grund" && ["Verletzung","Arbeits- / Betriebs- / Schulunfall"].includes(q.whenValue));
+      qs=[...initial,...supplement,...oldInjury,...injuryCatalog];
+    }
   }
   if(mode==="vu"||mode==="wasser") qs=qs.filter(q=>q.id!=="thl_art");
   return qs;
@@ -157,6 +638,10 @@ function medicalBranchCount(){
   return Object.keys(answers).filter(id=>ids.has(id) && !["med_wem","med_personen","med_spricht","med_demografie","med_grund","verdachtsdiagnose"].includes(id)).length;
 }
 function nextQuestion(){
+  if(category==="medizin" && answers.med_grund==="Verletzung" && answers.verletzung_v49_zugang!==undefined){
+    const diagnosis=Object.values(data.catalog?.medizin||{}).find(q=>q.id==="verdachtsdiagnose");
+    return diagnosis||null;
+  }
   const qs=questions().filter(q=>visible(q)&&answers[q.id]===undefined);
   if(!qs.length)return null;
   const diagnosis=qs.find(q=>q.id==="verdachtsdiagnose");
@@ -205,7 +690,16 @@ function diagnosisSuggestion(){
     return {primary:"Mögliche Intoxikation / Vergiftung",alternatives:["Unklare Exposition","Andere Ursache"]};
   }
   if(g==="Geburt / Schwangerschaft") return {primary:"Geburtshilflicher Notfall / Schwangerschaftsbeschwerden",alternatives:["Geburtsbeginn","Andere geburtshilfliche Ursache"]};
-  if(g==="Verletzung" || g==="Arbeits- / Betriebs- / Schulunfall") return {primary:"Akute Verletzung / Trauma – Schweregrad gemäß Abfrage",alternatives:["Kopf-/Wirbelsäulentrauma","Extremitäten-/Weichteilverletzung"]};
+  if(g==="Verletzung" || g==="Arbeits- / Betriebs- / Schulunfall") {
+    const m=String(answers.verletzung_v49_mechanismus||"");
+    if(m==="Stromunfall") return {primary:"Stromunfall / elektrische Verletzung möglich",alternatives:["Elektrische Verletzung mit Verbrennung","Andere Unfallfolge"]};
+    if(m==="Tierbisse / Tierstiche") return {primary:"Tierbiss / Tierstich – Verletzungs- und ggf. allergische Reaktion möglich",alternatives:["Biss-/Stichverletzung","Andere Verletzungsfolge"]};
+    if(m==="Stich- / Pfählungsverletzung") return {primary:"Penetrierende Verletzung / Stich- oder Pfählungstrauma möglich",alternatives:["Weichteilverletzung","Andere Verletzungsfolge"]};
+    if(m==="Verkehrsunfall") return {primary:"Verkehrsunfall mit Verletzung – Unfallmechanik gemäß Abfrage",alternatives:["Mehrfachverletzung möglich","Andere Unfallfolge"]};
+    if(m==="Vergewaltigung / sexueller Übergriff") return {primary:"Mögliche Verletzungsfolge nach sexuellem Übergriff",alternatives:["Akute Verletzung","Psychische Belastungsreaktion / weitere Abklärung"]};
+    if(m==="Verbrennung / Verbrühung" || m==="Verätzungen") return {primary:"Thermische / chemische Verletzung möglich",alternatives:["Verbrennung / Verbrühung","Verätzung"]};
+    return {primary:"Akute Verletzung / Trauma – Schweregrad gemäß Abfrage",alternatives:["Kopf-/Wirbelsäulentrauma","Extremitäten-/Weichteilverletzung"]};
+  }
   if(g==="Hitze- / Kälteprobleme") return {primary:"Akute Temperatur-/Expositionsstörung",alternatives:["Überwärmung","Unterkühlung"]};
   if(g==="Sonstige Schmerzen") return {primary:"Akuter Schmerz unklarer Ursache",alternatives:["Schmerzbedingter Notfall","Andere Ursache"]};
   if(p.includes("schlaganfall")||p.includes("lähmung")||p.includes("sprachstörung")) return {primary:"Möglicher akuter neurologischer Notfall",alternatives:["Möglicher Schlaganfall / TIA","Andere Ursache"]};
@@ -362,6 +856,14 @@ function evaluateResources(reasons){
   // Basisvorschlag: Bei einem medizinischen Notruf mindestens RTW/Rettungsdienst.
   if(category==="medizin") s.add("RTW / Rettungsdienst");
   if(category==="medizin" && answers.med_personen==="Mehr als 9 / MANV") s.add("MANV-/Rettungsmittel nach örtlicher AAO");
+  if(category==="medizin" && (answers.med_grund==="Verletzung" || answers.med_grund==="Arbeits- / Betriebs- / Schulunfall")){
+    const m=String(answers.verletzung_v49_mechanismus||"");
+    const danger=String(answers.verletzung_v49_zugang_grund||"");
+    if(["Stromunfall","Verbrennung / Verbrühung","Verätzungen","Eingeklemmt / eingeschlossen"].includes(m) || /eingeklemmt|eingeschlossen|verschlossene wohnung|abgestürzt|verschüttet|höhe|fahrzeug|aufzug|unzugänglich|gefahrenbereich/i.test(danger)) s.add("Feuerwehr – Technische Hilfe / Gefahrenabwehr lageabhängig prüfen");
+    if(m==="Hiebverletzung / Schlägerei" || m==="Vergewaltigung / sexueller Übergriff" || answers.verletzung_v49_taeter==="Ja") s.add("Polizei – lageabhängig zusätzlich prüfen");
+    if(["Stromunfall","Stich- / Pfählungsverletzung","Hohe Krafteinwirkung","Hochgeschwindigkeitsverletzung","Verkehrsunfall"].includes(m)) s.add("NEF / Notarzt – Indikation anhand hinterlegter Kriterien prüfen");
+    if(answers.verletzung_v49_blutung==="Ja" || answers.verletzung_v49_atmung==="Ja" || answers.verletzung_v49_bewusstsein==="Nein") s.add("NEF / Notarzt – relevantes Verletzungs-/Vitalrisiko prüfen");
+  }
   if(reasons.length) s.add("NEF / Notarzt");
   if(answers.deterioration) s.add("Rettungsdienst – akute Verschlechterung berücksichtigen");
   if(category==="brand") s.add("Feuerwehr");
@@ -422,7 +924,17 @@ function chooseStichwort(){
 }
 function dispatchAnswerFact(q,v){
   const text=String(q?.text||"").toLowerCase(), val=Array.isArray(v)?v.join(", "):String(v??"");
-  if(!val || val==="Nein" || val.startsWith("Unbekannt") || val.startsWith("Unsicher")) return "";
+  if(!val) return "";
+  // Sicherheits-/Zugangsinformationen sind auch bei einer negativen Antwort wichtig.
+  if(text.includes("frei zugänglich")) return val==="Ja"?"Patient frei zugänglich":val.startsWith("Nein")?"Patient nicht frei zugänglich":"Zugang: "+val;
+  if(text.includes("wach und ansprechbar")) return val==="Ja"?"wach und ansprechbar":val.startsWith("Nein")?"nicht wach/kaum ansprechbar":"Wachheit/Ansprechbarkeit: "+val;
+  if(text.includes("täter noch vor ort")) return val==="Ja"?"Möglicher Täter noch vor Ort":"Möglicher Täter nicht mehr vor Ort";
+  if(text.includes("nicht einvernehmlich")) return val==="Ja"?"Sexueller Übergriff nicht einvernehmlich / Zwang angegeben":"Einvernehmlichkeit laut Abfrage: "+val;
+  if(text.includes("stromquelle sicher abgeschaltet")) return val==="Ja"?"Stromquelle sicher abgeschaltet":val.startsWith("Nein")?"Stromquelle nicht sicher abgeschaltet":"Stromabschaltung: "+val;
+  if(text.includes("starke oder nicht kontrollierbare blutung")) return val==="Ja"?"Starke/nicht kontrollierbare Blutung":`Blutung: ${val}`;
+  if(text.includes("atemprobleme")||text.includes("zunehmende atemnot")) return val==="Ja"?"Dyspnoe / Atemnot":`Atmung: ${val}`;
+  if(text.includes("starke oder zunehmende schmerzen")) return val==="Ja"?"Starke/zunehmende Schmerzen":`Schmerz: ${val}`;
+  if(val==="Nein" || val.startsWith("Unbekannt") || val.startsWith("Unsicher")) return "";
   if(text.includes("brustschmerz")) return val==="Ja"?"Brustschmerz":`Brustschmerz: ${val}`;
   if(text.includes("atemnot")||text.includes("atemprobleme")||text.includes("genügend luft")||text.includes("normal zu sprechen")) return val==="Ja"?"Dyspnoe / Atemnot":`Atmung/Sprechen: ${val}`;
   if(text.includes("wach")&&text.includes("ansprech")) return val==="Ja"?"wach und ansprechbar":"nicht wach/ansprechbar";
@@ -433,6 +945,24 @@ function dispatchAnswerFact(q,v){
   if(text.includes("reagiert langsam")) return val==="Ja"?"verlangsamte Reaktion / verändert":"";
   if(text.includes("kopfschmerz")) return val==="Ja"?"Kopfschmerz":`Kopfschmerz: ${val}`;
   if(text.includes("suizid")||text.includes("umbringen")) return val==="Ja"?"Suizidabsicht / Selbstgefährdung":"";
+  if(text.includes("wie kam es zu der verletzung")) return `Unfallmechanismus: ${val}`;
+  if(text.includes("um welches tier")) return `Tier: ${val}`;
+  if(text.includes("wo wurde die person durch das tier")) return `Verletzungsort: ${val}`;
+  if(text.includes("tier noch vor ort")) return val==="Ja"?"Tier weiterhin vor Ort / Gefahr für Einsatzkräfte":`Tier vor Ort: ${val}`;
+  if(text.includes("stromart")||text.includes("stromquelle")) return `Stromquelle: ${val}`;
+  if(text.includes("stromquelle sicher abgeschaltet")) return val==="Ja"?"Stromquelle sicher abgeschaltet":`Stromquelle nicht sicher abgeschaltet: ${val}`;
+  if(text.includes("strommarken")||text.includes("verbrennungen")) return `Strommarken/Verbrennungen: ${val}`;
+  if(text.includes("täter noch vor ort")) return val==="Ja"?"Möglicher Täter noch vor Ort":"Möglicher Täter nicht mehr vor Ort";
+  if(text.includes("nicht einvernehmlich")) return val==="Ja"?"Sexueller Übergriff nicht einvernehmlich / Zwang angegeben":"Einvernehmlichkeit laut Abfrage: ${val}";
+  if(text.includes("welche besondere unfallmechanik")) return `Unfallmechanik: ${val}`;
+  if(text.includes("eingeklemmt oder im fahrzeug")) return val==="Ja"?"Person eingeklemmt/eingeschlossen":"Keine Einklemmung angegeben";
+  if(text.includes("welche art der verletzung liegt vor")) return `Exposition/Verletzungsart: ${val}`;
+  if(text.includes("gefahrenquelle noch vorhanden")) return val==="Ja"?"Weitere Expositionsgefahr vorhanden":`Weitere Expositionsgefahr: ${val}`;
+  if(text.includes("wo befindet sich die stich")) return `Stich-/Pfählungsverletzung: ${val}`;
+  if(text.includes("aus welcher höhe")) return `Sturzhöhe/-mechanik: ${val}`;
+  if(text.includes("weitere verletzungen, beschwerden")) return val==="Ja"?"Weitere Verletzungen/Beschwerden vorhanden":`Weitere Verletzungen/Beschwerden: ${val}`;
+  if(text.includes("starke oder zunehmende schmerzen")) return val==="Ja"?"Starke/zunehmende Schmerzen":"Keine starken/zunehmenden Schmerzen angegeben";
+  if(text.includes("starke oder nicht kontrollierbare blutung")) return val==="Ja"?"Starke/nicht kontrollierbare Blutung":"Keine starke/nicht kontrollierbare Blutung angegeben";
   if(text.includes("warum ist der patient nicht frei zugänglich")) return `Zugang erschwert: ${val}`;
   if(text.includes("sturz")||text.includes("abgestürzt")||text.includes("eingeklemmt")||text.includes("eingeschlossen")||text.includes("verschlossene wohnung")||text.includes("verschüttet")||text.includes("höhe")) return `${q.text.replace(/\?$/,"")}: ${val}`;
   if(val==="Ja") return q.text.replace(/\?$/,"");

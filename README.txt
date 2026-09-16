@@ -1,7 +1,7 @@
-NABS V46
-Ergänzung gegenüber V45:
-- NEF-/Notarzt-Regeln werden ohne manuelle Regel-ID gepflegt.
-- Beim Anlegen erzeugt NABS die interne Regel-ID automatisch.
-- In der Auswahl werden verständliche Begründung und zugehörige Frage angezeigt, nicht die technische ID.
-- Bearbeiten und Löschen bestehender Regeln funktionieren weiterhin über die Auswahl.
-- V45-Einsatztext, NEF-Logik und übrige Funktionen bleiben erhalten.
+NABS V47
+NEF-Verwaltung bedienbar gemacht:
+- Frage- und Antwortauswahl werden sofort aus dem lokalen Grundkatalog gefüllt.
+- Firebase-Verbindung darf die Auswahl nicht mehr leer lassen.
+- Auch ohne bestehende NEF-Regeln kann eine neue Regel vorbereitet werden.
+- Speichern/Löschen in Firebase bleibt aus Sicherheitsgründen nur für Administratoren möglich.
+- Bestehende V46-Funktionen bleiben erhalten.

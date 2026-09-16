@@ -224,10 +224,27 @@ function build(){
 }
 
 async function load(){
+  /* V47: Lokalen Grundkatalog sofort bereitstellen. Firebase darf die Bedienoberfläche
+     nicht blockieren und darf auch nicht verhindern, dass die NEF-Auswahl gefüllt wird. */
+  if(!catalog){
+    catalog={...defaults.catalog};
+    try{
+      renderSelect(editingId);
+      renderNefQuestions();
+      renderNefList();
+    }catch(e){}
+  }
   setStatus('Verbinde mit Firebase …');
   let a=authState();
   if(!a.token){try{a=await anonymous();}catch(e){/* Admin kann sich trotzdem anmelden. */}}
-  if(!a?.token){setStatus('● Nicht angemeldet – bitte Administrator anmelden');catalog=null;renderEmpty();return;}
+  if(!a?.token){
+    setStatus('● Lokaler Grundkatalog – für Änderungen bitte Administrator anmelden');
+    /* Katalog bleibt lokal verfügbar; nur Firebase-Speichern benötigt Admin-Rechte. */
+    renderSelect(editingId);
+    renderNefQuestions();
+    renderNefList();
+    return;
+  }
   try{
     const remote=await read('catalog');
     try{notarztRules=await read('notarzt_rules')||{};}catch(e){notarztRules={};}
@@ -238,7 +255,14 @@ async function load(){
     setStatus(a.admin?'● Firebase – Administrator angemeldet':'● Firebase verbunden – Lesemodus');
     renderSelect(editingId);
     renderNefList();
-  }catch(e){setStatus('⚠️ Firebase-Lesen fehlgeschlagen');catalog=null;renderEmpty();msg(e.message);}
+  }catch(e){
+    setStatus('⚠️ Firebase-Lesen fehlgeschlagen – lokaler Grundkatalog aktiv');
+    catalog={...defaults.catalog};
+    renderSelect(editingId);
+    renderNefQuestions();
+    renderNefList();
+    msg('Firebase ist derzeit nicht erreichbar. Der lokale Fragenkatalog bleibt bedienbar; zum Speichern bitte Administrator anmelden.');
+  }
 }
 function renderEmpty(){
   $('questionSelect').innerHTML='<option>Keine Daten geladen</option>';
@@ -262,7 +286,15 @@ $('loginBtn').onclick=async()=>{
   try{await login(email,pw);setStatus('● Firebase – Administrator angemeldet');msg('✓ Anmeldung erfolgreich.');await load();}
   catch(e){alert('Anmeldung fehlgeschlagen: '+e.message);setStatus('⚠️ Anmeldung fehlgeschlagen');}
 };
-$('logoutBtn').onclick=()=>{logout();setStatus('● Abgemeldet');catalog=null;renderEmpty();msg('Abgemeldet.');};
+$('logoutBtn').onclick=()=>{
+  logout();
+  catalog={...defaults.catalog};
+  setStatus('● Abgemeldet – lokaler Grundkatalog aktiv');
+  renderSelect(editingId);
+  renderNefQuestions();
+  renderNefList();
+  msg('Abgemeldet. Änderungen in Firebase benötigen Administrator-Anmeldung.');
+};
 $('seed').onclick=async()=>{
   const a=authState();
   if(!a.admin){msg('⚠️ Bitte zuerst als Administrator anmelden.');return;}

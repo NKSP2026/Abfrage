@@ -655,6 +655,11 @@ function strokeIndicated(){
 }
 function visible(q){
   if(String(q?.id||"").startsWith("stroke_")&&!strokeIndicated()) return false;
+  // Die Körperkarte gehört bei Verbrennung/Verbrühung/Verätzung direkt zum
+  // gewählten Verletzungsmuster. Sie darf deshalb auch ohne vorherige
+  // "Verletzungsart"-Antwort sichtbar werden. Bei allen anderen Mustern
+  // bleibt die normale Abhängigkeit von verletzung_v51_muster bestehen.
+  if(q?.id==="verletzung_v51_koerperkarte" && isBurnMechanism()) return true;
   if(q.whenQuestion && q.whenQuestion==="med_grund" && q.whenValue==="Verletzung" && answers.med_grund==="Arbeits- / Betriebs- / Schulunfall") { /* gleicher Verletzungspfad */ } else if(q.whenQuestion&&!matches(answers[q.whenQuestion],q.whenValue)) return false;
   if(q.skipWhenQuestion&&matches(answers[q.skipWhenQuestion],q.skipWhenValue)) return false;
   if(q.whenAll&&!q.whenAll.every(condition)) return false;
@@ -697,36 +702,76 @@ function medicalBranchCount(){
   return Object.keys(answers).filter(id=>ids.has(id) && !["med_wem","med_personen","med_spricht","med_demografie","med_grund","verdachtsdiagnose"].includes(id)).length;
 }
 function nextQuestion(){
-  // Verletzungspfad: Körperkarten und alle relevanten Verletzungsfragen
-  // müssen vor der Verdachtsdiagnose abgearbeitet werden.
+  // Verletzungspfad: erst Unfallmechanismus, danach das passende
+  // Verletzungsmuster und anschließend die Körperkarte.
+  // Verbrennung/Verbrühung/Verätzung ist bereits durch den Mechanismus
+  // eindeutig und geht deshalb direkt zur Körperflächenkarte.
   if(category==="medizin" && isInjuryReason()){
-    // Nach Abschluss der Verdachtsdiagnose darf der Verletzungspfad nicht
-    // erneut dieselbe Diagnosefrage liefern. Sonst landet "Weiter" wieder
-    // auf dem Eingabefeld.
     if(answers.verdachtsdiagnose!==undefined) return null;
+
     const injuryQs=questions().filter(q=>visible(q)&&answers[q.id]===undefined && q.id!=="verdachtsdiagnose");
     const mech=String(answers.verletzung_v49_mechanismus||"");
-    let priorityIds=["verletzung_v49_mechanismus"];
-    if(["Verbrennung / Verbrühung","Verätzungen"].includes(mech)){
-      priorityIds.push("verletzung_v51_koerperkarte");
-    } else if(mech==="Tierbisse / Tierstiche"){
-      priorityIds.push("verletzung_v49_tierart","verletzung_v49_tierort","verletzung_v49_tiergefahr","verletzung_v51_koerperkarte");
-    } else if(mech==="Stromunfall" || mech==="Blitzschlag"){
-      priorityIds.push("verletzung_v49_stromart","verletzung_v49_stromfrei","verletzung_v49_stromverbrennung","verletzung_v51_koerperkarte");
-    } else if(mech==="Stich- / Pfählungsverletzung"){
-      priorityIds.push("verletzung_v49_stichort","verletzung_v51_koerperkarte");
-    } else if(mech==="Schnittverletzung"){
-      priorityIds.push("verletzung_v51_koerperkarte");
-    } else if(mech==="Vergewaltigung / sexueller Übergriff"){
-      priorityIds.push("verletzung_v49_taeter","verletzung_v49_einvernehmlich","verletzung_v49_sexverletzung","verletzung_v51_muster","verletzung_v51_koerperkarte");
-    } else {
-      priorityIds.push("verletzung_v51_muster","verletzung_v51_koerperkarte");
+
+    // 1) Mechanismus immer zuerst.
+    if(!mech){
+      return injuryQs.find(q=>q.id==="verletzung_v49_mechanismus") || null;
     }
-    priorityIds.push("verletzung_v49_lokalisation","verletzung_v49_vuenergie","verletzung_v49_vueingeklemmt","verletzung_v49_exposition","verletzung_v49_expositionsquelle","verletzung_v49_sturzhoehe","verletzung_v49_blutung","verletzung_v49_atmung","verletzung_v49_bewusstsein","verletzung_v49_schmerz","verletzung_v49_weitere","verletzung_v49_zugang","verletzung_v49_zugang_grund");
-    for(const id of priorityIds){ const q=injuryQs.find(x=>x.id===id); if(q) return q; }
+
+    // 2) Verbrennung/Verbrühung/Verätzung: keine fremden
+    // Verletzungsarten abfragen – direkt Körperkarte.
+    if(["Verbrennung / Verbrühung","Verätzungen"].includes(mech)){
+      const map=injuryQs.find(q=>q.id==="verletzung_v51_koerperkarte");
+      if(map) return map;
+    }
+
+    // 3) Bestimmte Mechanismen haben bereits ein eindeutiges Muster.
+    // Dadurch werden z.B. bei Stromunfall oder Tierbiss keine unpassenden
+    // Fraktur-/Verbrennungsoptionen angeboten.
+    const directPattern={
+      "Stromunfall":"Elektrische Verletzung / Strommarke",
+      "Blitzschlag":"Elektrische Verletzung / Strommarke",
+      "Tierbisse / Tierstiche":"Biss- / Stichverletzung",
+      "Stich- / Pfählungsverletzung":"Stich- / Pfählungsverletzung",
+      "Schnittverletzung":"Schnitt- / Riss- / Platzwunde",
+      "Verbrennung / Verbrühung":"Verbrennung / Verbrühung / Verätzung",
+      "Verätzungen":"Verbrennung / Verbrühung / Verätzung"
+    };
+    const direct=directPattern[mech];
+    if(direct && answers.verletzung_v51_muster===undefined){
+      answers.verletzung_v51_muster=direct;
+    }
+
+    // 4) Wenn das Verletzungsmuster noch nicht feststeht, gezielt danach fragen.
+    if(answers.verletzung_v51_muster===undefined){
+      const pattern=injuryQs.find(q=>q.id==="verletzung_v51_muster");
+      if(pattern) return pattern;
+    }
+
+    // 5) Danach immer die Körperkarte, soweit das gewählte Muster eine
+    // Lokalisierung sinnvoll macht. Keine "Unbekannt/keine Angabe"-Option.
+    const map=injuryQs.find(q=>q.id==="verletzung_v51_koerperkarte");
+    if(map) return map;
+
+    // 6) Danach die restlichen relevanten Verletzungsfragen in sinnvoller Reihenfolge.
+    const priorityIds=[
+      "verletzung_v49_tierart","verletzung_v49_tierort","verletzung_v49_tiergefahr",
+      "verletzung_v49_stromart","verletzung_v49_stromfrei","verletzung_v49_stromverbrennung",
+      "verletzung_v49_taeter","verletzung_v49_einvernehmlich","verletzung_v49_sexverletzung","verletzung_v49_sexakut",
+      "verletzung_v49_lokalisation","verletzung_v49_vuenergie","verletzung_v49_vueingeklemmt",
+      "verletzung_v49_exposition","verletzung_v49_expositionsquelle","verletzung_v49_expositionsbereich",
+      "verletzung_v49_stichort","verletzung_v49_sturzhoehe","verletzung_v49_blutung",
+      "verletzung_v49_atmung","verletzung_v49_bewusstsein","verletzung_v49_schmerz",
+      "verletzung_v49_weitere","verletzung_v49_allergie","verletzung_v49_stromsymptome",
+      "verletzung_v49_vublutung","verletzung_v49_zugang","verletzung_v49_zugang_grund"
+    ];
+    for(const id of priorityIds){
+      const q=injuryQs.find(x=>x.id===id);
+      if(q) return q;
+    }
     const diagnosis=Object.values(data.catalog?.medizin||{}).find(q=>q.id==="verdachtsdiagnose");
-    return diagnosis||injuryQs[0]||null;
+    return diagnosis||null;
   }
+
   const qs=questions().filter(q=>visible(q)&&answers[q.id]===undefined);
   if(!qs.length)return null;
   const diagnosis=qs.find(q=>q.id==="verdachtsdiagnose");
@@ -740,6 +785,7 @@ function nextQuestion(){
   const pool=category==="medizin" ? others : (steps>=10?others.filter(q=>!isBackgroundQuestion(q)):others);
   return pool[0]||diagnosis||null;
 }
+
 function pushHistory(){history.push({answers:structuredClone(answers),steps,reaShown});}
 function updateDuration(){
   const sec=Math.max(0,Math.floor((Date.now()-startTime)/1000));

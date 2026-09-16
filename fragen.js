@@ -5,6 +5,7 @@ const $ = id => document.getElementById(id);
 const categories = ['medizin','brand','thl','abc'];
 let catalog = null;
 let editingId = null;
+let notarztRules = {};
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
 function setStatus(text){$('status').textContent=text;}
@@ -24,6 +25,20 @@ function questions(){
 }
 function questionLabel(q){return `${q.__category ? categoryLabel(q.__category)+' – ' : ''}${q.id} – ${q.text}`;}
 function categoryLabel(cat){return ({medizin:'🚑 Medizin',brand:'🔥 Brand',thl:'🛠️ THL',abc:'☣️ ABC'})[cat]||cat;}
+
+function parseDispatchMap(text){
+  const out={};
+  for(const line of String(text||"").split(/\r?\n/)){
+    const i=line.indexOf("=");
+    if(i<0) continue;
+    const key=line.slice(0,i).trim(), value=line.slice(i+1).trim();
+    if(key&&value) out[key]=value;
+  }
+  return out;
+}
+function formatDispatchMap(map){
+  return Object.entries(map||{}).map(([k,v])=>`${k} = ${v}`).join("\n");
+}
 
 function conditionSummary(q){
   const c=[];
@@ -146,6 +161,7 @@ function edit(id){
   $('options').value=Array.isArray(q.options)?q.options.join('\n'):'';
   $('suggestionGroup').value=q.suggestionGroup||'';
   $('placeholder').value=q.placeholder||'';
+  $('dispatchMap').value=formatDispatchMap(q.dispatchTextMap);
   $('allowEmpty').checked=!!q.allowEmpty;
   updateOptionsVisibility();
   loadConditionIntoForm(q);
@@ -155,7 +171,7 @@ function edit(id){
 
 function clearForm(showMessage=true){
   editingId=null;
-  ['id','text','options','suggestionGroup','placeholder'].forEach(id=>$(id).value='');
+  ['id','text','options','suggestionGroup','placeholder','dispatchMap'].forEach(id=>$(id).value='');
   $('order').value=100;$('type').value='choice';$('allowEmpty').checked=false;
   $('conditionMode').value='always';setConditionMode('always');
   updateOptionsVisibility();
@@ -202,6 +218,7 @@ function build(){
   Object.assign(q,conditionData());
   if($('suggestionGroup').value.trim())q.suggestionGroup=$('suggestionGroup').value.trim();
   if($('placeholder').value)q.placeholder=$('placeholder').value;
+  const dispatchMap=parseDispatchMap($('dispatchMap').value); if(Object.keys(dispatchMap).length)q.dispatchTextMap=dispatchMap;
   if($('allowEmpty').checked)q.allowEmpty=true;
   return q;
 }
@@ -213,12 +230,14 @@ async function load(){
   if(!a?.token){setStatus('● Nicht angemeldet – bitte Administrator anmelden');catalog=null;renderEmpty();return;}
   try{
     const remote=await read('catalog');
+    try{notarztRules=await read('notarzt_rules')||{};}catch(e){notarztRules={};}
     catalog={...defaults.catalog};
     if(remote && remote._meta && Number(remote._meta.schemaVersion)>=CATALOG_SCHEMA_VERSION){
       for(const cat of categories)if(remote[cat]&&typeof remote[cat]==='object')catalog[cat]=remote[cat];
     }
     setStatus(a.admin?'● Firebase – Administrator angemeldet':'● Firebase verbunden – Lesemodus');
     renderSelect(editingId);
+    renderNefList();
   }catch(e){setStatus('⚠️ Firebase-Lesen fehlgeschlagen');catalog=null;renderEmpty();msg(e.message);}
 }
 function renderEmpty(){
@@ -277,4 +296,71 @@ $('delete').onclick=async()=>{
   }catch(e){msg('⚠️ '+e.message);}
 };
 
+
+let editingNefRuleId="";
+
+function nefQuestions(){
+  return allQuestions().filter(q=>q.__category==="medizin" || q.__category==="brand" || q.__category==="thl" || q.__category==="abc");
+}
+function renderNefQuestionOptions(questionId,value){
+  const q=allQuestions().find(x=>x.id===questionId);
+  const opts=q?.options||[];
+  $('nefValue').innerHTML=opts.length?opts.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join(''):'<option value="">Keine Auswahl</option>';
+  if(value!==undefined && value!==null) $('nefValue').value=String(value);
+}
+function renderNefQuestions(questionId,value){
+  const qs=nefQuestions();
+  $('nefQuestion').innerHTML=qs.map(q=>`<option value="${esc(q.id)}">${esc(questionLabel(q))}</option>`).join('');
+  if(questionId && qs.some(q=>q.id===questionId)) $('nefQuestion').value=questionId;
+  renderNefQuestionOptions($('nefQuestion').value,value);
+}
+function renderNefList(selectId){
+  const entries=Object.values(notarztRules||{}).filter(r=>r&&r.questionId);
+  $('nefRuleSelect').innerHTML=entries.length?entries.map(r=>`<option value="${esc(r.id||'')}">${esc(r.reason||'NEF-/Notarzt-Kriterium')} – ${esc(questionLabel(allQuestions().find(q=>q.id===r.questionId)||{text:r.questionId}))}</option>`).join(''):'<option value="">Keine NEF-Regeln geladen</option>';
+  if(selectId && entries.some(r=>(r.id||"")===selectId)) $('nefRuleSelect').value=selectId;
+  const r=entries.find(x=>(x.id||"")===$('nefRuleSelect').value);
+  if(r){
+    editingNefRuleId=r.id||'';
+    $('nefId').value=editingNefRuleId;
+    $('nefQuestion').value=r.questionId||'';
+    renderNefQuestionOptions(r.questionId,r.value??r.values);
+    $('nefReason').value=r.reason||'';
+  }
+}
+function clearNefForm(){
+  editingNefRuleId='';
+  $('nefId').value='';
+  $('nefReason').value='';
+  renderNefQuestions();
+  $('nefMessage').textContent='Neue NEF-Regel – Frage und auslösende Antwort auswählen. Die Regel-ID wird automatisch erzeugt.';
+}
+$('nefQuestion').onchange=()=>renderNefQuestionOptions($('nefQuestion').value,'');
+$('nefRuleSelect').onchange=()=>renderNefList($('nefRuleSelect').value);
+$('nefNew').onclick=clearNefForm;
+$('nefSave').onclick=async()=>{
+  try{
+    const a=authState(); if(!a.admin) throw Error('Bitte zuerst als Administrator anmelden.');
+    const questionId=$('nefQuestion').value, value=$('nefValue').value, reason=$('nefReason').value.trim();
+    if(!questionId||!value||!reason) throw Error('Bitte Frage, auslösende Antwort und Begründung ausfüllen.');
+    const id=editingNefRuleId || `nef_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+    const rule={id,category:(allQuestions().find(q=>q.id===questionId)?.__category||'medizin'),questionId,value,reason};
+    await write(`notarzt_rules/${id}`,rule);
+    notarztRules=await read('notarzt_rules')||{};
+    $('nefMessage').textContent='✓ NEF-/Notarzt-Regel gespeichert.';
+    renderNefList(id);
+  }catch(e){$('nefMessage').textContent='⚠️ '+e.message;}
+};
+$('nefDelete').onclick=async()=>{
+  try{
+    const a=authState(); if(!a.admin) throw Error('Bitte zuerst als Administrator anmelden.');
+    const id=editingNefRuleId; if(!id) throw Error('Bitte zuerst eine bestehende NEF-Regel auswählen.');
+    const selected=$('nefRuleSelect').selectedOptions?.[0]?.textContent||'diese NEF-Regel';
+    if(!confirm(`${selected}\n\nWirklich löschen?`))return;
+    await write(`notarzt_rules/${id}`,null);
+    editingNefRuleId='';
+    notarztRules=await read('notarzt_rules')||{};
+    $('nefMessage').textContent='✓ NEF-/Notarzt-Regel gelöscht.';
+    renderNefList();
+  }catch(e){$('nefMessage').textContent='⚠️ '+e.message;}
+};
 (async()=>{updateOptionsVisibility();setConditionMode('always');await load();})();

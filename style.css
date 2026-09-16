@@ -198,3 +198,10 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
   .abfrage-page .persistent-actions{gap:6px;padding:7px;}
   .abfrage-page .persistent-actions button{min-height:48px;font-size:.9rem;padding:10px 7px;}
 }
+
+/* V45 – NEF-Regelverwaltung und Einsatztext-Antworten */
+#nefRulesCard .form-grid{align-items:end}
+#dispatchMap{min-height:120px}
+@media(max-width:700px){
+  #nefRulesCard .nav-row{display:grid;grid-template-columns:1fr}
+}

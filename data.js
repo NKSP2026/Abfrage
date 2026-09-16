@@ -19991,6 +19991,12 @@ export const defaults = {
       "value": "Atemnot / erschwert",
       "reason": "Atemnot / erschwerte Atmung"
     },
+    "direct_dyspnea_atem_01": {
+      "category": "medizin",
+      "questionId": "atem_01",
+      "value": "Ja",
+      "reason": "Aktuelle Dyspnoe / deutliche Atemnot"
+    },
     "cyanosis": {
       "category": "medizin",
       "questionId": "sauerstoffzeichen",

@@ -101,6 +101,9 @@
       <label>Platzhalter
         <input id="placeholder" placeholder="Bitte hier eingeben …">
       </label>
+      <label class="wide">Einsatztext je Antwort <span class="hint">(optional: eine Zeile pro Antwort, Format: Antwort = Formulierung)</span>
+        <textarea id="dispatchMap" rows="5" placeholder="Ja = Dyspnoe / Atemnot&#10;Nein = keine Atemnot angegeben&#10;Unsicher (kann nicht beurteilt werden) = Atemsituation unklar"></textarea>
+      </label>
       <label class="check"><input id="allowEmpty" type="checkbox"> Leere Antwort erlauben</label>
     </div>
   </details>
@@ -113,6 +116,32 @@
   <p id="message" class="hint"></p>
 </section>
 
+
+<section class="card" id="nefRulesCard">
+  <h2>⚕️ NEF-/Notarzt-Regeln verwalten</h2>
+  <p class="hint">Hier legst du selbst fest, welche Antwort ein hinterlegtes NEF-/Notarzt-Kriterium auslöst. Die Regeln werden separat in Firebase gespeichert und können später geändert oder gelöscht werden.</p>
+  <div class="form-grid">
+    <label>Regel auswählen
+      <select id="nefRuleSelect"></select>
+    </label>
+    <input id="nefId" type="hidden" value="">
+    <label>Frage
+      <select id="nefQuestion"></select>
+    </label>
+    <label>Antwort, die NEF auslöst
+      <select id="nefValue"></select>
+    </label>
+    <label class="wide">Begründung / Indikationshinweis
+      <input id="nefReason" placeholder="z.B. Aktuelle deutliche Atemnot">
+    </label>
+  </div>
+  <div class="nav-row" style="margin-top:14px">
+    <button id="nefSave">💾 NEF-Regel speichern</button>
+    <button id="nefNew" class="secondary">＋ Neue NEF-Regel</button>
+    <button id="nefDelete" class="secondary">🗑️ NEF-Regel löschen</button>
+  </div>
+  <p id="nefMessage" class="hint"></p>
+</section>
 <section class="card"><h2>Fragen im aktuellen Zweig</h2><div id="list"></div></section>
 </main>
 <script type="module" src="fragen.js?v=20260915v22"></script>

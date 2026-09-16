@@ -492,6 +492,14 @@ const injurySupplementQuestions = {
       "Verätzungen"
     ]
   }
+  "verletzung_v50_koerperflaeche": {
+    "id": "verletzung_v50_koerperflaeche",
+    "text": "Welche Körperflächen sind durch Verbrennung, Verbrühung oder Verätzung betroffen?",
+    "type": "burnmap",
+    "order": 9687,
+    "whenQuestion": "verletzung_v49_mechanismus",
+    "whenValue": ["Verbrennung / Verbrühung", "Verätzungen"]
+  },
 };
 
 function normalizeChoiceOptions(q){
@@ -697,7 +705,10 @@ function diagnosisSuggestion(){
     if(m==="Stich- / Pfählungsverletzung") return {primary:"Penetrierende Verletzung / Stich- oder Pfählungstrauma möglich",alternatives:["Weichteilverletzung","Andere Verletzungsfolge"]};
     if(m==="Verkehrsunfall") return {primary:"Verkehrsunfall mit Verletzung – Unfallmechanik gemäß Abfrage",alternatives:["Mehrfachverletzung möglich","Andere Unfallfolge"]};
     if(m==="Vergewaltigung / sexueller Übergriff") return {primary:"Mögliche Verletzungsfolge nach sexuellem Übergriff",alternatives:["Akute Verletzung","Psychische Belastungsreaktion / weitere Abklärung"]};
-    if(m==="Verbrennung / Verbrühung" || m==="Verätzungen") return {primary:"Thermische / chemische Verletzung möglich",alternatives:["Verbrennung / Verbrühung","Verätzung"]};
+    if(m==="Verbrennung / Verbrühung" || m==="Verätzungen") {
+      const vk=Array.isArray(answers.verletzung_v50_koerperflaeche)?burnMapValue(new Set(answers.verletzung_v50_koerperflaeche)):0;
+      return {primary:`${m} – betroffene Körperoberfläche ca. ${vk.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})} %`,alternatives:["Thermische Verletzung / Verbrennung","Verbrühung / Verätzung"]};
+    }
     return {primary:"Akute Verletzung / Trauma – Schweregrad gemäß Abfrage",alternatives:["Kopf-/Wirbelsäulentrauma","Extremitäten-/Weichteilverletzung"]};
   }
   if(g==="Hitze- / Kälteprobleme") return {primary:"Akute Temperatur-/Expositionsstörung",alternatives:["Überwärmung","Unterkühlung"]};
@@ -720,6 +731,53 @@ function updatePhase(){
   if(el) el.textContent=phaseText();
 }
 
+const burnMapRegions=[
+  {id:"front_head",label:"Kopf / Hals – vorne",side:"Vorderseite",total:4.5,count:9,cls:"front-head"},
+  {id:"front_arm_l",label:"Linker Arm – vorne",side:"Vorderseite",total:4.5,count:9,cls:"front-arm-l"},
+  {id:"front_arm_r",label:"Rechter Arm – vorne",side:"Vorderseite",total:4.5,count:9,cls:"front-arm-r"},
+  {id:"front_trunk",label:"Rumpf – vorne",side:"Vorderseite",total:18,count:36,cls:"front-trunk"},
+  {id:"front_leg_l",label:"Linkes Bein – vorne",side:"Vorderseite",total:9,count:18,cls:"front-leg-l"},
+  {id:"front_leg_r",label:"Rechtes Bein – vorne",side:"Vorderseite",total:9,count:18,cls:"front-leg-r"},
+  {id:"front_perineum",label:"Genital / Damm – vorne",side:"Vorderseite",total:0.5,count:1,cls:"front-perineum"},
+  {id:"back_head",label:"Kopf / Hals – hinten",side:"Rückseite",total:4.5,count:9,cls:"back-head"},
+  {id:"back_arm_l",label:"Linker Arm – hinten",side:"Rückseite",total:4.5,count:9,cls:"back-arm-l"},
+  {id:"back_arm_r",label:"Rechter Arm – hinten",side:"Rückseite",total:4.5,count:9,cls:"back-arm-r"},
+  {id:"back_trunk",label:"Rumpf – hinten",side:"Rückseite",total:18,count:36,cls:"back-trunk"},
+  {id:"back_leg_l",label:"Linkes Bein – hinten",side:"Rückseite",total:9,count:18,cls:"back-leg-l"},
+  {id:"back_leg_r",label:"Rechtes Bein – hinten",side:"Rückseite",total:9,count:18,cls:"back-leg-r"},
+  {id:"back_perineum",label:"Genital / Damm – hinten",side:"Rückseite",total:0.5,count:1,cls:"back-perineum"}
+];
+function burnMapValue(selected){return [...selected].reduce((sum,key)=>{const n=Number(String(key).split("|").pop());return sum+(Number.isFinite(n)?n:0);},0);}
+function renderBurnMapQuestion(q,area){
+  const selected=new Set(Array.isArray(answers[q.id])?answers[q.id]:[]);
+  const box=document.createElement("div");box.className="burn-map-box";
+  box.innerHTML=`<div class="burn-map-note"><b>🔥 Körperflächen-Auswahl</b><br>Mehrere kleine Felder können gleichzeitig ausgewählt werden. Die Karte dient der orientierenden prähospitalen Abschätzung der betroffenen Körperoberfläche. Bei Erwachsenen wird die Neunerregel orientierend in kleine Teilflächen aufgeteilt; bei Kindern sind altersabhängige Verfahren (z. B. Lund-Browder) genauer.</div><div class="burn-map-summary">Ausgewählt: <strong id="burnMapPercent">0,0 %</strong> VKOF</div><div class="burn-map-stage"><img src="koerperkarte_verbrennung.jpg" alt="Körperkarte Vorder- und Rückseite"><div class="burn-map-hotspots"></div></div><div class="burn-map-regions"></div>`;
+  const stage=box.querySelector('.burn-map-hotspots');
+  const regionsBox=box.querySelector('.burn-map-regions');
+  const summary=box.querySelector('#burnMapPercent');
+  const renderSummary=()=>{summary.textContent=burnMapValue(selected).toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})+' %';};
+  const addRegion=(r)=>{
+    const wrap=document.createElement('div');wrap.className='burn-region';
+    const head=document.createElement('div');head.className='burn-region-title';head.textContent=`${r.label} · ${r.total.toLocaleString('de-DE',{maximumFractionDigits:1})} % gesamt`;
+    const grid=document.createElement('div');grid.className='burn-cell-grid';
+    for(let i=1;i<=r.count;i++){
+      const val=r.total/r.count;
+      const key=`${r.id}|${i}|${val}`;
+      const b=document.createElement('button');b.type='button';b.className='burn-cell';b.textContent=val.toLocaleString('de-DE',{maximumFractionDigits:1})+'%';
+      if(selected.has(key)) b.classList.add('selected');
+      b.title=`${r.label}: ${val.toLocaleString('de-DE',{maximumFractionDigits:1})} %`;
+      b.onclick=()=>{if(selected.has(key)){selected.delete(key);b.classList.remove('selected')}else{selected.add(key);b.classList.add('selected')} answers[q.id]=[...selected];renderSummary();};
+      grid.appendChild(b);
+    }
+    wrap.append(head,grid);regionsBox.appendChild(wrap);
+  };
+  burnMapRegions.forEach(addRegion);
+  renderSummary();
+  const actions=document.createElement('div');actions.className='free-actions';
+  const clear=document.createElement('button');clear.className='secondary unknown-btn';clear.textContent='Auswahl löschen';clear.onclick=()=>{selected.clear();answers[q.id]=[];regionsBox.querySelectorAll('.burn-cell.selected').forEach(x=>x.classList.remove('selected'));renderSummary();};
+  const next=document.createElement('button');next.className='next-free';next.textContent='Weiter →';next.onclick=()=>{pushHistory();answers[q.id]=[...selected];steps++;render();};
+  actions.append(next,clear);box.appendChild(actions);area.appendChild(box);
+}
 function render(){
   if(reaShown)return;
   // Zurück-Button bei jedem Rendern korrekt aktivieren/deaktivieren.
@@ -742,7 +800,9 @@ function render(){
     note.innerHTML="<b>🌡️ Fiebermanagement bei Kindern/Jugendlichen:</b> Die Temperaturhöhe allein ist kein Grund, Fieber zu senken. Entscheidend sind Befinden und Warnzeichen. Bei warmen Händen und Füßen und deutlichem Unwohlsein können körperwarme Wadenwickel erwogen werden; bei kalten Händen/Füßen, Frieren oder Schüttelfrost nicht kühlen.";
     area.appendChild(note);
   }
-  if(q.type==="choice"){
+  if(q.type==="burnmap") {
+    renderBurnMapQuestion(q,area);
+  } else if(q.type==="choice") {
     const wrap=document.createElement("div");
     const optionCount=(q.options||[]).filter(v=>String(v).trim()).length;
     wrap.className="answer-options"+(optionCount>=4?" answer-options-2col":"");
@@ -837,6 +897,7 @@ function evaluateNotarzt(){
     if(answers.neuro_01==="Ja"||answers.neuro_02==="Ja"||answers.neuro_05==="Ja"||answers.neuro_06==="Ja") reasons.push("Akute neurologische Auffälligkeit");
     if(answers.psyche_01==="Ja"||answers.psyche_04==="Ja") reasons.push("Akute Selbst-/Fremdgefährdung");
     if(answers.blutung_03==="Ja"||answers.blutung_25==="Ja") reasons.push("Starke / nicht kontrollierbare Blutung");
+    if(Array.isArray(answers.verletzung_v50_koerperflaeche) && burnMapValue(new Set(answers.verletzung_v50_koerperflaeche))>=10) reasons.push("Relevante thermische/chemische Verletzung – VKOF ab ca. 10 %");
     if(answers.geburt_07==="Ja"||answers.geburt_12==="Ja"||answers.geburt_19==="Ja") reasons.push("Akuter geburtshilflicher Hochrisikohinweis");
     if(answers.bauch_03==="Ja"&&answers.bauch_19==="Ja") reasons.push("Möglicher Ileus / akuter abdominaler Risikohinweis");
     if(answers.vergiftung_05==="Ja"||answers.vergiftung_06==="Ja"||answers.vergiftung_07==="Ja"||answers.vergiftung_24==="Ja") reasons.push("Schwere Intoxikationszeichen");
@@ -982,6 +1043,10 @@ function importantDispatchFacts(){
   if(answers.erkrankung_bd_02)facts.push(answers.erkrankung_bd_02);
   if(answers.deterioration)facts.push(`Verschlechterung: ${answers.deterioration}`);
   if(answers.verdachtsdiagnose)facts.push(`Verdachtsdiagnose: ${answers.verdachtsdiagnose}`);
+  if(Array.isArray(answers.verletzung_v50_koerperflaeche) && answers.verletzung_v50_koerperflaeche.length){
+    const vk=burnMapValue(new Set(answers.verletzung_v50_koerperflaeche));
+    facts.push(`Betroffene Körperoberfläche: ca. ${vk.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})} % VKOF`);
+  }
   if(answers.atemfrequenz)facts.push(`AF ${answers.atemfrequenz}`);
   const qs=questions();
   for(const [id,v] of Object.entries(answers)){

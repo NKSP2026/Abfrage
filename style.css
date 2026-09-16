@@ -205,3 +205,27 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 @media(max-width:700px){
   #nefRulesCard .nav-row{display:grid;grid-template-columns:1fr}
 }
+
+/* V50 – interaktive Körperflächenkarte für Verbrennung/Verbrühung/Verätzung */
+.burn-map-box{margin-top:10px}
+.burn-map-note{background:#10151f;border:1px solid #445168;border-radius:12px;padding:12px 14px;color:#cbd5e1;line-height:1.45;margin-bottom:10px}
+.burn-map-summary{position:sticky;top:8px;z-index:3;background:#18202d;border:1px solid #4b6280;border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:1.05rem}
+.burn-map-stage{position:relative;width:min(100%,760px);margin:0 auto;background:#444;border-radius:14px;overflow:hidden;border:1px solid #526174}
+.burn-map-stage img{display:block;width:100%;height:auto}
+.burn-map-hotspots{position:absolute;inset:0;pointer-events:none}
+.burn-map-regions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.burn-region{background:#18202d;border:1px solid #3f4c61;border-radius:12px;padding:10px}
+.burn-region-title{font-weight:800;margin-bottom:8px;color:#f1f5f9}
+.burn-cell-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+.burn-cell{min-height:38px;padding:5px 3px;border:1px solid #526174;border-radius:7px;background:#273244;color:#f8fafc;font-weight:700;font-size:.82rem;cursor:pointer;touch-action:manipulation}
+.burn-cell:hover{filter:brightness(1.08)}
+.burn-cell.selected{background:#1f6feb;border-color:#9ec5ff;box-shadow:0 0 0 2px #1f6feb55}
+@media(max-width:760px){
+  .burn-map-regions{grid-template-columns:1fr}
+  .burn-cell-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .burn-cell{min-height:36px;font-size:.76rem}
+}
+@media(max-width:390px){
+  .burn-cell-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+  .burn-cell{min-height:34px;font-size:.72rem}
+}

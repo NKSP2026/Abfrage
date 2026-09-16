@@ -1,4 +1,4 @@
-export const defaults = {
+export const defaults={
   "catalog": {
     "medizin": {
       "med_wem": {
@@ -17975,6 +17975,457 @@ export const defaults = {
         ],
         "whenQuestion": "erkrankung_apathie_01",
         "whenValue": "Ja"
+      },
+      "hitze_27": {
+        "id": "hitze_27",
+        "text": "Bestehen / haben Sie Brustschmerzen?",
+        "type": "choice",
+        "order": 9387,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "med_grund",
+        "whenValue": "Hitze- / Kälteprobleme"
+      },
+      "hitze_28": {
+        "id": "hitze_28",
+        "text": "Bekommt er/sie genügend Luft, um normal zu sprechen?",
+        "type": "choice",
+        "order": 9388,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "hitze_27",
+        "whenValue": "Nein"
+      },
+      "hitze_29": {
+        "id": "hitze_29",
+        "text": "Ist er/sie anders als sonst oder reagiert langsam?",
+        "type": "choice",
+        "order": 9389,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "hitze_28",
+        "whenValue": "Ja"
+      },
+      "kollaps_27": {
+        "id": "kollaps_27",
+        "text": "Bekommt er/sie genügend Luft, um normal zu sprechen?",
+        "type": "choice",
+        "order": 9427,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "med_grund",
+        "whenValue": "Kollaps / Kreislaufstörung"
+      },
+      "kollaps_28": {
+        "id": "kollaps_28",
+        "text": "Hat er/sie Brustschmerzen?",
+        "type": "choice",
+        "order": 9428,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "kollaps_27",
+        "whenValue": "Ja"
+      },
+      "kollaps_29": {
+        "id": "kollaps_29",
+        "text": "Bekommt er/sie genügend Luft, um normal zu sprechen?",
+        "type": "choice",
+        "order": 9429,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "kollaps_28",
+        "whenValue": "Ja"
+      },
+      "kollaps_30": {
+        "id": "kollaps_30",
+        "text": "Hat er/sie gekrampft?",
+        "type": "choice",
+        "order": 9430,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenAny": [
+          {
+            "questionId": "kollaps_29",
+            "value": "Nein"
+          },
+          {
+            "questionId": "kollaps_28",
+            "value": "Nein"
+          }
+        ]
+      },
+      "kollaps_31": {
+        "id": "kollaps_31",
+        "text": "Liegt ein Diabetes vor?",
+        "type": "choice",
+        "order": 9431,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "kollaps_30",
+        "whenValue": "Nein"
+      },
+      "kollaps_32": {
+        "id": "kollaps_32",
+        "text": "Wie lange gehen die Beschwerden?",
+        "type": "choice",
+        "order": 9432,
+        "options": [
+          "kürzer als 30 Minuten",
+          "30 Minuten – 1 Stunde",
+          "mehrere Stunden",
+          "mehrere Tage",
+          "Unbekannt (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "kollaps_31",
+        "whenValue": "Nein"
+      },
+      "kollaps_33": {
+        "id": "kollaps_33",
+        "text": "Ist der Blutzucker bekannt bzw. wurde er gemessen?",
+        "type": "choice",
+        "order": 9433,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "kollaps_31",
+        "whenValue": "Ja"
+      },
+      "kollaps_34": {
+        "id": "kollaps_34",
+        "text": "Ist die Person nach der Messung bzw. nach den Diabetes-Beschwerden wach und ansprechbar?",
+        "type": "choice",
+        "order": 9434,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "kollaps_33",
+        "whenValue": "Ja"
+      },
+      "kopf_27": {
+        "id": "kopf_27",
+        "text": "Haben die Schmerzen plötzlich / schlagartig begonnen?",
+        "type": "choice",
+        "order": 9467,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "med_grund",
+        "whenValue": "Kopfschmerzen"
+      },
+      "kopf_28": {
+        "id": "kopf_28",
+        "text": "Haben Sie öfter mal Kopfschmerzen?",
+        "type": "choice",
+        "order": 9468,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "kopf_27",
+        "whenValue": "Ja"
+      },
+      "kopf_29": {
+        "id": "kopf_29",
+        "text": "Ist die Person frei zugänglich?",
+        "type": "choice",
+        "order": 9469,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "kopf_28",
+        "whenValue": "Nein"
+      },
+      "kopf_30": {
+        "id": "kopf_30",
+        "text": "Bekommt er/sie genug Luft und kann normal sprechen?",
+        "type": "choice",
+        "order": 9470,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "kopf_27",
+        "whenValue": "Nein"
+      },
+      "kopf_31": {
+        "id": "kopf_31",
+        "text": "Hat er/sie geklappt / ist er/sie kollabiert?",
+        "type": "choice",
+        "order": 9471,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "kopf_30",
+        "whenValue": "Nein"
+      },
+      "kopf_32": {
+        "id": "kopf_32",
+        "text": "Ist die Person verwirrt oder wirkt sie ungewöhnlich / verändert?",
+        "type": "choice",
+        "order": 9472,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "kopf_27",
+        "whenValue": "Nein"
+      },
+      "krampf_27": {
+        "id": "krampf_27",
+        "text": "Krampft er/sie immer noch?",
+        "type": "choice",
+        "order": 9507,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "med_grund",
+        "whenValue": "Krampfanfall"
+      },
+      "krampf_28": {
+        "id": "krampf_28",
+        "text": "Hat er/sie in den letzten Stunden weitere Krampfanfälle gehabt?",
+        "type": "choice",
+        "order": 9508,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "krampf_27",
+        "whenValue": "Nein"
+      },
+      "krampf_29": {
+        "id": "krampf_29",
+        "text": "Ist er/sie jetzt wach?",
+        "type": "choice",
+        "order": 9509,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "krampf_28",
+        "whenValue": "Nein"
+      },
+      "krampf_30": {
+        "id": "krampf_30",
+        "text": "Bekommt er/sie genügend Luft, um normal zu sprechen?",
+        "type": "choice",
+        "order": 9510,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "krampf_29",
+        "whenValue": "Ja"
+      },
+      "krampf_31": {
+        "id": "krampf_31",
+        "text": "Ist die Person frei zugänglich?",
+        "type": "choice",
+        "order": 9511,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "krampf_30",
+        "whenValue": "Ja"
+      },
+      "krampf_32": {
+        "id": "krampf_32",
+        "text": "Kontrolle der Atmung möglich / erfolgt?",
+        "type": "choice",
+        "order": 9512,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "krampf_30",
+        "whenValue": "Nein"
+      },
+      "psyche_27": {
+        "id": "psyche_27",
+        "text": "Hat er/sie etwas angedeutet?",
+        "type": "choice",
+        "order": 9547,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "med_grund",
+        "whenValue": "Psychische Erkrankung / Suizid"
+      },
+      "psyche_28": {
+        "id": "psyche_28",
+        "text": "Wie will sich der Patient umbringen?",
+        "type": "choice",
+        "order": 9548,
+        "options": [
+          "Dämpfe / Gase",
+          "Drogen",
+          "droht zu springen",
+          "Erhängen / Strangulation",
+          "Erschießen",
+          "Medikamente",
+          "Pflanzenschutzmittel",
+          "Selbstverbrennung",
+          "Säure / Laugen",
+          "Pulsadereröffnung",
+          "Ertrinken",
+          "Ersticken / Sauerstoffentzug",
+          "Sprengstoff / Explosion",
+          "Strom / Elektrizität",
+          "Sonstige / unbekannte Methode"
+        ],
+        "whenQuestion": "psyche_27",
+        "whenValue": "Ja"
+      },
+      "zugang_01": {
+        "id": "zugang_01",
+        "text": "Ist die Person frei zugänglich?",
+        "type": "choice",
+        "order": 9600,
+        "options": [
+          "Ja",
+          "Nein",
+          "Unsicher (kann nicht beurteilt werden)",
+          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenAny": [
+          {
+            "questionId": "hitze_29",
+            "value": "Ja"
+          },
+          {
+            "questionId": "kollaps_27",
+            "value": "Nein"
+          },
+          {
+            "questionId": "kollaps_29",
+            "value": "Ja"
+          },
+          {
+            "questionId": "kollaps_32",
+            "value": "*"
+          },
+          {
+            "questionId": "kollaps_34",
+            "value": "*"
+          },
+          {
+            "questionId": "kopf_28",
+            "value": "Nein"
+          },
+          {
+            "questionId": "kopf_32",
+            "value": "Ja"
+          },
+          {
+            "questionId": "krampf_27",
+            "value": "Ja"
+          },
+          {
+            "questionId": "krampf_28",
+            "value": "Ja"
+          },
+          {
+            "questionId": "krampf_29",
+            "value": "Ja"
+          },
+          {
+            "questionId": "krampf_31",
+            "value": "Ja"
+          },
+          {
+            "questionId": "psyche_28",
+            "value": "*"
+          }
+        ]
+      },
+      "zugang_02": {
+        "id": "zugang_02",
+        "text": "Warum ist der Patient nicht frei zugänglich?",
+        "type": "choice",
+        "order": 9601,
+        "options": [
+          "Abgestürzt",
+          "Eingeklemmt",
+          "Verschlossene Wohnung",
+          "Verschüttet / eingestürzt",
+          "Auf Dach / Balkon / Höhe",
+          "In Fahrzeug / Aufzug eingeschlossen",
+          "Unzugängliches Gelände / schwer erreichbar",
+          "Sonstiger Zugangshinderungsgrund",
+          "Unbekannt (kein Kontakt / keine Angabe möglich)"
+        ],
+        "whenQuestion": "zugang_01",
+        "whenValue": "Nein"
       }
     },
     "brand": {
@@ -20233,6 +20684,42 @@ export const defaults = {
       "questionId": "atem_01",
       "values": "Ja",
       "reason": "Relevante Atemnot"
+    },
+    "nef_hitze_dysp": {
+      "category": "medizin",
+      "questionId": "hitze_28",
+      "value": "Nein",
+      "reason": "Atemnot / eingeschränkte Sprechfähigkeit bei Hitze-/Kälteproblem"
+    },
+    "nef_kollaps_dysp": {
+      "category": "medizin",
+      "questionId": "kollaps_27",
+      "value": "Nein",
+      "reason": "Atemnot / eingeschränkte Sprechfähigkeit bei Kollaps/Kreislaufstörung"
+    },
+    "nef_kollaps_dysp2": {
+      "category": "medizin",
+      "questionId": "kollaps_29",
+      "value": "Nein",
+      "reason": "Atemnot nach Brustschmerz bei Kollaps/Kreislaufstörung"
+    },
+    "nef_krampf_anhaltend": {
+      "category": "medizin",
+      "questionId": "krampf_27",
+      "value": "Ja",
+      "reason": "Anhaltender Krampfanfall"
+    },
+    "nef_krampf_wiederholt": {
+      "category": "medizin",
+      "questionId": "krampf_28",
+      "value": "Ja",
+      "reason": "Wiederholte Krampfanfälle"
+    },
+    "nef_suizid": {
+      "category": "medizin",
+      "questionId": "psyche_27",
+      "value": "Ja",
+      "reason": "Konkrete Selbstgefährdung / Suizidabsicht gemäß Abfrage"
     }
   },
   "resource_rules": {
@@ -20327,6 +20814,118 @@ export const defaults = {
       "resources": [
         "RTW / Rettungsdienst"
       ]
+    },
+    "res_access_absturz": {
+      "category": "medizin",
+      "questionId": "zugang_02",
+      "value": "Abgestürzt",
+      "resources": [
+        "Feuerwehr – technische Rettung / Zugang prüfen"
+      ]
+    },
+    "res_access_eingeklemmt": {
+      "category": "medizin",
+      "questionId": "zugang_02",
+      "value": "Eingeklemmt",
+      "resources": [
+        "Feuerwehr – technische Rettung / Befreiung"
+      ]
+    },
+    "res_access_tuer": {
+      "category": "medizin",
+      "questionId": "zugang_02",
+      "value": "Verschlossene Wohnung",
+      "resources": [
+        "Feuerwehr – Türöffnung prüfen"
+      ]
+    },
+    "res_access_verschuttet": {
+      "category": "medizin",
+      "questionId": "zugang_02",
+      "value": "Verschüttet / eingestürzt",
+      "resources": [
+        "Feuerwehr – technische Rettung / Sicherung"
+      ]
+    },
+    "res_access_hoehe": {
+      "category": "medizin",
+      "questionId": "zugang_02",
+      "value": "Auf Dach / Balkon / Höhe",
+      "resources": [
+        "Feuerwehr – Zugang / Höhenrettung prüfen"
+      ]
+    },
+    "res_access_fahrzeug": {
+      "category": "medizin",
+      "questionId": "zugang_02",
+      "value": "In Fahrzeug / Aufzug eingeschlossen",
+      "resources": [
+        "Feuerwehr – technische Rettung / Befreiung"
+      ]
+    },
+    "res_access_gelaende": {
+      "category": "medizin",
+      "questionId": "zugang_02",
+      "value": "Unzugängliches Gelände / schwer erreichbar",
+      "resources": [
+        "Feuerwehr – technische Rettung / Zugang prüfen"
+      ]
+    },
+    "res_psyche_polizei": {
+      "category": "medizin",
+      "questionId": "psyche_28",
+      "value": "*",
+      "resources": [
+        "Polizei – lageabhängig zusätzlich zu prüfen"
+      ]
+    },
+    "res_psyche_fw_d_mpfe_gase": {
+      "category": "medizin",
+      "questionId": "psyche_28",
+      "value": "Dämpfe / Gase",
+      "resources": [
+        "Feuerwehr – Gefahrenlage/technische Unterstützung prüfen"
+      ]
+    },
+    "res_psyche_fw_selbstverbrennung": {
+      "category": "medizin",
+      "questionId": "psyche_28",
+      "value": "Selbstverbrennung",
+      "resources": [
+        "Feuerwehr – Gefahrenlage/technische Unterstützung prüfen"
+      ]
+    },
+    "res_psyche_fw_s_ure_laugen": {
+      "category": "medizin",
+      "questionId": "psyche_28",
+      "value": "Säure / Laugen",
+      "resources": [
+        "Feuerwehr – Gefahrenlage/technische Unterstützung prüfen"
+      ]
+    },
+    "res_psyche_fw_sprengstoff_explosion": {
+      "category": "medizin",
+      "questionId": "psyche_28",
+      "value": "Sprengstoff / Explosion",
+      "resources": [
+        "Feuerwehr – Gefahrenlage/technische Unterstützung prüfen"
+      ]
+    },
+    "res_psyche_fw_strom_elektrizit_t": {
+      "category": "medizin",
+      "questionId": "psyche_28",
+      "value": "Strom / Elektrizität",
+      "resources": [
+        "Feuerwehr – Gefahrenlage/technische Unterstützung prüfen"
+      ]
+    },
+    "res_psyche_fw_ertrinken": {
+      "category": "medizin",
+      "questionId": "psyche_28",
+      "value": "Ertrinken",
+      "resources": [
+        "Feuerwehr – Gefahrenlage/technische Unterstützung prüfen"
+      ]
     }
   },
   "suggestions": {
@@ -20357,7 +20956,7 @@ export const defaults = {
     ]
   },
   "metadata": {
-    "medicalCatalogVersion": "V27",
-    "medicalQuestionCount": 994
+    "medicalCatalogVersion": "V48",
+    "medicalQuestionCount": 1054
   }
 };

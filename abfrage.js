@@ -195,7 +195,10 @@ function diagnosisSuggestion(){
   if(g==="Herzrhythmusstörungen") return {primary:"Symptomatische Herzrhythmusstörung möglich",alternatives:["Tachykarde Rhythmusstörung","Bradykarde Rhythmusstörung"]};
   if(g==="Kollaps / Kreislaufstörung") return {primary:"Synkope / Kreislaufstörung – Ursache unklar",alternatives:["Kardiale Ursache","Andere Kreislaufursache"]};
   if(g==="Kopfschmerzen") return {primary:"Akuter Kopfschmerz – Ursache unklar",alternatives:["Migräne / primärer Kopfschmerz","Sekundäre neurologische Ursache"]};
-  if(g==="Krampfanfall") return {primary:"Krampfanfall / epileptisches Ereignis möglich",alternatives:["Erstmaliger Krampfanfall","Andere Ursache"]};
+  if(g==="Krampfanfall"){
+    if(answers.med_spricht==="Ja" && (answers.krampf_27==="Ja" || answers.krampf_28==="Ja")) return {primary:"Partieller Krampfanfall möglich",alternatives:["Fokaler epileptischer Anfall","Andere neurologische Ursache"]};
+    return {primary:"Krampfanfall / epileptisches Ereignis möglich",alternatives:["Erstmaliger Krampfanfall","Andere Ursache"]};
+  }
   if(g==="Psychische Erkrankung / Suizid") return {primary:"Akute psychische Krise – Gefährdung gemäß Abfrage",alternatives:["Suizidale Krise","Akute psychische/psychiatrische Symptomatik"]};
   if(g==="Vergiftung") {
     if(answers.vergiftung_sub==="Pilz / unbekannter Pilz" || Object.keys(answers).some(k=>k.startsWith("pantherina_"))) return {primary:"Mögliche Pilzintoxikation / Pantherina-Syndrom",alternatives:["Andere Intoxikation","Unklare Vergiftung"]};
@@ -363,7 +366,7 @@ function evaluateResources(reasons){
   if(answers.deterioration) s.add("Rettungsdienst – akute Verschlechterung berücksichtigen");
   if(category==="brand") s.add("Feuerwehr");
   // Zusätzliche Kräfte nur bei konkreten Hinweisen.
-  if(/feuer|rauch|gas|gefahrstoff|chemikal|brand|eingeklemmt|eingeschlossen|stromleitung|explosion|einsturz/.test(txt)) s.add("Feuerwehr – zusätzlich erforderlich/zu prüfen");
+  if(/feuer|rauch|gas|gefahrstoff|chemikal|brand|eingeklemmt|eingeschlossen|stromleitung|explosion|einsturz|abgestürzt|verschüttet|verschlossene wohnung|auf dach|balkon|höhe|fahrzeug|aufzug|unzugängliches gelände/.test(txt)) s.add("Feuerwehr – zusätzlich erforderlich/zu prüfen");
   if(/waffe|gewalt|schlägerei|bedroh|angriff|stra[ft]at|polizei|suizid|fremdgefähr/.test(txt)) s.add("Polizei – lageabhängig zusätzlich zu prüfen");
   if(category==="thl" && mode==="vu"){
     s.add("RTW / Rettungsdienst – Verletztenversorgung");
@@ -417,33 +420,47 @@ function chooseStichwort(){
   const specific=list.filter(s=>!['MED_ALL','MED_ALLGEMEIN','THL_ALLGEMEIN','ABC_ALLGEMEIN'].includes(s.id));
   return(specific.length?specific:list).sort((a,b)=>(b.priority||0)-(a.priority||0))[0]||fallbackStichwort();
 }
+function dispatchAnswerFact(q,v){
+  const text=String(q?.text||"").toLowerCase(), val=Array.isArray(v)?v.join(", "):String(v??"");
+  if(!val || val==="Nein" || val.startsWith("Unbekannt") || val.startsWith("Unsicher")) return "";
+  if(text.includes("brustschmerz")) return val==="Ja"?"Brustschmerz":`Brustschmerz: ${val}`;
+  if(text.includes("atemnot")||text.includes("atemprobleme")||text.includes("genügend luft")||text.includes("normal zu sprechen")) return val==="Ja"?"Dyspnoe / Atemnot":`Atmung/Sprechen: ${val}`;
+  if(text.includes("wach")&&text.includes("ansprech")) return val==="Ja"?"wach und ansprechbar":"nicht wach/ansprechbar";
+  if(text.includes("frei zugänglich")) return val==="Ja"?"Patient frei zugänglich":"Patient nicht frei zugänglich";
+  if(text.includes("gekrampft")||text.includes("krampf")) return val==="Ja"?"Krampfanfall":`Krampfanfälle: ${val}`;
+  if(text.includes("diabetes")) return val==="Ja"?"Diabetes bekannt":`Diabetes: ${val}`;
+  if(text.includes("verwirrt")||text.includes("komisch")||text.includes("wesens")) return val==="Ja"?"Verwirrtheit / Wesensveränderung":`Wesensveränderung: ${val}`;
+  if(text.includes("reagiert langsam")) return val==="Ja"?"verlangsamte Reaktion / verändert":"";
+  if(text.includes("kopfschmerz")) return val==="Ja"?"Kopfschmerz":`Kopfschmerz: ${val}`;
+  if(text.includes("suizid")||text.includes("umbringen")) return val==="Ja"?"Suizidabsicht / Selbstgefährdung":"";
+  if(text.includes("warum ist der patient nicht frei zugänglich")) return `Zugang erschwert: ${val}`;
+  if(text.includes("sturz")||text.includes("abgestürzt")||text.includes("eingeklemmt")||text.includes("eingeschlossen")||text.includes("verschlossene wohnung")||text.includes("verschüttet")||text.includes("höhe")) return `${q.text.replace(/\?$/,"")}: ${val}`;
+  if(val==="Ja") return q.text.replace(/\?$/,"");
+  if(val.length<60) return `${q.text.replace(/\?$/,"")}: ${val}`;
+  return "";
+}
 function importantDispatchFacts(){
   const facts=[];const d=answers.med_demografie||{};
   if(d.age)facts.push(`Alter ${d.age} J.`);
   if(d.gender&&d.gender!=="Unbekannt")facts.push(d.gender);
   if(answers.med_personen)facts.push(`${answers.med_personen}`);
-  if(answers.med_spricht && answers.med_spricht!=="Ja")facts.push(`Sprechen: ${answers.med_spricht}`);
+  if(answers.med_spricht&&answers.med_spricht!=="Ja")facts.push(`Sprechen: ${answers.med_spricht}`);
   if(answers.med_grund)facts.push(answers.med_grund);
   if(answers.erkrankung_typ)facts.push(answers.erkrankung_typ);
   if(answers.erkrankung_dm_01)facts.push(answers.erkrankung_dm_01);
   if(answers.erkrankung_dm_04||answers.erkrankung_dm_05)facts.push(answers.erkrankung_dm_04||answers.erkrankung_dm_05);
   if(answers.erkrankung_bd_02)facts.push(answers.erkrankung_bd_02);
   if(answers.deterioration)facts.push(`Verschlechterung: ${answers.deterioration}`);
-  if(answers.verdachtsdiagnose)facts.push(answers.verdachtsdiagnose);
+  if(answers.verdachtsdiagnose)facts.push(`Verdachtsdiagnose: ${answers.verdachtsdiagnose}`);
   if(answers.atemfrequenz)facts.push(`AF ${answers.atemfrequenz}`);
-  // Nur wenige zusätzliche, inhaltlich relevante Antworten in den Kurztext übernehmen.
   const qs=questions();
   for(const [id,v] of Object.entries(answers)){
-    if(facts.length>=7)break;
+    if(facts.length>=11)break;
     if(["med_wem","med_personen","med_spricht","med_demografie","med_grund","erkrankung_typ","erkrankung_dm_01","erkrankung_dm_04","erkrankung_dm_05","erkrankung_bd_02","verdachtsdiagnose","abfrage_bemerkung","atemfrequenz","deterioration"].includes(id))continue;
-    const vals=Array.isArray(v)?v:[v];
-    if(vals.some(x=>/^Ja$/i.test(String(x)))){
-      const q=qs.find(x=>x.id===id); if(q) facts.push(q.text.replace(/\?$/,""));
-    } else if(vals.some(x=>String(x).trim()) && vals.join(", ").length<55){
-      const q=qs.find(x=>x.id===id); if(q) facts.push(`${q.text.replace(/\?$/ ,"")}: ${vals.join(", ")}`);
-    }
+    const q=qs.find(x=>x.id===id);if(!q)continue;
+    const fact=dispatchAnswerFact(q,v);if(fact)facts.push(fact);
   }
-  return [...new Set(facts)].slice(0,7);
+  return [...new Set(facts)].slice(0,11);
 }
 function dispatchText(resources,reasons,stichwort){
   const parts=[];

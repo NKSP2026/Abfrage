@@ -1,7 +1,1 @@
-NABS V47
-NEF-Verwaltung bedienbar gemacht:
-- Frage- und Antwortauswahl werden sofort aus dem lokalen Grundkatalog gefüllt.
-- Firebase-Verbindung darf die Auswahl nicht mehr leer lassen.
-- Auch ohne bestehende NEF-Regeln kann eine neue Regel vorbereitet werden.
-- Speichern/Löschen in Firebase bleibt aus Sicherheitsgründen nur für Administratoren möglich.
-- Bestehende V46-Funktionen bleiben erhalten.
+NABS V48 – Ergänzungen zu Hitze/Kälte, Kollaps/Kreislauf, Kopfschmerzen, Krampfanfall, psychischer Erkrankung/Suizid und allgemeinem Zugangshindernis. Einsatztext und lageabhängige Einsatzmittel-/NEF-Hinweise erweitert. V47-Grundfunktionen bleiben erhalten.

@@ -1,7 +1,6 @@
-NABS V43
-- Geburtsdatum auf Android als normales Texteingabefeld, keine Kalenderauswahl.
-- Eingabe TT.MM.JJJJ per Tastatur; auch 15071990 wird automatisch formatiert.
-- Alter wird automatisch aus dem vollständigen Geburtsdatum berechnet.
-- Android-Sonderverhalten durch autocomplete=bday entfernt.
-- Fehlerhafte Zeichenfilterung korrigiert.
-- V42-Funktionsstand und Entscheidungslogik bleiben erhalten.
+NABS V44
+Fehlerkorrektur/Bedienlayout gegenüber V43:
+- Verschlechterung, Zwischenergebnis, Bemerkung und Ausstieg liegen nicht mehr über dem Frageninhalt.
+- Die Aktionsleiste steht im normalen Seitenfluss unterhalb der aktuellen Frage.
+- Desktop: 4 gleichmäßige Spalten; Mobil: 2 x 2 Spalten.
+- V43-Fragen, Entscheidungslogik und übrige Funktionen bleiben unverändert.

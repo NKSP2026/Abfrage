@@ -659,7 +659,7 @@ function strokeIndicated(){
 }
 function visible(q){
   if(String(q?.id||"").startsWith("stroke_")&&!strokeIndicated()) return false;
-  if(q.whenQuestion&&!matches(answers[q.whenQuestion],q.whenValue)) return false;
+  if(q.whenQuestion && q.whenQuestion==="med_grund" && q.whenValue==="Verletzung" && answers.med_grund==="Arbeits- / Betriebs- / Schulunfall") { /* gleicher Verletzungspfad */ } else if(q.whenQuestion&&!matches(answers[q.whenQuestion],q.whenValue)) return false;
   if(q.skipWhenQuestion&&matches(answers[q.skipWhenQuestion],q.skipWhenValue)) return false;
   if(q.whenAll&&!q.whenAll.every(condition)) return false;
   if(q.whenAny&&q.whenAny.length&&!q.whenAny.some(condition)) return false;
@@ -667,6 +667,7 @@ function visible(q){
   if(q.whenTextIncludes&&q.whenTextIncludes.length){const ok=q.whenTextIncludes.some(c=>{const t=String(answers[c.questionId]??"").toLowerCase();return(c.terms||[]).some(term=>t.includes(String(term).toLowerCase()));});if(!ok)return false;}
   return true;
 }
+function isInjuryReason(){ return answers.med_grund==="Verletzung" || answers.med_grund==="Arbeits- / Betriebs- / Schulunfall"; }
 function questions(){
   if(category==="grossschaden") return grossQuestions;
   let qs=Object.values(data.catalog?.[category]||{}).filter(q=>q?.id&&q?.text).map(normalizeChoiceOptions);
@@ -675,7 +676,7 @@ function questions(){
     const initial=medicalInitialQuestions.map(q=>byId.get(q.id)?{...q,...byId.get(q.id),order:q.order}:q);
     qs=qs.filter(q=>!medicalInitialQuestions.some(i=>i.id===q.id));
     qs=[...initial,...qs];
-    if(answers.med_grund==="Verletzung") {
+    if(isInjuryReason()) {
       const supplement=Object.values(injurySupplementQuestions);
       const oldInjury=qs.filter(q=>q.whenQuestion!=="med_grund" || (q.whenQuestion==="med_grund" && !["Verletzung","Arbeits- / Betriebs- / Schulunfall"].includes(q.whenValue)));
       const injuryCatalog=qs.filter(q=>q.whenQuestion==="med_grund" && ["Verletzung","Arbeits- / Betriebs- / Schulunfall"].includes(q.whenValue));
@@ -700,7 +701,7 @@ function medicalBranchCount(){
   return Object.keys(answers).filter(id=>ids.has(id) && !["med_wem","med_personen","med_spricht","med_demografie","med_grund","verdachtsdiagnose"].includes(id)).length;
 }
 function nextQuestion(){
-  if(category==="medizin" && answers.med_grund==="Verletzung" && answers.verletzung_v49_zugang!==undefined){
+  if(category==="medizin" && isInjuryReason() && answers.verletzung_v49_zugang!==undefined){
     const diagnosis=Object.values(data.catalog?.medizin||{}).find(q=>q.id==="verdachtsdiagnose");
     return diagnosis||null;
   }
@@ -1108,7 +1109,7 @@ function fallbackStichwort(){
       }
       return {code:"RD-MED",name,priority:10};
     }
-    const map={"Atemstörung":"Atemnot / Atemstörung","Brustschmerzen":"Brustschmerz","Kollaps / Kreislaufstörung":"Kollaps / Kreislaufstörung","Bewusstseinsstörung / Wesensveränderung":"Bewusstseinsstörung","Blutungen":"Blutung","Krampfanfall":"Krampfanfall","Vergiftung":"Vergiftung / Intoxikation","Verletzung":"Verletzung / Trauma","Bauchschmerzen":"Akute Bauchschmerzen","Gefühlsstörung / Lähmung / Sprache / Sehstörung":"Neurologischer Notfall","Geburt / Schwangerschaft":"Geburtshilflicher Notfall","Allergie / Anaphylaxie":"Allergische Reaktion / Anaphylaxie","Herzrhythmusstörungen":"Herzrhythmusstörung","Kopfschmerzen":"Akuter Kopfschmerz","Psychische Erkrankung / Suizid":"Psychischer Notfall","Hitze- / Kälteprobleme":"Hitze-/Kältenotfall","Sonstige Schmerzen":"Akuter Schmerz","Erkrankung / medizinische Hilfeleistung":"Erkrankung / medizinische Hilfeleistung"};
+    const map={"Atemstörung":"Atemnot / Atemstörung","Brustschmerzen":"Brustschmerz","Kollaps / Kreislaufstörung":"Kollaps / Kreislaufstörung","Bewusstseinsstörung / Wesensveränderung":"Bewusstseinsstörung","Blutungen":"Blutung","Krampfanfall":"Krampfanfall","Vergiftung":"Vergiftung / Intoxikation","Verletzung":"Verletzung / Trauma","Arbeits- / Betriebs- / Schulunfall":"Verletzung / Trauma (Arbeits-/Betriebs-/Schulunfall)","Bauchschmerzen":"Akute Bauchschmerzen","Gefühlsstörung / Lähmung / Sprache / Sehstörung":"Neurologischer Notfall","Geburt / Schwangerschaft":"Geburtshilflicher Notfall","Allergie / Anaphylaxie":"Allergische Reaktion / Anaphylaxie","Herzrhythmusstörungen":"Herzrhythmusstörung","Kopfschmerzen":"Akuter Kopfschmerz","Psychische Erkrankung / Suizid":"Psychischer Notfall","Hitze- / Kälteprobleme":"Hitze-/Kältenotfall","Sonstige Schmerzen":"Akuter Schmerz","Erkrankung / medizinische Hilfeleistung":"Erkrankung / medizinische Hilfeleistung"};
     return {code:"RD-MED",name:map[g]||g||"Medizinischer Notfall",priority:1};
   }
   if(category==="brand") return {code:"FW-BRAND",name:"Brand / Rauchentwicklung",priority:1};

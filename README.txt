@@ -1,2 +1,1 @@
-NABS V59 – Verletzungspfad korrigiert.
-Verbrennung/Verbrühung/Verätzung führt direkt zur Körperflächenkarte; andere Verletzungsmuster werden passend lokalisiert.
+NABS V60 – Körperkarte: Hotspots an Originalbild 1536x1251 angepasst; Auswahl skaliert mit dem Bild; Weiter auch ohne Auswahl möglich. Verletzungskarte ohne Prozentangabe außer Verbrennung/Verbrühung/Verätzung.

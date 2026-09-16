@@ -1,2 +1,5 @@
-NABS V52 – Arbeits-/Betriebs-/Schulunfall nutzt denselben Verletzungs- und Körperkartenpfad wie Verletzung.
-Die Auswahl „Arbeits- / Betriebs- / Schulunfall“ bleibt als ursprünglicher Grund erhalten; die Folgefragen, Verletzungskarte und Abschlusslogik entsprechen dem Verletzungspfad.
+NABS V53
+
+Fehlerkorrektur: Verletzungskarte hatte einen fehlenden Objekttrenner, dadurch konnte abfrage.js nicht geladen werden.
+Launcher: nicht benötigte Pagination (1 • • ») entfernt.
+Arbeits-/Betriebs-/Schulunfall verwendet weiterhin denselben Verletzungspfad.

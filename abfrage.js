@@ -528,7 +528,7 @@ const injurySupplementQuestions = {
       "Verbrennung / Verbrühung",
       "Verätzungen"
     ]
-  }
+  },
   "verletzung_v51_koerperkarte": {
     "id": "verletzung_v51_koerperkarte",
     "text": "Wo befindet sich die vermutete Verletzung? Bitte direkt am Körperschema markieren.",

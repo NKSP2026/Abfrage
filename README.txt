@@ -1,5 +1,2 @@
-NABS V54
-
-Fehlerkorrektur: Verletzungskarte hatte einen fehlenden Objekttrenner, dadurch konnte abfrage.js nicht geladen werden.
-Launcher: nicht benötigte Pagination (1 • • ») entfernt.
-Arbeits-/Betriebs-/Schulunfall verwendet weiterhin denselben Verletzungspfad.
+NABS V56 – einheitliche interaktive Verletzungs-/Körperkarte.
+Nach der Frage „Welche Verletzungsart wird vermutet…?“ erscheint die Karte. Orange markiert die Auswahl. Bei Verbrennung/Verbrühung/Verätzung wird zusätzlich eine orientierende VKOF-Schätzung aus den markierten Flächen gebildet. Bei Fraktur, Luxation, Wunde, Stich usw. keine Prozentangabe. Die markierte Karte wird im Ergebnis und beim PDF/Druck mit ausgegeben.

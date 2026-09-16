@@ -863,86 +863,90 @@ function updatePhase(){
   if(el) el.textContent=phaseText();
 }
 
-const injuryMapRegions=[
-  // Die Koordinaten beziehen sich direkt auf das Originalbild 1536 × 1251 px.
-  // Sie werden als Prozentwerte relativ zur Bildfläche gerendert und skalieren
-  // damit auf Handy, Tablet und PC mit dem Bild mit.
-  // Vorderseite – Patientenseite: rechts = Bild links, links = Bild rechts
-  {id:"front_skull",label:"Schädeldecke vorne",x:22.0,y:4.0,w:7.0,h:9.0,burnValue:4.5},
-  {id:"front_face",label:"Gesicht vorne",x:23.0,y:8.0,w:6.0,h:7.0,burnValue:1.0},
-  {id:"front_temple_r",label:"Schläfe rechts",x:20.8,y:8.0,w:2.2,h:4.5,burnValue:0.25},
-  {id:"front_temple_l",label:"Schläfe links",x:29.0,y:8.0,w:2.2,h:4.5,burnValue:0.25},
-  {id:"front_jaw_r",label:"Kiefer rechts",x:21.8,y:12.0,w:3.0,h:3.5,burnValue:0.25},
-  {id:"front_jaw_l",label:"Kiefer links",x:28.0,y:12.0,w:3.0,h:3.5,burnValue:0.25},
-  {id:"front_neck",label:"Hals vorne",x:24.0,y:14.0,w:5.0,h:5.5,burnValue:0.5},
-  {id:"front_shoulder_r",label:"Schulter rechts",x:15.0,y:15.0,w:8.0,h:10.0,burnValue:0.5},
-  {id:"front_shoulder_l",label:"Schulter links",x:30.0,y:15.0,w:8.0,h:10.0,burnValue:0.5},
-  {id:"front_upperarm_r",label:"Oberarm rechts",x:14.0,y:19.0,w:7.0,h:13.0,burnValue:1.1},
-  {id:"front_upperarm_l",label:"Oberarm links",x:31.0,y:19.0,w:7.0,h:13.0,burnValue:1.1},
-  {id:"front_elbow_r",label:"Ellenbogen rechts",x:13.0,y:29.0,w:6.0,h:5.0,burnValue:0.2},
-  {id:"front_elbow_l",label:"Ellenbogen links",x:32.0,y:29.0,w:6.0,h:5.0,burnValue:0.2},
-  {id:"front_forearm_r",label:"Unterarm rechts",x:11.0,y:32.0,w:8.0,h:11.0,burnValue:1.4},
-  {id:"front_forearm_l",label:"Unterarm links",x:33.0,y:32.0,w:8.0,h:11.0,burnValue:1.4},
-  {id:"front_wrist_r",label:"Handgelenk rechts",x:9.0,y:41.0,w:7.0,h:4.0,burnValue:0.2},
-  {id:"front_wrist_l",label:"Handgelenk links",x:36.0,y:41.0,w:7.0,h:4.0,burnValue:0.2},
-  {id:"front_palm_r",label:"Handfläche rechts",x:7.0,y:43.0,w:7.5,h:8.0,burnValue:0.25},
-  {id:"front_palm_l",label:"Handfläche links",x:37.0,y:43.0,w:7.5,h:8.0,burnValue:0.25},
-  ...makeDigitRegions("front_finger_r","Finger","rechts",6.0,46.0,9.0,7.0,0.17),
-  ...makeDigitRegions("front_finger_l","Finger","links",37.0,46.0,9.0,7.0,0.17),
-  {id:"front_chest",label:"Brustkorb",x:21.0,y:16.0,w:15.0,h:18.0,burnValue:9.0},
-  {id:"front_abdomen",label:"Bauch",x:22.0,y:31.0,w:13.0,h:10.0,burnValue:6.0},
-  {id:"front_pelvis",label:"Becken / Hüfte",x:21.0,y:39.0,w:15.0,h:8.0,burnValue:3.0},
-  {id:"front_thigh_r",label:"Oberschenkel rechts",x:25.0,y:43.0,w:8.0,h:17.0,burnValue:4.0},
-  {id:"front_thigh_l",label:"Oberschenkel links",x:31.0,y:43.0,w:8.0,h:17.0,burnValue:4.0},
-  {id:"front_knee_r",label:"Knie rechts",x:24.5,y:59.0,w:8.0,h:6.0,burnValue:0.5},
-  {id:"front_knee_l",label:"Knie links",x:31.0,y:59.0,w:8.0,h:6.0,burnValue:0.5},
-  {id:"front_lowerleg_r",label:"Schienbein / Unterschenkel rechts",x:24.5,y:64.0,w:8.0,h:22.0,burnValue:3.2},
-  {id:"front_lowerleg_l",label:"Schienbein / Unterschenkel links",x:31.0,y:64.0,w:8.0,h:22.0,burnValue:3.2},
-  {id:"front_ankle_r",label:"Sprunggelenk rechts",x:24.5,y:85.0,w:8.0,h:4.0,burnValue:0.3},
-  {id:"front_ankle_l",label:"Sprunggelenk links",x:31.0,y:85.0,w:8.0,h:4.0,burnValue:0.3},
-  {id:"front_foot_r",label:"Fuß rechts",x:23.5,y:88.0,w:9.0,h:6.0,burnValue:0.5},
-  {id:"front_foot_l",label:"Fuß links",x:31.0,y:88.0,w:9.0,h:6.0,burnValue:0.5},
-  ...makeDigitRegions("front_toe_r","Zehe","rechts",23.0,92.0,10.0,4.0,0.10),
-  ...makeDigitRegions("front_toe_l","Zehe","links",31.0,92.0,10.0,4.0,0.10),
+function R(id,label,x,y,w,h,burnValue=0,shape="rect"){
+  return {id,label,x,y,w,h,burnValue,shape};
+}
 
-  // Rückseite – Patientenseite: rechts = Bild links, links = Bild rechts
-  {id:"back_skull",label:"Schädeldecke hinten",x:61.0,y:4.0,w:7.0,h:9.0,burnValue:4.5},
-  {id:"back_head_side_r",label:"Schläfe rechts hinten",x:59.0,y:8.0,w:2.2,h:4.5,burnValue:0.25},
-  {id:"back_head_side_l",label:"Schläfe links hinten",x:67.0,y:8.0,w:2.2,h:4.5,burnValue:0.25},
-  {id:"back_neck",label:"Nacken",x:62.0,y:14.0,w:5.0,h:5.5,burnValue:0.7},
-  {id:"back_shoulder_r",label:"Schulter rechts hinten",x:53.0,y:15.0,w:8.0,h:10.0,burnValue:0.5},
-  {id:"back_shoulder_l",label:"Schulter links hinten",x:68.0,y:15.0,w:8.0,h:10.0,burnValue:0.5},
-  {id:"back_upperarm_r",label:"Oberarm rechts hinten",x:52.0,y:19.0,w:7.0,h:13.0,burnValue:1.1},
-  {id:"back_upperarm_l",label:"Oberarm links hinten",x:69.0,y:19.0,w:7.0,h:13.0,burnValue:1.1},
-  {id:"back_elbow_r",label:"Ellenbogen rechts hinten",x:51.0,y:29.0,w:6.0,h:5.0,burnValue:0.2},
-  {id:"back_elbow_l",label:"Ellenbogen links hinten",x:70.0,y:29.0,w:6.0,h:5.0,burnValue:0.2},
-  {id:"back_forearm_r",label:"Unterarm rechts hinten",x:49.0,y:32.0,w:8.0,h:11.0,burnValue:1.4},
-  {id:"back_forearm_l",label:"Unterarm links hinten",x:71.0,y:32.0,w:8.0,h:11.0,burnValue:1.4},
-  {id:"back_wrist_r",label:"Handgelenk rechts hinten",x:47.0,y:41.0,w:7.0,h:4.0,burnValue:0.2},
-  {id:"back_wrist_l",label:"Handgelenk links hinten",x:74.0,y:41.0,w:7.0,h:4.0,burnValue:0.2},
-  {id:"back_palm_r",label:"Handfläche rechts hinten",x:45.0,y:43.0,w:7.5,h:8.0,burnValue:0.25},
-  {id:"back_palm_l",label:"Handfläche links hinten",x:75.0,y:43.0,w:7.5,h:8.0,burnValue:0.25},
-  ...makeDigitRegions("back_finger_r","Finger","rechts hinten",44.0,46.0,9.0,7.0,0.17),
-  ...makeDigitRegions("back_finger_l","Finger","links hinten",75.0,46.0,9.0,7.0,0.17),
-  {id:"back_upperback",label:"Oberer Rücken",x:55.0,y:17.0,w:14.0,h:26.0,burnValue:9.0},
-  {id:"back_lowerback",label:"Unterer Rücken",x:56.0,y:40.0,w:12.0,h:10.0,burnValue:6.0},
-  {id:"back_pelvis",label:"Becken / Hüfte hinten",x:55.0,y:48.0,w:14.0,h:9.0,burnValue:3.0},
-  {id:"back_thigh_r",label:"Oberschenkel rechts hinten",x:55.0,y:43.0,w:8.0,h:17.0,burnValue:4.0},
-  {id:"back_thigh_l",label:"Oberschenkel links hinten",x:61.0,y:43.0,w:8.0,h:17.0,burnValue:4.0},
-  {id:"back_knee_r",label:"Knie rechts hinten",x:54.5,y:59.0,w:8.0,h:6.0,burnValue:0.5},
-  {id:"back_knee_l",label:"Knie links hinten",x:61.0,y:59.0,w:8.0,h:6.0,burnValue:0.5},
-  {id:"back_lowerleg_r",label:"Unterschenkel rechts hinten",x:54.5,y:64.0,w:8.0,h:22.0,burnValue:3.2},
-  {id:"back_lowerleg_l",label:"Unterschenkel links hinten",x:61.0,y:64.0,w:8.0,h:22.0,burnValue:3.2},
-  {id:"back_ankle_r",label:"Sprunggelenk rechts hinten",x:54.5,y:85.0,w:8.0,h:4.0,burnValue:0.3},
-  {id:"back_ankle_l",label:"Sprunggelenk links hinten",x:61.0,y:85.0,w:8.0,h:4.0,burnValue:0.3},
-  {id:"back_foot_r",label:"Fuß rechts hinten",x:53.5,y:88.0,w:9.0,h:6.0,burnValue:0.5},
-  {id:"back_foot_l",label:"Fuß links hinten",x:61.0,y:88.0,w:9.0,h:6.0,burnValue:0.5},
-  ...makeDigitRegions("back_toe_r","Zehe","rechts hinten",53.0,92.0,10.0,4.0,0.10),
-  ...makeDigitRegions("back_toe_l","Zehe","links hinten",61.0,92.0,10.0,4.0,0.10)
+// V61: Die Hotspots verwenden jetzt das echte Pixelkoordinatensystem des Bildes
+// (1536 x 1251) und werden als SVG über das Bild gelegt. Dadurch bleiben Bild
+// und Klickbereiche auf Handy, Tablet und PC exakt gekoppelt.
+const injuryMapRegions=[
+  // VORDERSEITE – im Bild links. Patientenseite: Bild links = rechts des Patienten.
+  R("front_skull","Schädeldecke vorne",345,55,105,120,4.5),
+  R("front_face","Gesicht vorne",360,92,78,70,1.0),
+  R("front_temple_r","Schläfe rechts",345,92,24,38,.25),
+  R("front_temple_l","Schläfe links",432,92,24,38,.25),
+  R("front_jaw_r","Kiefer rechts",352,135,35,32,.25),
+  R("front_jaw_l","Kiefer links",414,135,35,32,.25),
+  R("front_neck","Hals vorne",378,168,52,58,.5),
+  R("front_chest","Brustkorb",310,205,185,205,9),
+  R("front_abdomen","Bauch",325,385,155,125,6),
+  R("front_pelvis","Becken / Hüfte",315,450,180,125,3),
+  R("front_shoulder_r","Schulter rechts",245,195,105,95,.5),
+  R("front_shoulder_l","Schulter links",450,195,105,95,.5),
+  R("front_upperarm_r","Oberarm rechts",225,235,85,155,1.1),
+  R("front_upperarm_l","Oberarm links",490,235,85,155,1.1),
+  R("front_elbow_r","Ellenbogen rechts",215,370,80,60,.2),
+  R("front_elbow_l","Ellenbogen links",500,370,80,60,.2),
+  R("front_forearm_r","Unterarm rechts",155,390,110,145,1.4),
+  R("front_forearm_l","Unterarm links",545,390,110,145,1.4),
+  R("front_wrist_r","Handgelenk rechts",140,500,75,48,.2),
+  R("front_wrist_l","Handgelenk links",595,500,75,48,.2),
+  R("front_palm_r","Handfläche rechts",105,525,110,78,.25),
+  R("front_palm_l","Handfläche links",610,525,110,78,.25),
+  R("front_thigh_r","Oberschenkel rechts",310,535,90,235,4),
+  R("front_thigh_l","Oberschenkel links",420,535,90,235,4),
+  R("front_knee_r","Knie rechts",305,735,95,75,.5),
+  R("front_knee_l","Knie links",415,735,95,75,.5),
+  R("front_lowerleg_r","Schienbein / Unterschenkel rechts",305,790,90,265,3.2),
+  R("front_lowerleg_l","Schienbein / Unterschenkel links",415,790,90,265,3.2),
+  R("front_ankle_r","Sprunggelenk rechts",300,1035,100,48,.3),
+  R("front_ankle_l","Sprunggelenk links",410,1035,100,48,.3),
+  R("front_foot_r","Fuß rechts",285,1070,120,65,.5),
+  R("front_foot_l","Fuß links",400,1070,120,65,.5),
+  ...makeDigitRegionsPx("front_finger_r","Finger","rechts",105,535,105,68,.17),
+  ...makeDigitRegionsPx("front_finger_l","Finger","links",610,535,105,68,.17),
+  ...makeDigitRegionsPx("front_toe_r","Zehe","rechts",285,1090,120,42,.10),
+  ...makeDigitRegionsPx("front_toe_l","Zehe","links",400,1090,120,42,.10),
+
+  // RÜCKSEITE – im Bild rechts. Patientenseite: Bild links = rechts des Patienten.
+  R("back_skull","Schädeldecke hinten",940,55,105,120,4.5),
+  R("back_head_side_r","Schläfe rechts hinten",940,92,24,38,.25),
+  R("back_head_side_l","Schläfe links hinten",1027,92,24,38,.25),
+  R("back_neck","Nacken",973,168,52,58,.7),
+  R("back_upperback","Oberer Rücken",900,205,185,205,9),
+  R("back_lowerback","Unterer Rücken",915,385,155,125,6),
+  R("back_pelvis","Becken / Hüfte hinten",905,450,180,125,3),
+  R("back_shoulder_r","Schulter rechts hinten",840,195,105,95,.5),
+  R("back_shoulder_l","Schulter links hinten",1045,195,105,95,.5),
+  R("back_upperarm_r","Oberarm rechts hinten",820,235,85,155,1.1),
+  R("back_upperarm_l","Oberarm links hinten",1085,235,85,155,1.1),
+  R("back_elbow_r","Ellenbogen rechts hinten",810,370,80,60,.2),
+  R("back_elbow_l","Ellenbogen links hinten",1095,370,80,60,.2),
+  R("back_forearm_r","Unterarm rechts hinten",750,390,110,145,1.4),
+  R("back_forearm_l","Unterarm links hinten",1140,390,110,145,1.4),
+  R("back_wrist_r","Handgelenk rechts hinten",735,500,75,48,.2),
+  R("back_wrist_l","Handgelenk links hinten",1190,500,75,48,.2),
+  R("back_palm_r","Handfläche rechts hinten",700,525,110,78,.25),
+  R("back_palm_l","Handfläche links hinten",1205,525,110,78,.25),
+  R("back_thigh_r","Oberschenkel rechts hinten",900,535,90,235,4),
+  R("back_thigh_l","Oberschenkel links hinten",1010,535,90,235,4),
+  R("back_knee_r","Knie rechts hinten",895,735,95,75,.5),
+  R("back_knee_l","Knie links hinten",1005,735,95,75,.5),
+  R("back_lowerleg_r","Unterschenkel rechts hinten",895,790,90,265,3.2),
+  R("back_lowerleg_l","Unterschenkel links hinten",1005,790,90,265,3.2),
+  R("back_ankle_r","Sprunggelenk rechts hinten",890,1035,100,48,.3),
+  R("back_ankle_l","Sprunggelenk links hinten",1000,1035,100,48,.3),
+  R("back_foot_r","Fuß rechts hinten",875,1070,120,65,.5),
+  R("back_foot_l","Fuß links hinten",990,1070,120,65,.5),
+  ...makeDigitRegionsPx("back_finger_r","Finger","rechts hinten",700,535,105,68,.17),
+  ...makeDigitRegionsPx("back_finger_l","Finger","links hinten",1205,535,105,68,.17),
+  ...makeDigitRegionsPx("back_toe_r","Zehe","rechts hinten",875,1090,120,42,.10),
+  ...makeDigitRegionsPx("back_toe_l","Zehe","links hinten",990,1090,120,42,.10)
 ];
-function makeDigitRegions(prefix,kind,side,x,y,w,h,burnValue){
-  const arr=[]; const gap=w*0.02; const cw=(w-gap*4)/5;
-  for(let i=0;i<5;i++) arr.push({id:`${prefix}_${i+1}`,label:`${kind} ${i+1} ${side}`,x:x+i*(cw+gap),y,w:cw,h,burnValue});
+function makeDigitRegionsPx(prefix,kind,side,x,y,w,h,burnValue){
+  const arr=[]; const gap=3; const cw=(w-gap*4)/5;
+  for(let i=0;i<5;i++) arr.push({id:`${prefix}_${i+1}`,label:`${kind} ${i+1} ${side}`,x:x+i*(cw+gap),y,w:cw,h,burnValue,shape:"rect"});
   return arr;
 }
 function burnMapValue(selected){return [...selected].reduce((sum,key)=>{const id=String(key);const r=injuryMapRegions.find(x=>x.id===id);return sum+(Number(r?.burnValue)||0);},0);}
@@ -955,17 +959,19 @@ function renderInjuryMapQuestion(q,area){
   const selected=new Set(Array.isArray(answers[q.id])?answers[q.id]:[]);
   const burn=isBurnMechanism();
   const box=document.createElement("div"); box.className="injury-map-box";
-  box.innerHTML=`<div class="injury-map-note"><b>${burn?"🔥 Körperflächen-/Verletzungskarte":"🦴 Verletzungskarte"}</b><br>Bitte eine oder mehrere betroffene Körperregionen <b>direkt auf dem Körperschema</b> markieren. Die markierten Bereiche werden orange dargestellt. ${burn?"Bei Verbrennung, Verbrühung und Verätzung wird daraus zusätzlich eine orientierende VKOF-Schätzung berechnet.":"Bei Fraktur, Luxation, Wunde, Stich, Biss usw. wird keine Prozentangabe berechnet."}</div><div class="injury-map-summary">Markiert: <strong id="injuryMapSummary">noch nichts</strong>${burn?` · VKOF: <strong id="injuryMapPercent">0,0 %</strong>`:""}</div><div class="injury-map-stage"><img src="koerperkarte_verbrennung.jpg" alt="Körperschema Vorder- und Rückseite"><div class="injury-map-hotspots"></div></div>`;
-  const hotspots=box.querySelector('.injury-map-hotspots'); const summary=box.querySelector('#injuryMapSummary'); const percent=box.querySelector('#injuryMapPercent');
+  box.innerHTML=`<div class="injury-map-note"><b>${burn?"🔥 Körperflächen-/Verletzungskarte":"🦴 Verletzungskarte"}</b><br>Bitte eine oder mehrere betroffene Körperregionen <b>direkt auf dem Körperschema</b> markieren. Die markierten Bereiche werden orange dargestellt. ${burn?"Bei Verbrennung, Verbrühung und Verätzung wird daraus zusätzlich eine orientierende VKOF-Schätzung berechnet.":"Bei Fraktur, Luxation, Wunde, Stich, Biss usw. wird keine Prozentangabe berechnet."}</div><div class="injury-map-summary">Markiert: <strong id="injuryMapSummary">noch nichts</strong>${burn?` · VKOF: <strong id="injuryMapPercent">0,0 %</strong>`:""}</div><div class="injury-map-stage"><img src="koerperkarte_verbrennung.jpg" alt="Körperschema Vorder- und Rückseite"><svg class="injury-map-svg" viewBox="0 0 1536 1251" preserveAspectRatio="none" aria-label="Körperschema Vorder- und Rückseite"></svg></div>`;
+  const svg=box.querySelector('.injury-map-svg'); const summary=box.querySelector('#injuryMapSummary'); const percent=box.querySelector('#injuryMapPercent');
   const renderSummary=()=>{
     summary.textContent=selected.size?[...selected].map(id=>injuryMapRegions.find(r=>r.id===id)?.label||id).join(" · "):"noch nichts";
     if(percent) percent.textContent=burn?burnMapValue(selected).toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})+' %':"";
   };
+  const ns="http://www.w3.org/2000/svg";
   injuryMapRegions.forEach(r=>{
-    const b=document.createElement('button'); b.type='button'; b.className='injury-hotspot'; b.style.left=r.x+'%'; b.style.top=r.y+'%'; b.style.width=r.w+'%'; b.style.height=r.h+'%'; b.title=r.label; b.setAttribute('aria-label',r.label);
-    if(selected.has(r.id)) b.classList.add('selected');
-    b.onclick=()=>{if(selected.has(r.id)){selected.delete(r.id);b.classList.remove('selected')}else{selected.add(r.id);b.classList.add('selected')} answers[q.id]=[...selected];renderSummary();};
-    hotspots.appendChild(b);
+    const el=document.createElementNS(ns,"rect"); el.setAttribute("x",r.x); el.setAttribute("y",r.y); el.setAttribute("width",r.w); el.setAttribute("height",r.h); el.setAttribute("rx",Math.min(18,r.w*0.12)); el.setAttribute("class","injury-hotspot-svg"); el.setAttribute("tabindex","0"); el.setAttribute("aria-label",r.label); el.setAttribute("role","button");
+    if(selected.has(r.id)) el.classList.add('selected');
+    const toggle=()=>{if(selected.has(r.id)){selected.delete(r.id);el.classList.remove('selected')}else{selected.add(r.id);el.classList.add('selected')} answers[q.id]=[...selected];renderSummary();};
+    el.addEventListener("click",toggle); el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();}});
+    svg.appendChild(el);
   });
   renderSummary();
   const actions=document.createElement('div'); actions.className='free-actions';

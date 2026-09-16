@@ -1,2 +1,1 @@
-NABS V56 – einheitliche interaktive Verletzungs-/Körperkarte.
-Nach der Frage „Welche Verletzungsart wird vermutet…?“ erscheint die Karte. Orange markiert die Auswahl. Bei Verbrennung/Verbrühung/Verätzung wird zusätzlich eine orientierende VKOF-Schätzung aus den markierten Flächen gebildet. Bei Fraktur, Luxation, Wunde, Stich usw. keine Prozentangabe. Die markierte Karte wird im Ergebnis und beim PDF/Druck mit ausgegeben.
+NABS V58 – Verletzungskarte responsive korrigiert; Kategorien getrennt; direkte Körpermarkierung orange; VKOF nur bei Verbrennung/Verbrühung/Verätzung.

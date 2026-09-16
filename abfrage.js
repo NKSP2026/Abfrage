@@ -705,7 +705,24 @@ function nextQuestion(){
     // auf dem Eingabefeld.
     if(answers.verdachtsdiagnose!==undefined) return null;
     const injuryQs=questions().filter(q=>visible(q)&&answers[q.id]===undefined && q.id!=="verdachtsdiagnose");
-    const priorityIds=["verletzung_v49_mechanismus","verletzung_v51_muster","verletzung_v51_koerperkarte","verletzung_v49_lokalisation","verletzung_v49_tierart","verletzung_v49_tierort","verletzung_v49_tiergefahr","verletzung_v49_stromart","verletzung_v49_stromfrei","verletzung_v49_stromverbrennung","verletzung_v49_taeter","verletzung_v49_einvernehmlich","verletzung_v49_sexverletzung","verletzung_v49_vuenergie","verletzung_v49_vueingeklemmt","verletzung_v49_exposition","verletzung_v49_expositionsquelle","verletzung_v49_stichort","verletzung_v49_sturzhoehe","verletzung_v49_blutung","verletzung_v49_atmung","verletzung_v49_bewusstsein","verletzung_v49_schmerz","verletzung_v49_weitere","verletzung_v49_zugang","verletzung_v49_zugang_grund"];
+    const mech=String(answers.verletzung_v49_mechanismus||"");
+    let priorityIds=["verletzung_v49_mechanismus"];
+    if(["Verbrennung / Verbrühung","Verätzungen"].includes(mech)){
+      priorityIds.push("verletzung_v51_koerperkarte");
+    } else if(mech==="Tierbisse / Tierstiche"){
+      priorityIds.push("verletzung_v49_tierart","verletzung_v49_tierort","verletzung_v49_tiergefahr","verletzung_v51_koerperkarte");
+    } else if(mech==="Stromunfall" || mech==="Blitzschlag"){
+      priorityIds.push("verletzung_v49_stromart","verletzung_v49_stromfrei","verletzung_v49_stromverbrennung","verletzung_v51_koerperkarte");
+    } else if(mech==="Stich- / Pfählungsverletzung"){
+      priorityIds.push("verletzung_v49_stichort","verletzung_v51_koerperkarte");
+    } else if(mech==="Schnittverletzung"){
+      priorityIds.push("verletzung_v51_koerperkarte");
+    } else if(mech==="Vergewaltigung / sexueller Übergriff"){
+      priorityIds.push("verletzung_v49_taeter","verletzung_v49_einvernehmlich","verletzung_v49_sexverletzung","verletzung_v51_muster","verletzung_v51_koerperkarte");
+    } else {
+      priorityIds.push("verletzung_v51_muster","verletzung_v51_koerperkarte");
+    }
+    priorityIds.push("verletzung_v49_lokalisation","verletzung_v49_vuenergie","verletzung_v49_vueingeklemmt","verletzung_v49_exposition","verletzung_v49_expositionsquelle","verletzung_v49_sturzhoehe","verletzung_v49_blutung","verletzung_v49_atmung","verletzung_v49_bewusstsein","verletzung_v49_schmerz","verletzung_v49_weitere","verletzung_v49_zugang","verletzung_v49_zugang_grund");
     for(const id of priorityIds){ const q=injuryQs.find(x=>x.id===id); if(q) return q; }
     const diagnosis=Object.values(data.catalog?.medizin||{}).find(q=>q.id==="verdachtsdiagnose");
     return diagnosis||injuryQs[0]||null;

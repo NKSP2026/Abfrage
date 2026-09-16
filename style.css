@@ -237,13 +237,13 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 .injury-map-stage{position:relative;width:min(100%,760px);margin:0 auto;background:#444;border-radius:14px;overflow:hidden;border:1px solid #526174;touch-action:manipulation}
 .injury-map-stage img{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
 .injury-map-hotspots{position:absolute;inset:0}
-.injury-hotspot{position:absolute;margin:0;padding:0;border:1px dashed rgba(255,255,255,.24);border-radius:9px;background:rgba(0,0,0,.02);cursor:pointer;touch-action:manipulation;z-index:2}
-.injury-hotspot:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.7)}
+.injury-hotspot{position:absolute;margin:0;padding:0;border:1px solid transparent;border-radius:9px;background:transparent;cursor:pointer;touch-action:manipulation;z-index:2}
+.injury-hotspot:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.45)}
 .injury-hotspot.selected{background:rgba(255,140,0,.62);border:3px solid #ff8c00;box-shadow:0 0 0 2px rgba(255,140,0,.28);z-index:4}
 .injury-hotspot.selected::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:clamp(14px,2.4vw,26px);font-weight:900;text-shadow:0 1px 3px #000}
 @media(max-width:760px){
   .injury-map-stage{width:100%}
-  .injury-hotspot{border-color:rgba(255,255,255,.18)}
+  .injury-hotspot{border-color:transparent}
   .injury-hotspot.selected{border-width:2px}
 }
 
@@ -254,12 +254,12 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 .injury-map-stage{position:relative;width:min(100%,760px);margin:0 auto;background:#444;border-radius:14px;overflow:hidden;border:1px solid #526174;touch-action:manipulation}
 .injury-map-stage img{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
 .injury-map-hotspots{position:absolute;inset:0}
-.injury-hotspot{position:absolute;margin:0;padding:0;border:1px dashed rgba(255,255,255,.24);border-radius:9px;background:rgba(0,0,0,.02);cursor:pointer;touch-action:manipulation;z-index:2}
-.injury-hotspot:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.7)}
+.injury-hotspot{position:absolute;margin:0;padding:0;border:1px solid transparent;border-radius:9px;background:transparent;cursor:pointer;touch-action:manipulation;z-index:2}
+.injury-hotspot:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.45)}
 .injury-hotspot.selected{background:rgba(255,140,0,.62);border:3px solid #ff8c00;box-shadow:0 0 0 2px rgba(255,140,0,.28);z-index:4}
 .injury-hotspot.selected::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:clamp(14px,2.4vw,26px);font-weight:900;text-shadow:0 1px 3px #000}
 @media(max-width:760px){
   .injury-map-stage{width:100%}
-  .injury-hotspot{border-color:rgba(255,255,255,.18)}
+  .injury-hotspot{border-color:transparent}
   .injury-hotspot.selected{border-width:2px}
 }

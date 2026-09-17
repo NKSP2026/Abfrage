@@ -586,7 +586,7 @@ function mergeDeep(base,incoming){
 async function loadLocalCategoryInBackground(){
   if(!category || category==="grossschaden") return false;
   try{
-    const mod=await import(`./catalog-${category}.js?v=20260915v39`);
+    const mod=await import(`./catalog-${category}.js?v=20260917fw1`);
     data.catalog[category]=mod.catalog||{};
     render();
     if($("status")) $("status").textContent="● Abfrage aktiv · Fragenkatalog bereit";
@@ -656,6 +656,10 @@ function strokeIndicated(){
 }
 function visible(q){
   if(String(q?.id||"").startsWith("stroke_")&&!strokeIndicated()) return false;
+  // Die bestehenden V66-Brandfragen bleiben unverändert, erscheinen aber
+  // erst, wenn im Feuerwehrbaum tatsächlich "Brand / Rauchentwicklung"
+  // gewählt wurde. Alle neuen Feuerwehrzweige werden separat geführt.
+  if(category==="brand" && q?.fwLegacyBrand && answers.fw_schadensfall!=="Brand / Rauchentwicklung") return false;
   // Die Körperkarte gehört bei Verbrennung/Verbrühung/Verätzung direkt zum
   // gewählten Verletzungsmuster. Sie darf deshalb auch ohne vorherige
   // "Verletzungsart"-Antwort sichtbar werden. Bei allen anderen Mustern
@@ -780,10 +784,11 @@ function nextQuestion(){
   if(category==="medizin" && answers.med_grund!==undefined){
     const branchCount=medicalBranchCount();
     if(branchCount>=10) return diagnosis||null;
-  }else if(category!=="medizin" && steps>=10){
-    return diagnosis||null;
   }
-  const pool=category==="medizin" ? others : (steps>=10?others.filter(q=>!isBackgroundQuestion(q)):others);
+  // Feuerwehr/THL/Großschaden werden bis zum Ende ihres jeweiligen
+  // sichtbaren Zweiges abgefragt; die frühere pauschale 10-Fragen-Grenze
+  // würde detaillierte Einsatzlagen zu früh abschneiden.
+  const pool=category==="medizin" ? others : others;
   return pool[0]||diagnosis||null;
 }
 
@@ -1042,7 +1047,31 @@ function evaluateResources(reasons){
   }
   if(reasons.length) s.add("NEF / Notarzt");
   if(answers.deterioration) s.add("Rettungsdienst – akute Verschlechterung berücksichtigen");
-  if(category==="brand") s.add("Feuerwehr");
+  if(category==="brand") {
+    s.add("Feuerwehr");
+    const fw=String(answers.fw_schadensfall||"");
+    if(["Gewalt","Terroranschlag ausgeführt","Terroranschlag Drohung"].includes(fw)) s.add("Polizei – lageabhängig zusätzlich prüfen");
+    if(["Vergiftung","Gefahrstoffaustritt / ABC"].includes(fw)) s.add("ABC-/Gefahrgut-Komponente – lageabhängig prüfen");
+    if(["Ertrinkungsunfall","Eisrettung","Tauchunfall","Wasserfahrzeug / -sportler in Not","Sachbergung aus dem Wasser","Tierrettung aus dem Wasser"].includes(fw)) s.add("Wasserrettung / Feuerwehr – lageabhängig prüfen");
+    if(["Ertrinkungsunfall","Eisrettung","Tauchunfall","Wasserfahrzeug / -sportler in Not"].includes(fw)) s.add("RTW / Rettungsdienst – bei betroffenen Personen prüfen");
+    if(["Explosion","Einsturz / Gebäudeschaden","Person in Notlage","Technische Hilfeleistung","Verkehrsunfall"].includes(fw)) s.add("Technische Hilfeleistung – lageabhängig prüfen");
+    if(fw==="Sonstiger MANV (FREITEXT)") s.add("Rettungsdienst / MANV-Komponente – nach Lage und örtlicher AAO prüfen");
+    if(
+      answers.fw_blitz_personen==="Ja" ||
+      answers.fw_gewalt_verletzt==="Ja" ||
+      answers.fw_terror_verletzt==="Ja" ||
+      answers.fw_vergiftung_bewusst==="Ja" ||
+      answers.fw_vergiftung_atmung==="Ja" ||
+      answers.fw_wasser_atmung==="Nein" ||
+      answers.fw_tauch_bewusst==="Nein" ||
+      answers.fw_tauch_atmung==="Nein" ||
+      answers.fw_explo_personen==="Ja" ||
+      answers.fw_notlage_bewusst==="Nein" ||
+      answers.fw_notlage_atmung==="Nein" ||
+      answers.fw_oel_person==="Ja" ||
+      answers.fw_sonst_person==="Ja"
+    ) s.add("RTW / Rettungsdienst – betroffene Person(en) medizinisch beurteilen");
+  }
   // Zusätzliche Kräfte nur bei konkreten Hinweisen.
   if(/feuer|rauch|gas|gefahrstoff|chemikal|brand|eingeklemmt|eingeschlossen|stromleitung|explosion|einsturz|abgestürzt|verschüttet|verschlossene wohnung|auf dach|balkon|höhe|fahrzeug|aufzug|unzugängliches gelände/.test(txt)) s.add("Feuerwehr – zusätzlich erforderlich/zu prüfen");
   if(/waffe|gewalt|schlägerei|bedroh|angriff|stra[ft]at|polizei|suizid|fremdgefähr/.test(txt)) s.add("Polizei – lageabhängig zusätzlich zu prüfen");
@@ -1088,7 +1117,37 @@ function fallbackStichwort(){
     const map={"Atemstörung":"Atemnot / Atemstörung","Brustschmerzen":"Brustschmerz","Kollaps / Kreislaufstörung":"Kollaps / Kreislaufstörung","Bewusstseinsstörung / Wesensveränderung":"Bewusstseinsstörung","Blutungen":"Blutung","Krampfanfall":"Krampfanfall","Vergiftung":"Vergiftung / Intoxikation","Verletzung":"Verletzung / Trauma","Arbeits- / Betriebs- / Schulunfall":"Verletzung / Trauma (Arbeits-/Betriebs-/Schulunfall)","Bauchschmerzen":"Akute Bauchschmerzen","Gefühlsstörung / Lähmung / Sprache / Sehstörung":"Neurologischer Notfall","Geburt / Schwangerschaft":"Geburtshilflicher Notfall","Allergie / Anaphylaxie":"Allergische Reaktion / Anaphylaxie","Herzrhythmusstörungen":"Herzrhythmusstörung","Kopfschmerzen":"Akuter Kopfschmerz","Psychische Erkrankung / Suizid":"Psychischer Notfall","Hitze- / Kälteprobleme":"Hitze-/Kältenotfall","Sonstige Schmerzen":"Akuter Schmerz","Erkrankung / medizinische Hilfeleistung":"Erkrankung / medizinische Hilfeleistung"};
     return {code:"RD-MED",name:map[g]||g||"Medizinischer Notfall",priority:1};
   }
-  if(category==="brand") return {code:"FW-BRAND",name:"Brand / Rauchentwicklung",priority:1};
+  if(category==="brand") {
+    const fw=String(answers.fw_schadensfall||"");
+    const map={
+      "Brand / Rauchentwicklung":["FW-BRAND","Brand / Rauchentwicklung"],
+      "Blitzschlag":["FW-BLITZ","Blitzschlag"],
+      "Gewalt":["FW-GEWALT","Gewalt / Gefahrenlage"],
+      "Naturereignis":["FW-NATUR","Naturereignis / Unwetter"],
+      "Räumung / Evakuierung":["FW-EVA","Räumung / Evakuierung"],
+      "Terroranschlag ausgeführt":["FW-TERROR","Terroranschlag ausgeführt"],
+      "Terroranschlag Drohung":["FW-TERROR-D","Terroranschlag Drohung"],
+      "Vergiftung":["FW-VERGIFT","Vergiftung / Gefahrstofflage"],
+      "Sonstiger MANV (FREITEXT)":["FW-MANV","Sonstiger MANV"],
+      "Ertrinkungsunfall":["FW-WASSER","Ertrinkungsunfall"],
+      "Eisrettung":["FW-EIS","Eisrettung"],
+      "Tauchunfall":["FW-TAUCH","Tauchunfall"],
+      "Wasserfahrzeug / -sportler in Not":["FW-BOOT","Wasserfahrzeug / Wassersportler in Not"],
+      "Sachbergung aus dem Wasser":["FW-WASSER-SACH","Sachbergung aus dem Wasser"],
+      "Tierrettung aus dem Wasser":["FW-WASSER-TIER","Tierrettung aus dem Wasser"],
+      "Verkehrsunfall":["FW-VU","Verkehrsunfall"],
+      "Technische Hilfeleistung":["FW-THL","Technische Hilfeleistung"],
+      "Gefahrstoffaustritt / ABC":["FW-ABC","Gefahrstoffaustritt / ABC"],
+      "Explosion":["FW-EXPLOSION","Explosion"],
+      "Einsturz / Gebäudeschaden":["FW-EINSTURZ","Einsturz / Gebäudeschaden"],
+      "Person in Notlage":["FW-NOTLAGE","Person in Notlage"],
+      "Tierrettung":["FW-TIER","Tierrettung"],
+      "Öl-/Kraftstoffaustritt / Umweltschaden":["FW-UMWELT","Öl-/Kraftstoffaustritt / Umweltschaden"],
+      "Sonstige Feuerwehrlage (FREITEXT)":["FW-SONST","Sonstige Feuerwehrlage"]
+    };
+    const m=map[fw]||["FW-EINSATZ","Feuerwehreinsatz"];
+    return {code:m[0],name:m[1],priority:1};
+  }
   if(category==="thl") return {code:mode==="wasser"?"THL-WASSER":"THL-VU",name:mode==="wasser"?"Wasserunfall / Ertrinkungsunfall":"Verkehrsunfall / Technische Hilfeleistung",priority:1};
   return null;
 }
@@ -1187,7 +1246,21 @@ function dispatchText(resources,reasons,stichwort){
   const parts=[];
   if(stichwort?.name)parts.push(stichwort.name);
   if(category==="medizin") parts.push(...importantDispatchFacts());
-  if(category==="brand"){if(answers.objekt)parts.push(answers.objekt);if(answers.personen_im_objekt==="Ja")parts.push("Person(en) in Gefahr");}
+  if(category==="brand"){
+    if(answers.fw_schadensfall) parts.push(answers.fw_schadensfall);
+    if(answers.objekt) parts.push(answers.objekt);
+    if(answers.personen_im_objekt==="Ja")parts.push("Person(en) in Gefahr");
+    const fwFacts=["fw_blitz_personen","fw_blitz_strom","fw_gewalt_aktiv","fw_gewalt_waffe","fw_gewalt_verletzt","fw_natur_art","fw_natur_personen","fw_evaku_grund","fw_evaku_betroffene","fw_terror_lage","fw_terror_verletzt","fw_abc_art","fw_abc_betroffen","fw_explo_personen","fw_explo_brand","fw_einsturz_akut","fw_einsturz_person","fw_notlage_art","fw_notlage_bewusst","fw_notlage_atmung","fw_tier_art","fw_tier_lage","fw_oel_art","fw_oel_gewasser","fw_sonst_text"];
+    fwFacts.forEach(id=>{if(answers[id]!==undefined&&String(answers[id]).trim()!=="") parts.push(Array.isArray(answers[id])?answers[id].join(", "):String(answers[id]));});
+    if(answers.fw_blitz_anzahl) parts.push(`ca. ${answers.fw_blitz_anzahl} Betroffene`);
+    if(answers.fw_gewalt_anzahl) parts.push(`ca. ${answers.fw_gewalt_anzahl} Betroffene`);
+    if(answers.fw_terror_anzahl) parts.push(`ca. ${answers.fw_terror_anzahl} Betroffene`);
+    if(answers.fw_vergiftung_personen) parts.push(`ca. ${answers.fw_vergiftung_personen} Exponierte`);
+    if(answers.fw_manv_anzahl) parts.push(`ca. ${answers.fw_manv_anzahl} Betroffene`);
+    if(answers.fw_vu_anzahl) parts.push(`${answers.fw_vu_anzahl} Fahrzeuge`);
+    if(answers.fw_vu_anzahl_klemm) parts.push(`${answers.fw_vu_anzahl_klemm} eingeklemmte/eingeschlossene Personen`);
+    if(answers.fw_einsturz_anzahl) parts.push(`bis zu ${answers.fw_einsturz_anzahl} mögliche Betroffene`);
+  }
   if(category==="thl"){if(mode==="vu")parts.push("Verkehrsunfall");if(mode==="wasser")parts.push("Wasser-/Eisunfall");if(answers.lage)parts.push(answers.lage);if(answers.eingeklemmt==="Ja")parts.push("Person(en) eingeklemmt/eingeschlossen");}
   if(category==="grossschaden"){parts.push(answers.gs_lage||"Großschadenslage");if(answers.gs_orte)parts.push(answers.gs_orte);if(answers.gs_betroffene)parts.push(`ca. ${answers.gs_betroffene} Betroffene`);}
   if(answers.abfrage_bemerkung)parts.push(`Zusatz: ${answers.abfrage_bemerkung}`);

@@ -299,3 +299,6 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 .nabs-body-region:hover,.nabs-body-region:focus{fill:rgba(255,165,0,.10);stroke:rgba(255,165,0,.55);outline:none}
 .nabs-body-region.selected{fill:rgba(255,140,0,.62);stroke:#ff8c00;stroke-width:4}
 @media(max-width:760px){.nabs-body-region.selected{stroke-width:5}.nabs-body-tooltip{font-size:13px}}
+
+/* V66: Präzise Hover-Beschriftung der anatomischen SVG-Region */
+.nabs-body-tooltip{position:fixed;z-index:100000;pointer-events:none;background:#171b21;color:#fff;border:1px solid #ff8c00;border-radius:6px;padding:6px 9px;font-size:14px;font-weight:700;line-height:1.2;box-shadow:0 6px 18px rgba(0,0,0,.4);white-space:nowrap}

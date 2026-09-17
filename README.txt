@@ -1,5 +1,7 @@
 NABS V62 – Körperkarte korrigiert
 
+Aktueller Stand: V68. Die jeweils neuesten Änderungen stehen am Ende dieser README.txt; es werden keine separaten README-Dateien angelegt.
+
 Die Hotspots wurden für das vorhandene 1536x1251-Körperschema komplett neu auf die tatsächlichen Vorder- und Rückseitenpositionen gelegt.
 - Vorderseite und Rückseite separat kalibriert
 - Arme, Hände, Finger, Beine, Füße enger am Skelett
@@ -123,3 +125,15 @@ V66 Feuerwehr-Erweiterung 2026-09-17:
 - Anatomiekarte/bodymap.js unverändert übernommen.
 - Einsatzstichwort, Einsatztext und Ressourcen berücksichtigen die neue Feuerwehrlage.
 
+
+
+NABS V68 – Anatomische Referenzgrafik exakt kalibriert
+
+- Die aktuelle Referenzgrafik aus dem zuletzt bereitgestellten Beispiel wurde als neue Hintergrundgrafik für die Körperkarte übernommen.
+- Die vorhandene NABS-Abfrage und die Verletzungsdaten bleiben erhalten.
+- Das Körperschema verwendet jetzt exakt das Referenzseitenverhältnis 1536x759.
+- Vorder- und Rückseite werden mit getrennten Koordinatentransformationen auf die tatsächlich dargestellten Körper gelegt, statt pauschal alle Hotspots zu verschieben.
+- Kopf, Rumpf, Arme, Hände, Beine und Füße folgen dadurch der Position des Referenzbildes.
+- Die vorhandene Rechtsklick-Auswahl, Hover-Beschriftung, Mehrfachauswahl und Verletzungsarten-Auswahl bleiben erhalten.
+- Die Referenzgrafik enthält die Detailansichten für Hand und Fuß sowie die vergrößerte Gesichtsansicht; diese bleiben als sichtbare Orientierung im Hintergrund.
+- Keine zusätzlichen README-Dateien: alle Änderungsstände werden weiterhin ausschließlich in dieser README.txt dokumentiert.

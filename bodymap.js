@@ -240,6 +240,13 @@
     regions.forEach(r=>{
       const el=document.createElementNS(ns,'path');
       el.setAttribute('d',r.d);el.setAttribute('class','nabs-body-region');el.setAttribute('tabindex','0');el.setAttribute('role','button');el.setAttribute('aria-label',r.label);el.dataset.region=r.id;
+      // Die neue Referenzgrafik hat ein 1536x759-Koordinatensystem. Die bisher
+      // gezeichneten Körperregionen stammen aus 1536x1251 und werden deshalb
+      // getrennt für Vorder- und Rückseite exakt auf die Referenzkörper gelegt.
+      // Vorderseite: x=1.10*x+17.5, y=0.638*y
+      // Rückseite:    x=x+330,     y=0.638*y
+      if(r.id.startsWith('front_')) el.setAttribute('transform','translate(17.5 0) scale(1.1 0.638)');
+      else if(r.id.startsWith('back_')) el.setAttribute('transform','translate(330 0) scale(1 0.638)');
       if(selected.has(r.id))el.classList.add('selected');
       el.addEventListener('pointermove',e=>showTip(r,e));
       el.addEventListener('pointerleave',hideTip);

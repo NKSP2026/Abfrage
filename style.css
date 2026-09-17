@@ -272,3 +272,30 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 .injury-hotspot-svg:hover,.injury-hotspot-svg:focus{fill:rgba(255,255,255,.08);stroke:rgba(255,255,255,.55);outline:none}
 .injury-hotspot-svg.selected{fill:rgba(255,140,0,.62);stroke:#ff8c00;stroke-width:5}
 @media(max-width:760px){.injury-map-stage{width:100%}.injury-hotspot-svg.selected{stroke-width:4}}
+
+/* NABS V65 – anatomische SVG-Körperkarte */
+.injury-map-stage{width:min(100%,1080px);position:relative;margin:0 auto;background:#444;border-radius:14px;overflow:visible;border:1px solid #526174;touch-action:manipulation}
+.injury-map-stage img{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none;border-radius:13px}
+.injury-map-svg{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:2;touch-action:manipulation;overflow:visible}
+.nabs-body-region{fill:rgba(255,140,0,0);stroke:rgba(255,140,0,0);stroke-width:2;cursor:pointer;pointer-events:all;transition:fill .12s,stroke .12s}
+.nabs-body-region:hover,.nabs-body-region:focus{fill:rgba(255,180,0,.16);stroke:rgba(255,165,0,.65);outline:none}
+.nabs-body-region.selected{fill:rgba(255,140,0,.58);stroke:#ff8c00;stroke-width:4}
+.nabs-injury-menu{position:fixed;z-index:99999;width:min(340px,calc(100vw - 20px));max-height:min(560px,calc(100vh - 20px));overflow:auto;background:#fff;color:#17202a;border:1px solid #8994a3;box-shadow:0 12px 32px rgba(0,0,0,.42);border-radius:3px;font-family:Arial,sans-serif}
+.nabs-injury-menu-title{font-size:18px;font-weight:700;padding:12px 14px 4px;color:#173f83}
+.nabs-injury-menu-sub{font-size:13px;padding:0 14px 8px;color:#68717d}
+.nabs-injury-menu-options button,.nabs-injury-menu>button{display:block;width:100%;text-align:left;border:0;border-top:1px solid #d8dce2;background:#fff;color:#17202a;padding:9px 14px;font-size:15px;cursor:pointer}
+.nabs-injury-menu-options button:hover,.nabs-injury-menu>button:hover{background:#f0f3f7}
+.nabs-injury-menu-sep{border-top:2px solid #c6ccd4;margin-top:3px}
+.nabs-injury-menu .nabs-menu-reset{font-weight:500}
+.nabs-injury-menu .nabs-menu-reset-all{font-weight:700;color:#8b1515}
+@media(max-width:760px){
+  .nabs-injury-menu{width:min(340px,calc(100vw - 14px));font-size:14px}
+  .nabs-injury-menu-options button,.nabs-injury-menu>button{padding:10px 12px;font-size:14px}
+  .nabs-body-region.selected{stroke-width:5}
+}
+/* NABS V66 BodyMap: Hover-Info und Rechtsklick-Auswahl */
+.nabs-body-tooltip{position:fixed;z-index:100000;background:#fff;color:#17202a;border:1px solid #8b95a3;border-radius:3px;padding:7px 10px;font:600 14px Arial,sans-serif;box-shadow:0 5px 18px rgba(0,0,0,.35);pointer-events:none;white-space:nowrap}
+.nabs-body-region{fill:transparent;stroke:transparent;stroke-width:2;cursor:context-menu;pointer-events:all;transition:fill .12s,stroke .12s}
+.nabs-body-region:hover,.nabs-body-region:focus{fill:rgba(255,165,0,.10);stroke:rgba(255,165,0,.55);outline:none}
+.nabs-body-region.selected{fill:rgba(255,140,0,.62);stroke:#ff8c00;stroke-width:4}
+@media(max-width:760px){.nabs-body-region.selected{stroke-width:5}.nabs-body-tooltip{font-size:13px}}

@@ -167,6 +167,97 @@
   const btl=[['Großzehe',1,976,1100,994,1135],['2. Zehe',2,986,1095,1002,1138],['3. Zehe',3,999,1092,1015,1138],['4. Zehe',4,1012,1092,1028,1139],['5. Zehe',5,1025,1095,1037,1136]];
   btl.forEach(([n,i,x1,y1,x2,y2])=>add(`back_toe_l_${i}`,`${n} links hinten`,poly([[x1,y1],[x1+10,y1-5],[x2,y2],[x1+5,y2+2]])));
 
+  // ---------------- EXAKTE KORREKTUR AUF DIE REFERENZGRAFIK 1536x759 ----------------
+  // WICHTIG: Die orange Fläche muss auf der TATSÄCHLICHEN anatomischen Struktur
+  // der Hintergrundgrafik liegen. Die vom Nutzer rot markierte Stelle ist dabei
+  // die Sollposition; alte, nur ungefähr platzierte Flächen werden nicht übernommen.
+  const override=(id,d)=>{const r=regions.find(x=>x.id===id); if(r){r.d=d; r.corrected=true;}};
+
+  // Vorderseite – Koordinaten direkt im 1536x759-Pixelraster des Hintergrundbildes.
+  // Rechte/links beziehen sich auf die Person (Patientensicht).
+  override('front_neck',rect(438,105,44,34,5));
+  override('front_clavicle_r',poly([[365,119],[405,108],[452,126],[447,144],[410,139],[376,132]]));
+  override('front_clavicle_l',poly([[468,126],[515,108],[555,119],[544,132],[510,139],[473,144]]));
+
+  override('front_chest','M387 137 Q458 121 529 137 Q548 174 544 228 Q535 265 505 278 L410 278 Q380 263 372 228 Q368 174 387 137Z');
+  override('front_upperchest_r',poly([[379,143],[457,130],[457,184],[383,188]]));
+  override('front_upperchest_l',poly([[461,130],[538,143],[534,188],[461,184]]));
+  override('front_midchest_r',poly([[381,188],[457,184],[457,231],[382,226]]));
+  override('front_midchest_l',poly([[461,184],[534,188],[538,226],[461,231]]));
+  override('front_lowerchest_r',poly([[382,226],[457,231],[454,274],[406,268],[384,250]]));
+  override('front_lowerchest_l',poly([[461,231],[538,226],[536,250],[514,268],[464,274]]));
+  override('front_sternum',poly([[454,137],[464,137],[464,274],[454,274]]));
+
+  // Schultern: nur die sichtbare Schulterform, nicht bis in den Oberarm hinein.
+  override('front_shoulder_r','M359 119 Q374 108 397 115 L421 132 L407 163 Q385 171 364 157 Q351 143 359 119Z');
+  override('front_shoulder_l','M523 115 Q546 108 561 119 Q569 143 556 157 Q535 171 513 163 L499 132Z');
+
+  // Oberarme: bewusst breiter und entlang des echten äußeren Körperumrisses.
+  override('front_upperarm_r','M375 151 Q391 145 407 158 L414 184 L392 268 Q386 286 372 293 Q357 287 352 270 L358 196 Q357 169 375 151Z');
+  override('front_upperarm_l','M513 158 Q529 145 545 151 Q563 169 562 196 L568 270 Q563 287 548 293 Q534 286 528 268 L506 184Z');
+  override('front_elbow_r','M353 267 Q372 273 392 267 L390 298 Q375 308 358 298Z');
+  override('front_elbow_l','M528 267 Q548 273 567 267 L562 298 Q545 308 530 298Z');
+  override('front_forearm_r','M358 295 Q375 304 391 295 L346 374 Q336 391 322 389 Q309 384 309 370 L351 303Z');
+  override('front_forearm_l','M529 295 Q545 304 562 295 L569 303 L611 370 Q611 384 598 389 Q584 391 574 374 L529 295Z');
+
+  // Bauch: obere und untere Etage sauber trennen. Der Unterbauch liegt
+  // deutlich UNTERHALB des Nabelbereichs – genau wie in der roten Markierung.
+  override('front_abdomen','M401 268 Q458 278 517 268 L519 361 Q505 383 458 387 Q412 383 399 361Z');
+  override('front_upperabd_r',poly([[402,269],[457,279],[457,319],[402,315]]));
+  override('front_upperabd_l',poly([[461,279],[516,269],[516,315],[461,319]]));
+  override('front_lowerabd_r',poly([[402,317],[457,320],[457,361],[415,357],[402,347]]));
+  override('front_lowerabd_l',poly([[461,320],[516,317],[516,347],[503,357],[461,361]]));
+  override('front_umbilicus',ell(459,319,8,8));
+
+  // Becken/Hüfte: die rote Sollposition liegt unter dem Unterbauch und über
+  // dem Beginn der Oberschenkel – nicht im oberen Bauchbereich.
+  override('front_pelvis','M402 357 Q459 375 516 357 Q527 378 523 410 Q507 431 459 435 Q411 431 395 410 Q391 378 402 357Z');
+  override('front_groin_r',poly([[398,361],[457,378],[455,418],[423,413],[401,397]]));
+  override('front_groin_l',poly([[461,378],[520,361],[517,397],[495,413],[463,418]]));
+
+  // Beine vorne – entlang des tatsächlichen Umrisses der Referenzfigur.
+  override('front_thigh_r','M405 423 Q426 414 451 423 L453 580 Q448 604 431 612 Q412 605 406 582 L401 470Z');
+  override('front_thigh_l','M466 423 Q491 414 512 423 L516 470 L511 582 Q505 605 486 612 Q469 604 464 580Z');
+  override('front_thigh_upper_r',poly([[405,427],[451,427],[452,504],[404,504]]));
+  override('front_thigh_lower_r',poly([[404,506],[452,506],[452,580],[430,608],[408,580]]));
+  override('front_thigh_upper_l',poly([[466,427],[512,427],[513,504],[466,504]]));
+  override('front_thigh_lower_l',poly([[466,506],[513,506],[511,580],[489,608],[466,580]]));
+  override('front_knee_r','M406 578 Q429 589 452 578 L451 616 Q430 627 409 616Z');
+  override('front_knee_l','M466 578 Q489 589 512 578 L511 616 Q490 627 468 616Z');
+  override('front_lowerleg_r','M409 612 Q430 622 451 612 L449 741 Q442 758 428 758 Q414 758 408 741Z');
+  override('front_lowerleg_l','M468 612 Q490 622 511 612 L512 741 Q506 758 492 758 Q478 758 470 741Z');
+  override('front_shin_upper_r',poly([[410,616],[451,616],[450,680],[410,680]]));
+  override('front_shin_lower_r',poly([[410,682],[450,682],[449,741],[428,755],[411,741]]));
+  override('front_shin_upper_l',poly([[469,616],[510,616],[511,680],[470,680]]));
+  override('front_shin_lower_l',poly([[470,682],[511,682],[511,741],[493,755],[470,741]]));
+
+  // Rückseite – gleiche anatomische Logik, direkt auf der rechten Figur.
+  override('back_neck',rect(1237,105,44,34,5));
+  override('back_cervical',poly([[1243,112],[1275,112],[1278,139],[1240,139]]));
+  override('back_upperback','M1194 137 Q1260 120 1326 137 Q1340 175 1337 228 Q1330 267 1305 278 L1215 278 Q1190 263 1183 228 Q1180 175 1194 137Z');
+  override('back_scapula_r',poly([[1184,145],[1225,126],[1250,145],[1243,213],[1208,228],[1188,205]]));
+  override('back_scapula_l',poly([[1270,145],[1295,126],[1336,145],[1332,205],[1312,228],[1277,213]]));
+  override('back_thoracic',poly([[1252,137],[1268,137],[1270,270],[1250,270]]));
+  override('back_ribs_r',poly([[1192,205],[1249,197],[1249,271],[1206,263]]));
+  override('back_ribs_l',poly([[1271,197],[1328,205],[1314,263],[1271,271]]));
+  override('back_lowerback','M1209 267 Q1260 278 1311 267 L1312 358 Q1298 380 1260 383 Q1222 380 1208 358Z');
+  override('back_lumbar_r',poly([[1211,269],[1252,280],[1252,357],[1225,365],[1210,350]]));
+  override('back_lumbar_l',poly([[1268,280],[1309,269],[1310,350],[1295,365],[1268,357]]));
+  override('back_flank_r',poly([[1192,270],[1222,280],[1222,355],[1200,344]]));
+  override('back_flank_l',poly([[1298,280],[1328,270],[1320,344],[1298,355]]));
+  override('back_sacrum',poly([[1244,350],[1276,350],[1286,390],[1260,420],[1234,390]]));
+  override('back_pelvis','M1208 350 Q1260 371 1312 350 Q1323 374 1318 405 Q1301 426 1260 430 Q1219 426 1202 405 Q1197 374 1208 350Z');
+  override('back_glute_r',poly([[1204,374],[1253,374],[1253,422],[1225,428],[1206,405]]));
+  override('back_glute_l',poly([[1267,374],[1316,374],[1314,405],[1295,428],[1267,422]]));
+  override('back_shoulder_r','M1172 119 Q1190 108 1211 115 L1235 132 L1221 163 Q1199 171 1178 157 Q1165 143 1172 119Z');
+  override('back_shoulder_l','M1309 115 Q1330 108 1348 119 Q1355 143 1342 157 Q1321 171 1299 163 L1285 132Z');
+  override('back_upperarm_r','M1184 151 Q1200 145 1216 158 L1223 184 L1201 268 Q1195 286 1180 293 Q1165 287 1160 270 L1166 196 Q1166 169 1184 151Z');
+  override('back_upperarm_l','M1304 158 Q1320 145 1336 151 Q1354 169 1354 196 L1360 270 Q1355 287 1340 293 Q1325 286 1319 268 L1297 184Z');
+  override('back_elbow_r','M1161 267 Q1180 273 1201 267 L1199 298 Q1184 308 1167 298Z');
+  override('back_elbow_l','M1319 267 Q1340 273 1359 267 L1354 298 Q1337 308 1322 298Z');
+  override('back_forearm_r','M1167 295 Q1184 304 1200 295 L1155 374 Q1145 391 1131 389 Q1118 384 1118 370 L1160 303Z');
+  override('back_forearm_l','M1322 295 Q1337 304 1354 295 L1361 303 L1403 370 Q1403 384 1390 389 Q1376 391 1366 374 L1322 295Z');
+
   // ---------------- DETAILBEREICHE / REFERENZBILD 83075 ----------------
   // Die große Körpergrafik wird nur für die großen anatomischen Regionen verwendet.
   // Kopf/Gesicht sowie Hand- und Fußdetails liegen ausschließlich in den dafür
@@ -192,11 +283,15 @@
 
   // Alte 1536x1251-Koordinaten auf die exakt verwendete 1536x759-Referenzgrafik
   // abbilden. Vorder- und Rückseite liegen im neuen Bild an unterschiedlichen X-Positionen.
+  // Korrigierte Hauptregionen liegen direkt im 1536x759-System. Noch nicht
+  // korrigierte Bein-/Restregionen behalten ihre bewährte Alt-Transformation,
+  // damit nicht durch diese Überarbeitung funktionierende Bereiche verrutschen.
   const FRONT_T='matrix(.82 0 0 .67 123 0)';
   const BACK_T='matrix(.82 0 0 .67 490 0)';
   regions.forEach(r=>{
     if(r.hidden) return;
-    if(r.id.startsWith('front_')) r.transform=FRONT_T;
+    if(r.corrected || r.detail) r.transform=null;
+    else if(r.id.startsWith('front_')) r.transform=FRONT_T;
     else if(r.id.startsWith('back_')) r.transform=BACK_T;
   });
 
@@ -214,6 +309,9 @@
   add('detail_upperjaw_r','Oberkiefer rechts',poly([[838,216],[864,221],[870,241],[854,250],[837,241]]),{detail:true});
   add('detail_upperjaw_l','Oberkiefer links',poly([[891,221],[917,216],[918,241],[901,250],[885,241]]),{detail:true});
   add('detail_mouth','Mund',poly([[855,239],[871,235],[886,235],[902,239],[897,253],[883,258],[869,258],[855,253]]),{detail:true});
+  // Ohren – Teil der großen Gesichtsansicht und separat auswählbar.
+  add('detail_ear_r','Ohr rechts',poly([[790,150],[801,142],[811,150],[814,178],[807,199],[796,205],[788,192],[786,170]]),{detail:true});
+  add('detail_ear_l','Ohr links',poly([[963,150],[974,142],[985,150],[989,170],[987,192],[979,205],[968,199],[961,178]]),{detail:true});
 
   // Hand-Detailbild links: keine Hand-/Finger-Hotspots mehr auf dem großen Skelett.
   add('detail_hand_wrist','Handgelenk',poly([[76,244],[105,238],[139,247],[151,269],[141,292],[105,286],[77,274]]),{detail:true,detailSide:true});
@@ -232,6 +330,41 @@
     ['4. Zehe',4,62,688,86,720],['5. Zehe',5,48,681,69,710]
   ];
   toeXs.forEach(([n,i,x1,y1,x2,y2])=>add(`detail_toe_${i}`,n,poly([[x1,y1],[x1+16,y1-4],[x2,y2],[x1+6,y2+3]]),{detail:true,detailSide:true}));
+
+  // ---------------- ZIELPOSITIONEN AUS DEN NUTZER-MARKIERUNGEN ----------------
+  // WICHTIG: Orange = aktuelle Programmfläche, farbige Markierungen (rot/cyan/blau/
+  // pink/grün) aus den Referenz-Screenshots = SOLLPOSITION. Diese Korrekturen
+  // überschreiben deshalb die bisherigen Näherungsflächen.
+  //
+  // Vorderseite: Unterarme und Knie
+  override('front_forearm_r',poly([[343.4,236.4],[331.3,236.4],[323.5,246.4],[312.5,253.0],[308.1,258.5],[299.2,268.5],[290.4,278.4],[282.7,290.6],[273.9,309.3],[272.7,317.1],[278.3,323.7],[286.0,323.7],[291.5,316.0],[298.1,312.7],[302.6,298.3],[307.0,300.5],[310.3,288.4],[315.8,282.8],[323.5,277.3],[321.3,269.6],[326.9,269.6],[336.8,259.6],[333.5,258.5],[344.5,248.6]]));
+  override('front_forearm_l',poly([[558.7,244.2],[557.6,256.3],[567.6,275.1],[583.0,289.5],[586.4,297.2],[599.6,307.1],[608.4,321.5],[619.5,329.2],[629.4,322.6],[619.5,293.9],[566.5,244.2]]));
+  override('front_knee_r',poly([[377.7,486.1],[373.2,492.7],[373.2,518.2],[379.9,530.3],[394.2,533.6],[410.8,519.3],[410.8,497.2],[403.0,488.3]]));
+  override('front_knee_l',poly([[513.5,495.0],[503.5,495.0],[482.6,508.2],[480.3,523.7],[489.2,536.9],[505.7,536.9],[514.6,530.3],[520.1,512.6],[519.0,501.6]]));
+
+  // Rückseite: obere/untere Wade. Die Zuordnung folgt der Beschriftung im
+  // Referenzbild: links = sichtbare linke Körperseite, rechts = sichtbare rechte.
+  override('back_calf_l',poly([[1242.3,522.6],[1234.5,524.8],[1223.5,535.8],[1218.0,611.0],[1225.7,618.7],[1237.9,617.6],[1247.8,609.9],[1256.6,585.5],[1256.6,545.8],[1251.1,532.5]]));
+  override('back_calf_r',poly([[1346.1,523.7],[1337.2,541.4],[1336.1,556.8],[1340.5,608.7],[1346.1,624.2],[1357.1,624.2],[1367.1,634.2],[1374.8,624.2],[1378.1,581.1],[1368.2,539.1],[1351.6,524.8]]));
+  override('back_calf_lower_l',poly([[1232.3,619.8],[1220.2,628.6],[1223.5,689.4],[1227.9,708.2],[1240.1,711.5],[1247.8,702.7],[1251.1,668.4],[1245.6,633.1],[1240.1,623.1]]));
+  override('back_calf_lower_r',poly([[1350.5,626.4],[1341.7,630.8],[1333.9,657.4],[1333.9,680.6],[1343.9,707.1],[1350.5,712.6],[1356.0,712.6],[1364.8,704.9],[1370.4,651.8],[1360.4,629.7]]));
+
+  // Hand-/Fuß-Detailbereiche: die alten kleinen Flächen werden an die im
+  // Referenzbild rot markierten Strukturen angepasst. Sie bleiben ausschließlich
+  // im Detailbild aktiv.
+  override('detail_hand_finger_1',poly([[31,300],[48,286],[66,280],[82,294],[73,322],[63,355],[54,392],[43,418],[32,414],[27,398],[31,370]]));
+  override('detail_hand_finger_2',poly([[69,291],[84,282],[101,290],[105,324],[103,366],[99,414],[94,468],[82,477],[70,468],[68,430],[69,380]]));
+  override('detail_hand_finger_3',poly([[92,286],[108,283],[122,293],[126,337],[126,390],[126,444],[123,484],[112,492],[101,483],[99,441],[99,391],[96,340]]));
+  override('detail_hand_finger_4',poly([[113,289],[129,286],[143,296],[149,339],[153,383],[157,430],[153,456],[143,463],[132,452],[128,414],[124,372],[119,332]]));
+  override('detail_hand_finger_5',poly([[135,294],[150,287],[163,294],[174,326],[182,365],[188,405],[184,423],[174,429],[164,421],[158,385],[151,346],[143,316]]));
+
+  // Zehen im Fuß-Detailbild. Großzehe ist die breite Zehe rechts im Bild,
+  // die 5. Zehe liegt links.
+  override('detail_toe_1',poly([[141,655],[154,650],[167,658],[171,674],[165,699],[154,712],[141,709],[136,694]]));
+  override('detail_toe_2',poly([[110,677],[122,670],[134,678],[137,698],[131,716],[120,722],[110,715],[106,699]]));
+  override('detail_toe_3',poly([[88,686],[100,681],[111,688],[113,706],[107,720],[97,725],[88,719],[84,703]]));
+  override('detail_toe_4',poly([[65,685],[77,681],[88,688],[90,704],[84,716],[74,721],[65,716],[60,702]]));
+  override('detail_toe_5',poly([[44,679],[56,676],[67,683],[70,697],[65,709],[55,714],[45,709],[40,696]]));
 
   // Verletzungsarten – bewusst identisch zum gewünschten Kontextmenü.
   const injuryTypes=[

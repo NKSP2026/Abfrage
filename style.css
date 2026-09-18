@@ -304,3 +304,12 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 .nabs-body-tooltip{position:fixed;z-index:100000;pointer-events:none;background:#171b21;color:#fff;border:1px solid #ff8c00;border-radius:6px;padding:6px 9px;font-size:14px;font-weight:700;line-height:1.2;box-shadow:0 6px 18px rgba(0,0,0,.4);white-space:nowrap}
 
 .nabs-injury-menu .side-options button.active{background:#e8f0ff;font-weight:800;outline:2px solid #315bd6;outline-offset:-2px}
+
+/* V68.2 – echte Zusatzfragen überdecken die gedruckten Frageflächen der Referenzgrafik. */
+.injury-center-controls{position:absolute;left:46%;top:47%;width:24%;min-width:250px;max-width:360px;z-index:5;background:rgba(238,238,238,.97);border:1px solid #8b95a3;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.28);padding:10px;box-sizing:border-box;}
+.injury-center-controls.empty{display:none}
+.injury-center-title{font-weight:800;text-align:center;font-size:15px;color:#173f83;margin-bottom:7px}
+.injury-center-buttons{display:flex;flex-direction:column;gap:7px}
+.injury-center-btn{appearance:none;border:1px solid #7f8a98;background:#fff;color:#17202a;border-radius:5px;padding:9px 10px;font-size:14px;font-weight:700;cursor:pointer;text-align:center}
+.injury-center-btn:hover,.injury-center-btn:focus{background:#edf3ff;border-color:#315bd6;outline:none}
+@media(max-width:760px){.injury-center-controls{left:45%;top:47%;width:28%;min-width:210px;padding:7px}.injury-center-btn{font-size:12px;padding:8px 6px}}

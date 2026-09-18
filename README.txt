@@ -145,3 +145,37 @@ Wichtiger Hinweis:
 - Die Seitenzuordnung der Detailbilder (ein einzelnes Hand-/Fuß-Detailbild) wird über die Bezeichnung des auswählbaren Bereichs geführt. Die Detailbereiche selbst sind absichtlich nicht zusätzlich auf dem großen Skelett aktiv.
 
 - Bei Hand-/Fuß-Detailbereichen kann zusätzlich die Seite Rechts/Links ausgewählt werden; die Seite wird zusammen mit der Verletzungsart in den Details gespeichert.
+
+
+=== V68.2 – ANATOMIE / VERLETZUNGSKARTE ===
+Datum: 18.09.2026
+
+- Die Haupt-Hotspots der Verletzungskarte wurden direkt auf die tatsächlich verwendete 1536x759-Referenzgrafik koerperkarte_verbrennung.jpg angepasst.
+- Schulterblätter, Schultern, Oberarme, Ellenbogen, Unterarme, Brustkorb, Bauch, Becken/Hüfte und Gesäß liegen jetzt im Koordinatensystem des sichtbaren Körperschemas; die vorherige globale 1536x1251-Verzerrung wurde entfernt.
+- Hände und Füße bleiben ausschließlich über die großen Detailbilder auswählbar. Die einzelnen Finger und Zehen bleiben als eigene, angepasste Bereiche erhalten.
+- Der Kopf wird ausschließlich über die große Gesichtsabbildung ausgewählt. Ergänzt: Ohr rechts und Ohr links.
+- In der Bildmitte liegen jetzt echte HTML-Schaltflächen über den gedruckten Frageflächen der Referenzgrafik. Erfasst werden Gefühlsstörung/Lähmung, leichte bis mäßige Schmerzen, starke Schmerzen und lebensbedrohliche Blutung.
+- Eine bereits ausgewählte Zusatzfrage wird aus der Button-Liste entfernt und beim weiteren Durchlauf nicht erneut angeboten. Die Auswahl wird in verletzung_v51_symptome gespeichert.
+- „Auswahl löschen“ setzt zusätzlich diese Zusatzfragen zurück.
+- Ergebnisansicht und PDF verwenden weiterhin dieselben BodyMap-Regionen.
+
+
+NABS V68.3 – Anatomie-Zielpositionen korrigiert (18.09.2026)
+- Die orange Overlay-Fläche wird als Sollposition exakt an der sichtbaren anatomischen Struktur der Referenzgrafik ausgerichtet.
+- Maßgeblich waren die vom Nutzer rot markierten Sollbereiche: Unterbauch/Becken, Schultern, Oberarme sowie die übrigen Hauptkörperregionen.
+- Hand-, Finger-, Fuß- und Zehenbereiche bleiben ausschließlich in den Detailabbildungen.
+- Kopf-/Gesichtsdetails inklusive Ohren bleiben in der separaten Gesichtsansicht.
+- Die mittleren Zusatzfragen sind echte Buttons; bereits beantwortete Fragen werden in derselben Abfrage nicht erneut angezeigt.
+
+
+=== V68.4 – SOLLPOSITIONEN NACH FARBMARKIERUNGEN ===
+Datum: 18.09.2026
+
+- Grundregel für die Anatomiekarte: ORANGE zeigt nur die vom Programm aktuell verwendete Hotspot-Fläche.
+- Die in den Referenz-Screenshots ROT, CYAN, BLAU, PINK und GRÜN markierten Flächen wurden als SOLLPOSITIONEN behandelt und nicht als aktuelle Programmpositionen.
+- Unterarme vorne wurden entsprechend der roten/cyan Markierungen nach außen und entlang des tatsächlichen Unterarmverlaufs verschoben.
+- Beide vorderen Knie wurden entsprechend der blauen Markierungen auf die tatsächlichen Knie-/Kniescheibenbereiche gelegt.
+- Obere und untere Waden hinten wurden entsprechend der pinken bzw. grünen Markierungen auf die tatsächlichen Wadenbereiche gelegt; die Seitenzuordnung bleibt erhalten.
+- Hand-/Finger- und Fuß-/Zehen-Detailflächen wurden ebenfalls an die im Referenzbild markierten Strukturen angepasst.
+- Diese Korrekturen überschreiben die vorherigen Näherungspositionen, damit nicht weiterhin alte orange Flächen als Grundlage verwendet werden.
+- Es bleibt bei einer einzigen README.txt; alle Änderungen werden chronologisch hier ergänzt.

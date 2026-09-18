@@ -879,8 +879,32 @@ function renderInjuryMapQuestion(q,area){
   const selected=new Set(Array.isArray(answers[q.id])?answers[q.id]:[]);
   const burn=isBurnMechanism();
   const box=document.createElement("div"); box.className="injury-map-box";
-  box.innerHTML=`<div class="injury-map-note"><b>${burn?"🔥 Körperflächen-/Verletzungskarte":"🦴 Verletzungskarte"}</b><br>Bitte eine oder mehrere betroffene Körperregionen <b>direkt auf dem Körperschema</b> markieren. Die markierten Bereiche werden orange dargestellt. ${burn?"Bei Verbrennung, Verbrühung und Verätzung wird daraus zusätzlich eine orientierende VKOF-Schätzung berechnet.":"Bei Fraktur, Luxation, Wunde, Stich, Biss usw. wird keine Prozentangabe berechnet."}</div><div class="injury-map-summary">Markiert: <strong id="injuryMapSummary">noch nichts</strong>${burn?` · VKOF: <strong id="injuryMapPercent">0,0 %</strong>`:""}</div><div class="injury-map-stage"><img src="koerperkarte_verbrennung.jpg" alt="Körperschema Vorder- und Rückseite"><svg class="injury-map-svg" viewBox="0 0 1536 759" preserveAspectRatio="none" aria-label="Körperschema Vorder- und Rückseite"></svg></div>`;
+  box.innerHTML=`<div class="injury-map-note"><b>${burn?"🔥 Körperflächen-/Verletzungskarte":"🦴 Verletzungskarte"}</b><br>Bitte eine oder mehrere betroffene Körperregionen <b>direkt auf dem Körperschema</b> markieren. Die markierten Bereiche werden orange dargestellt. ${burn?"Bei Verbrennung, Verbrühung und Verätzung wird daraus zusätzlich eine orientierende VKOF-Schätzung berechnet.":"Bei Fraktur, Luxation, Wunde, Stich, Biss usw. wird keine Prozentangabe berechnet."}</div><div class="injury-map-summary">Markiert: <strong id="injuryMapSummary">noch nichts</strong>${burn?` · VKOF: <strong id="injuryMapPercent">0,0 %</strong>`:""}</div><div class="injury-map-stage"><img src="koerperkarte_verbrennung.jpg" alt="Körperschema Vorder- und Rückseite"><svg class="injury-map-svg" viewBox="0 0 1536 759" preserveAspectRatio="none" aria-label="Körperschema Vorder- und Rückseite"></svg><div class="injury-center-controls" id="injuryCenterControls"><div class="injury-center-title">Zusätzliche Angaben</div><div class="injury-center-buttons"></div></div></div>`;
   const svg=box.querySelector('.injury-map-svg'); const summary=box.querySelector('#injuryMapSummary'); const percent=box.querySelector('#injuryMapPercent');
+  const centerControls=box.querySelector('#injuryCenterControls');
+  const centerButtons=centerControls.querySelector('.injury-center-buttons');
+  const centerOptions=[
+    ['Gefühlsstörung / Lähmung','verletzung_v51_sym_gefuell'],
+    ['Leichte bis mäßige Schmerzen','verletzung_v51_sym_schmerz_leicht'],
+    ['Starke Schmerzen','verletzung_v51_sym_schmerz_stark'],
+    ['Lebensbedrohliche Blutung','verletzung_v51_sym_blutung']
+  ];
+  const renderCenterButtons=()=>{
+    const state=answers.verletzung_v51_symptome||{};
+    centerButtons.innerHTML='';
+    centerOptions.forEach(([label,key])=>{
+      if(state[key]) return;
+      const b=document.createElement('button'); b.type='button'; b.className='injury-center-btn'; b.textContent=label+' ?';
+      b.onclick=()=>{
+        answers.verletzung_v51_symptome=answers.verletzung_v51_symptome||{};
+        answers.verletzung_v51_symptome[key]=true;
+        b.remove();
+        renderSummary();
+      };
+      centerButtons.appendChild(b);
+    });
+    centerControls.classList.toggle('empty',centerButtons.children.length===0);
+  };
   const renderSummary=()=>{
     const details=answers.verletzung_v51_koerperdetails||{};
     summary.textContent=selected.size?[...selected].map(id=>{const r=injuryMapRegions.find(r=>r.id===id);return `${r?.label||id}${details[id]?` – ${details[id]}`:""}`}).join(" · "):"noch nichts";
@@ -888,9 +912,10 @@ function renderInjuryMapQuestion(q,area){
   };
   makeSvg(svg,selected,()=>{answers[q.id]=[...selected];renderSummary();});
   renderSummary();
+  renderCenterButtons();
   const actions=document.createElement('div'); actions.className='free-actions';
   const next=document.createElement('button'); next.className='next-free'; next.textContent='Weiter →'; next.onclick=()=>{pushHistory();answers[q.id]=[...selected];steps++;render();};
-  const clear=document.createElement('button'); clear.className='secondary unknown-btn'; clear.textContent='Auswahl löschen'; clear.onclick=()=>{selected.clear();answers[q.id]=[];answers.verletzung_v51_koerperdetails={};svg.querySelectorAll('.selected').forEach(x=>x.classList.remove('selected'));renderSummary();};
+  const clear=document.createElement('button'); clear.className='secondary unknown-btn'; clear.textContent='Auswahl löschen'; clear.onclick=()=>{selected.clear();answers[q.id]=[];answers.verletzung_v51_koerperdetails={};answers.verletzung_v51_symptome={};svg.querySelectorAll('.selected').forEach(x=>x.classList.remove('selected'));renderSummary();renderCenterButtons();};
   actions.append(next,clear); box.appendChild(actions); area.appendChild(box);
 }
 function renderBurnMapQuestion(q,area){ renderInjuryMapQuestion(q,area); }

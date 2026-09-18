@@ -1,21 +1,11 @@
-NABS V68.10 – Korrektur Körperkarten-Detailpositionen
+NABS V68.11 – Hand/Fuß deutlich höher positioniert
 
-Geändert:
-- bodymap.js
-- Die Detailflächen für Hand, Fuß und Gesicht werden vertikal an die aktuelle
-  1536x867-Körperkarte angepasst.
-- Ursache der sichtbaren Verschiebung war die vertikale Skalierung des SVG-
-  Auswahl-Layers gegenüber der Hintergrundgrafik.
-- Die Detailflächen werden deshalb vertikal komprimiert und nach oben korrigiert,
-  statt einzelne Hotspots geräteabhängig mit festen Bildschirm-Pixeln zu setzen.
-- Hand-Sollpositionen bleiben erhalten:
-  Daumen, Zeigefinger, Mittelfinger, Ringfinger, kleiner Finger,
-  Handgelenk und Handfläche.
-- Fuß-Sollpositionen bleiben erhalten.
-- Die Referenzfarben werden nicht angezeigt; ausgewählte Bereiche erscheinen
-  weiterhin orange.
-- Die Korrektur arbeitet mit der SVG-Koordinatenbasis und bleibt dadurch für
-  Handy, Tablet und PC skalierbar.
+Geändert: bodymap.js
 
-Es wurde ausschließlich bodymap.js geändert. Alle anderen Projektdateien bleiben
-unverändert und müssen nicht ersetzt werden.
+Die Detailflächen für Hand und Fuß wurden gegenüber V68.10 deutlich nach oben verschoben.
+- Hand: zusätzliche vertikale Verschiebung nach oben
+- Fuß: zusätzliche, stärkere vertikale Verschiebung nach oben
+- Gesicht bleibt unverändert gegenüber V68.10
+
+Die Farben aus den Referenzbildern werden nicht angezeigt; Orange bleibt die Auswahlfarbe.
+Nur bodymap.js austauschen.

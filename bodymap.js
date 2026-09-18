@@ -1,4 +1,4 @@
-/* NABS V68.10 – hochgranulare anatomische Verletzungskarte
+/* NABS V68.11 – hochgranulare anatomische Verletzungskarte
  * Rechtsklick (PC) bzw. Tippen (Touch) öffnet die Verletzungsart.
  * Linksklick am PC markiert NICHT direkt. Hover zeigt den exakten Bereich.
  * Die SVG-Flächen liegen direkt über dem Körperschema und werden im Ergebnis
@@ -295,10 +295,16 @@
   // komprimiert ausschließlich die Detailflächen vertikal und hebt sie
   // damit auf die tatsächlichen Bildpositionen an. Die Farben der
   // Referenzbilder werden weiterhin nicht dargestellt.
-  const DETAIL_T='matrix(1 0 0 .865 0 10)';
+  const DETAIL_FACE_T='matrix(1 0 0 .865 0 10)';
+  const DETAIL_HAND_T='matrix(1 0 0 .865 0 -80)';
+  const DETAIL_FOOT_T='matrix(1 0 0 .865 0 -150)';
   regions.forEach(r=>{
     if(r.hidden) return;
-    if(r.detail){ r.transform=DETAIL_T; }
+    if(r.detail){
+      if(r.id.startsWith('detail_hand_')) r.transform=DETAIL_HAND_T;
+      else if(r.id.startsWith('detail_foot') || r.id.startsWith('detail_toe_') || r.id==='detail_ankle' || r.id==='detail_foot_joint') r.transform=DETAIL_FOOT_T;
+      else r.transform=DETAIL_FACE_T;
+    }
     else if(r.corrected) r.transform=null;
     else if(r.id.startsWith('front_')) r.transform=FRONT_T;
     else if(r.id.startsWith('back_')) r.transform=BACK_T;

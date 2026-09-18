@@ -179,3 +179,17 @@ Datum: 18.09.2026
 - Hand-/Finger- und Fuß-/Zehen-Detailflächen wurden ebenfalls an die im Referenzbild markierten Strukturen angepasst.
 - Diese Korrekturen überschreiben die vorherigen Näherungspositionen, damit nicht weiterhin alte orange Flächen als Grundlage verwendet werden.
 - Es bleibt bei einer einzigen README.txt; alle Änderungen werden chronologisch hier ergänzt.
+
+
+=== V68.5 – ZUSATZFRAGEN UNTERHALB DER KÖRPERKARTE ===
+Datum: 18.09.2026
+
+- Die Zusatzfragen Gefühlsstörung/Lähmung, leichte bis mäßige Schmerzen, starke Schmerzen und lebensbedrohliche Blutung liegen NICHT mehr über der Körpergrafik.
+- Die gedruckten Frageflächen in der Mitte des Referenzbildes werden nicht mehr überdeckt.
+- Die Zusatzfragen sind echte HTML-Buttons in einem eigenen Bereich direkt UNTERHALB der Körperkarte.
+- Die Anordnung passt sich automatisch an: auf PC/Tablet zwei Spalten, auf kleinen Handy-Bildschirmen eine Spalte.
+- Eine bereits ausgewählte Zusatzfrage wird sofort aus der Liste entfernt und bei erneutem Rendern nicht nochmals angeboten.
+- Wenn alle Zusatzfragen beantwortet wurden, wird der Zusatzfragen-Bereich vollständig ausgeblendet.
+- „Auswahl löschen“ setzt Körperauswahl, Verletzungsdetails und Zusatzfragen gemeinsam zurück.
+- Die anatomischen Sollpositionen aus V68.4 bleiben unverändert; diese Version ändert ausschließlich die Platzierung der Zusatzfragen außerhalb der Grafik.
+- Es bleibt bei genau einer README.txt.

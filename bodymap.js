@@ -167,6 +167,72 @@
   const btl=[['Großzehe',1,976,1100,994,1135],['2. Zehe',2,986,1095,1002,1138],['3. Zehe',3,999,1092,1015,1138],['4. Zehe',4,1012,1092,1028,1139],['5. Zehe',5,1025,1095,1037,1136]];
   btl.forEach(([n,i,x1,y1,x2,y2])=>add(`back_toe_l_${i}`,`${n} links hinten`,poly([[x1,y1],[x1+10,y1-5],[x2,y2],[x1+5,y2+2]])));
 
+  // ---------------- DETAILBEREICHE / REFERENZBILD 83075 ----------------
+  // Die große Körpergrafik wird nur für die großen anatomischen Regionen verwendet.
+  // Kopf/Gesicht sowie Hand- und Fußdetails liegen ausschließlich in den dafür
+  // vorgesehenen Detailbildern des Referenzbildes 83075.jpg.
+  const DETAIL_HIDE = new Set([
+    'front_head','front_forehead','front_temple_r','front_temple_l','front_eye_r','front_eye_l',
+    'front_nose','front_cheek_r','front_cheek_l','front_ear_r','front_ear_l','front_mouth',
+    'front_jaw_r','front_jaw_l','front_chin',
+    'front_wrist_r','front_wrist_l','front_palm_r','front_palm_l',
+    'front_finger_r_1','front_finger_r_2','front_finger_r_3','front_finger_r_4','front_finger_r_5',
+    'front_finger_l_1','front_finger_l_2','front_finger_l_3','front_finger_l_4','front_finger_l_5',
+    'front_ankle_r','front_ankle_l','front_foot_r','front_foot_l',
+    'front_toe_r_1','front_toe_r_2','front_toe_r_3','front_toe_r_4','front_toe_r_5',
+    'front_toe_l_1','front_toe_l_2','front_toe_l_3','front_toe_l_4','front_toe_l_5',
+    'back_head','back_occiput',
+    'back_wrist_r','back_wrist_l','back_palm_r','back_palm_l',
+    'back_finger_r_1','back_finger_r_2','back_finger_r_3','back_finger_r_4','back_finger_r_5',
+    'back_finger_l_1','back_finger_l_2','back_finger_l_3','back_finger_l_4','back_finger_l_5',
+    'back_ankle_r','back_ankle_l','back_foot_r','back_foot_l',
+    'back_toe_r_1','back_toe_r_2','back_toe_r_3','back_toe_r_4','back_toe_r_5'
+  ]);
+  regions.forEach(r=>{ if(DETAIL_HIDE.has(r.id)) r.hidden=true; });
+
+  // Alte 1536x1251-Koordinaten auf die exakt verwendete 1536x759-Referenzgrafik
+  // abbilden. Vorder- und Rückseite liegen im neuen Bild an unterschiedlichen X-Positionen.
+  const FRONT_T='matrix(.82 0 0 .67 123 0)';
+  const BACK_T='matrix(.82 0 0 .67 490 0)';
+  regions.forEach(r=>{
+    if(r.hidden) return;
+    if(r.id.startsWith('front_')) r.transform=FRONT_T;
+    else if(r.id.startsWith('back_')) r.transform=BACK_T;
+  });
+
+  // Gesicht: ausschließlich die große Gesichtsdarstellung in der Bildmitte.
+  add('detail_scalp','Schädeldecke',poly([[820,28],[850,17],[884,14],[916,20],[943,37],[952,72],[946,116],[932,143],[821,143],[806,113],[802,73]]),{burnValue:4.5,detail:true});
+  add('detail_forehead','Stirn',poly([[829,126],[850,112],[878,116],[905,112],[932,126],[925,164],[835,164]]),{detail:true});
+  add('detail_temple_r','Schläfe rechts',poly([[806,140],[828,134],[835,164],[826,192],[807,185]]),{detail:true});
+  add('detail_temple_l','Schläfe links',poly([[930,134],[951,140],[950,185],[932,192],[925,164]]),{detail:true});
+  add('detail_eye_r','Auge rechts',poly([[832,165],[850,158],[870,164],[875,174],[856,181],[837,177]]),{detail:true});
+  add('detail_eye_l','Auge links',poly([[884,164],[903,158],[923,165],[918,177],[899,181],[881,174]]),{detail:true});
+  add('detail_nose','Nase',poly([[872,170],[891,170],[900,205],[892,225],[875,225],[864,205]]),{detail:true});
+  add('detail_jaw_r','Unterkiefer rechts',poly([[811,201],[839,215],[864,231],[858,259],[837,272],[820,254],[809,225]]),{detail:true});
+  add('detail_jaw_l','Unterkiefer links',poly([[915,215],[943,201],[945,225],[934,254],[917,272],[896,259],[890,231]]),{detail:true});
+  add('detail_chin','Kinn',poly([[854,250],[875,258],[895,250],[899,274],[886,294],[866,294],[850,274]]),{detail:true});
+  add('detail_upperjaw_r','Oberkiefer rechts',poly([[838,216],[864,221],[870,241],[854,250],[837,241]]),{detail:true});
+  add('detail_upperjaw_l','Oberkiefer links',poly([[891,221],[917,216],[918,241],[901,250],[885,241]]),{detail:true});
+  add('detail_mouth','Mund',poly([[855,239],[871,235],[886,235],[902,239],[897,253],[883,258],[869,258],[855,253]]),{detail:true});
+
+  // Hand-Detailbild links: keine Hand-/Finger-Hotspots mehr auf dem großen Skelett.
+  add('detail_hand_wrist','Handgelenk',poly([[76,244],[105,238],[139,247],[151,269],[141,292],[105,286],[77,274]]),{detail:true,detailSide:true});
+  add('detail_hand_palm','Handfläche',poly([[57,274],[87,263],[119,276],[145,296],[140,355],[118,381],[83,370],[57,342]]),{detail:true,burnValue:0.7,detailSide:true});
+  const handXs=[
+    ['Daumen',1,45,300,75,354],['Zeigefinger',2,69,290,88,389],['Mittelfinger',3,88,285,108,397],
+    ['Ringfinger',4,108,287,127,391],['Kleiner Finger',5,128,294,145,374]
+  ];
+  handXs.forEach(([n,i,x1,y1,x2,y2])=>add(`detail_hand_finger_${i}`,`${n}`,poly([[x1,y1],[x1+15,y1-5],[x2,y2],[x1+6,y2+4]]),{detail:true,detailSide:true}));
+
+  // Fuß-Detailbild links unten.
+  add('detail_ankle','Knöchel / Sprunggelenk',poly([[83,590],[112,580],[137,594],[139,625],[118,641],[87,628]]),{detail:true,burnValue:.15,detailSide:true});
+  add('detail_foot','Fuß',poly([[50,622],[88,620],[122,633],[154,659],[166,700],[141,720],[96,720],[60,700],[40,665]]),{detail:true,burnValue:.5,detailSide:true});
+  const toeXs=[
+    ['Großzehe',1,111,681,150,711],['2. Zehe',2,93,690,124,724],['3. Zehe',3,77,690,105,726],
+    ['4. Zehe',4,62,688,86,720],['5. Zehe',5,48,681,69,710]
+  ];
+  toeXs.forEach(([n,i,x1,y1,x2,y2])=>add(`detail_toe_${i}`,n,poly([[x1,y1],[x1+16,y1-4],[x2,y2],[x1+6,y2+3]]),{detail:true,detailSide:true}));
+
   // Verletzungsarten – bewusst identisch zum gewünschten Kontextmenü.
   const injuryTypes=[
     'Verletzungsart unklar','Amputation','Bissverletzung','Erfrierung','Fraktur','Luxation',
@@ -215,9 +281,12 @@
   function openMenu(region,anchor,onChange){
     closeMenu();
     const menu=document.createElement('div');menu.className='nabs-injury-menu';
-    menu.innerHTML=`<div class="nabs-injury-menu-title">📍 ${esc(region.label)}</div><div class="nabs-injury-menu-sub">Verletzungsart auswählen</div><div class="nabs-injury-menu-options">${injuryTypes.map(t=>`<button type="button" data-type="${esc(t)}">${esc(t)}</button>`).join('')}</div><div class="nabs-injury-menu-sep"></div><button type="button" class="nabs-menu-reset">Auswahl zurücksetzen</button><button type="button" class="nabs-menu-reset-all">ALLE VERLETZUNGEN ZURÜCKSETZEN</button>`;
+    const sideOptions=region.detailSide?`<div class="nabs-injury-menu-sub">Seite auswählen</div><div class="nabs-injury-menu-options side-options"><button type="button" data-side="rechts">Rechts</button><button type="button" data-side="links">Links</button></div><div class="nabs-injury-menu-sep"></div>`:'';
+    menu.innerHTML=`<div class="nabs-injury-menu-title">📍 ${esc(region.label)}</div>${sideOptions}<div class="nabs-injury-menu-sub">Verletzungsart auswählen</div><div class="nabs-injury-menu-options">${injuryTypes.map(t=>`<button type="button" data-type="${esc(t)}">${esc(t)}</button>`).join('')}</div><div class="nabs-injury-menu-sep"></div><button type="button" class="nabs-menu-reset">Auswahl zurücksetzen</button><button type="button" class="nabs-menu-reset-all">ALLE VERLETZUNGEN ZURÜCKSETZEN</button>`;
     document.body.appendChild(menu);
-    menu.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{setDetail(region.id,b.dataset.type);onChange(region.id,b.dataset.type);closeMenu();});
+    let selectedSide='';
+    menu.querySelectorAll('[data-side]').forEach(b=>b.onclick=()=>{selectedSide=b.dataset.side;menu.querySelectorAll('[data-side]').forEach(x=>x.classList.toggle('active',x===b));});
+    menu.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{const value=selectedSide?`${b.dataset.type} (${selectedSide})`:b.dataset.type;setDetail(region.id,value);onChange(region.id,value);closeMenu();});
     menu.querySelector('.nabs-menu-reset').onclick=()=>{setDetail(region.id,null);onChange(region.id,null);closeMenu();};
     menu.querySelector('.nabs-menu-reset-all').onclick=()=>{window.__NABS_CLEAR_BODYMAP__?.();closeMenu();};
     const r=anchor.getBoundingClientRect(); const mw=Math.min(340,window.innerWidth-20); const mh=Math.min(560,window.innerHeight-20);
@@ -238,15 +307,9 @@
     window.__NABS_CLEAR_BODYMAP__=()=>{selected.clear();const a=window.__NABS_ANSWERS__;if(a){a.verletzung_v51_koerperkarte=[];a.verletzung_v51_koerperdetails={};}svg.querySelectorAll('.nabs-body-region').forEach(e=>e.classList.remove('selected'));onSummary?.();};
     // Große Regionen zuerst, anatomisch feinere Regionen zuletzt.
     regions.forEach(r=>{
+      if(r.hidden) return;
       const el=document.createElementNS(ns,'path');
-      el.setAttribute('d',r.d);el.setAttribute('class','nabs-body-region');el.setAttribute('tabindex','0');el.setAttribute('role','button');el.setAttribute('aria-label',r.label);el.dataset.region=r.id;
-      // Die neue Referenzgrafik hat ein 1536x759-Koordinatensystem. Die bisher
-      // gezeichneten Körperregionen stammen aus 1536x1251 und werden deshalb
-      // getrennt für Vorder- und Rückseite exakt auf die Referenzkörper gelegt.
-      // Vorderseite: x=1.10*x+17.5, y=0.638*y
-      // Rückseite:    x=x+330,     y=0.638*y
-      if(r.id.startsWith('front_')) el.setAttribute('transform','translate(17.5 0) scale(1.1 0.638)');
-      else if(r.id.startsWith('back_')) el.setAttribute('transform','translate(330 0) scale(1 0.638)');
+      el.setAttribute('d',r.d); if(r.transform) el.setAttribute('transform',r.transform); el.setAttribute('class','nabs-body-region');el.setAttribute('tabindex','0');el.setAttribute('role','button');el.setAttribute('aria-label',r.label);el.dataset.region=r.id;
       if(selected.has(r.id))el.classList.add('selected');
       el.addEventListener('pointermove',e=>showTip(r,e));
       el.addEventListener('pointerleave',hideTip);

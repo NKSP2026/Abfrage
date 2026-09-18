@@ -300,9 +300,7 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 .nabs-body-region.selected{fill:rgba(255,140,0,.62);stroke:#ff8c00;stroke-width:4}
 @media(max-width:760px){.nabs-body-region.selected{stroke-width:5}.nabs-body-tooltip{font-size:13px}}
 
-/* V68: Referenzgrafik 1536x759 + exakt kalibrierte Vorder-/Rückseite */
-.injury-map-stage{width:min(100%,1100px);}
-.injury-map-svg{aspect-ratio:1536 / 759;}
-
 /* V66: Präzise Hover-Beschriftung der anatomischen SVG-Region */
 .nabs-body-tooltip{position:fixed;z-index:100000;pointer-events:none;background:#171b21;color:#fff;border:1px solid #ff8c00;border-radius:6px;padding:6px 9px;font-size:14px;font-weight:700;line-height:1.2;box-shadow:0 6px 18px rgba(0,0,0,.4);white-space:nowrap}
+
+.nabs-injury-menu .side-options button.active{background:#e8f0ff;font-weight:800;outline:2px solid #315bd6;outline-offset:-2px}

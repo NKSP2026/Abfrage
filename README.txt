@@ -1,7 +1,5 @@
 NABS V62 – Körperkarte korrigiert
 
-Aktueller Stand: V68. Die jeweils neuesten Änderungen stehen am Ende dieser README.txt; es werden keine separaten README-Dateien angelegt.
-
 Die Hotspots wurden für das vorhandene 1536x1251-Körperschema komplett neu auf die tatsächlichen Vorder- und Rückseitenpositionen gelegt.
 - Vorderseite und Rückseite separat kalibriert
 - Arme, Hände, Finger, Beine, Füße enger am Skelett
@@ -126,14 +124,24 @@ V66 Feuerwehr-Erweiterung 2026-09-17:
 - Einsatzstichwort, Einsatztext und Ressourcen berücksichtigen die neue Feuerwehrlage.
 
 
+=== V68.1 – Anatomische Körperkarte nach Referenzbild 83075 ===
+Datum: 18.09.2026
 
-NABS V68 – Anatomische Referenzgrafik exakt kalibriert
+Die vorhandene README.txt ist die einzige Änderungsdokumentation. Es wurde keine zusätzliche README-Datei angelegt.
 
-- Die aktuelle Referenzgrafik aus dem zuletzt bereitgestellten Beispiel wurde als neue Hintergrundgrafik für die Körperkarte übernommen.
-- Die vorhandene NABS-Abfrage und die Verletzungsdaten bleiben erhalten.
-- Das Körperschema verwendet jetzt exakt das Referenzseitenverhältnis 1536x759.
-- Vorder- und Rückseite werden mit getrennten Koordinatentransformationen auf die tatsächlich dargestellten Körper gelegt, statt pauschal alle Hotspots zu verschieben.
-- Kopf, Rumpf, Arme, Hände, Beine und Füße folgen dadurch der Position des Referenzbildes.
-- Die vorhandene Rechtsklick-Auswahl, Hover-Beschriftung, Mehrfachauswahl und Verletzungsarten-Auswahl bleiben erhalten.
-- Die Referenzgrafik enthält die Detailansichten für Hand und Fuß sowie die vergrößerte Gesichtsansicht; diese bleiben als sichtbare Orientierung im Hintergrund.
-- Keine zusätzlichen README-Dateien: alle Änderungsstände werden weiterhin ausschließlich in dieser README.txt dokumentiert.
+Körperkarte:
+- Das aktuelle Referenzbild 83075.jpg wurde als Grundlage der Körperkarte übernommen und als koerperkarte_verbrennung.jpg eingebunden.
+- Die SVG-Überlagerung verwendet jetzt exakt das Seitenverhältnis 1536 x 759 des Referenzbildes.
+- Vorder- und Rückseite des großen Skeletts wurden auf die Positionen des Referenzbildes angepasst.
+- Oberarme, Schultern, Rumpf, Becken/Hüfte, Oberschenkel, Knie und Unterschenkel werden über die Konturen des großen Skeletts gelegt.
+- Kopf/Gesicht wird NICHT mehr am kleinen Kopf des großen Skeletts ausgewählt.
+- Die Gesichtsauswahl befindet sich ausschließlich auf der großen Gesichtsabbildung in der Bildmitte und umfasst: Schädeldecke, Stirn, Schläfe rechts/links, Auge rechts/links, Nase, Oberkiefer rechts/links, Unterkiefer rechts/links, Kinn und Mund.
+- Handgelenk, Handfläche und einzelne Finger werden NICHT mehr an den Händen des großen Skeletts ausgewählt. Sie liegen ausschließlich im Hand-Detailbild links.
+- Knöchel/Sprunggelenk, Fuß und einzelne Zehen werden NICHT mehr an den Füßen des großen Skeletts ausgewählt. Sie liegen ausschließlich im Fuß-Detailbild links unten.
+- Die alten Hotspots für die genannten Detailbereiche wurden deaktiviert, damit keine doppelte Auswahl mehr möglich ist.
+- Ergebnisansicht und PDF/Druckansicht verwenden dieselben Transformationen wie die Abfrage, damit die Markierungen an derselben anatomischen Stelle erscheinen.
+
+Wichtiger Hinweis:
+- Die Seitenzuordnung der Detailbilder (ein einzelnes Hand-/Fuß-Detailbild) wird über die Bezeichnung des auswählbaren Bereichs geführt. Die Detailbereiche selbst sind absichtlich nicht zusätzlich auf dem großen Skelett aktiv.
+
+- Bei Hand-/Fuß-Detailbereichen kann zusätzlich die Seite Rechts/Links ausgewählt werden; die Seite wird zusammen mit der Verletzungsart in den Details gespeichert.

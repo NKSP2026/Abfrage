@@ -384,21 +384,59 @@
   override('detail_toe_1',poly([[981,768],[945,746],[938,746],[902,801],[906,817],[916,823],[935,824],[955,814],[966,796],[979,783],[983,774]]));
 
   // ---------------- HAND: SOLLPOSITIONEN AUS DER NEUEN REFERENZ 85514 ----------------
-  // Die farbigen Markierungen im Referenzbild dienen NUR zur Kalibrierung und
-  // werden niemals als Farben in der Anwendung angezeigt. Die tatsächliche
-  // Körperkarte bleibt das normale, unveränderte Skelettbild.
-  // Neue Mastergrafik: 1536 x 867 px.
-  // Explizite Zuordnung des aktuellen Hand-Referenzbildes:
+  // Die Farben im Referenzbild dienen NUR als Kalibrierhilfe und werden in der
+  // Anwendung niemals angezeigt. Alle Hotspots liegen auf den vom Nutzer
+  // markierten anatomischen Bereichen der Hand-Detailgrafik.
   // Lila = Daumen, Rot = Zeigefinger, Blau = Mittelfinger, Pink = Ringfinger,
   // Grün = kleiner Finger, Cyan = Handgelenk, Gelb = Handfläche.
-  override('detail_hand_wrist',poly([[554,505],[574,493],[603,492],[631,498],[653,508],[660,523],[652,539],[626,539],[600,534],[575,531],[558,524]]));
-  override('detail_hand_palm',poly([[529,548],[551,542],[578,546],[607,552],[636,551],[662,563],[679,584],[687,613],[692,642],[686,661],[666,666],[642,660],[619,657],[593,660],[566,656],[542,649],[526,634],[518,611],[516,586]]));
-  override('detail_hand_finger_1',poly([[507,592],[524,598],[528,614],[523,635],[518,657],[513,679],[506,694],[493,694],[485,687],[488,672],[493,651],[498,629],[501,608]]));
-  override('detail_hand_finger_2',poly([[536,649],[556,650],[562,664],[562,694],[561,729],[561,765],[563,800],[557,817],[548,823],[538,818],[533,806],[532,772],[531,735],[531,699],[532,670]]));
-  // Alle fünf Finger sind aktiv: Blau = Mittelfinger, Pink = Ringfinger.
-  const middleFinger=regions.find(r=>r.id==='detail_hand_finger_3'); if(middleFinger) middleFinger.hidden=false;
-  override('detail_hand_finger_4',poly([[573,655],[592,655],[601,666],[602,697],[602,735],[604,774],[604,809],[598,825],[588,829],[579,823],[576,807],[576,774],[575,738],[574,700]]));
-  override('detail_hand_finger_5',poly([[659,644],[676,648],[686,661],[692,684],[699,708],[710,733],[714,744],[706,752],[696,746],[687,730],[680,713],[672,691],[665,669]]));
+  //
+  // WICHTIG: Die Finger-Hotspots bleiben vollständig im jeweiligen Finger und
+  // werden nicht mehr über die Nachbarfinger oder die Handfläche gelegt.
+  override('detail_hand_wrist',poly([
+    [554,505],[574,493],[603,492],[631,498],[653,508],[660,523],
+    [652,539],[626,539],[600,534],[575,531],[558,524]
+  ]));
+
+  override('detail_hand_palm',poly([
+    [541,536],[568,525],[603,529],[635,541],[661,558],[678,582],
+    [686,608],[691,638],[686,654],[669,660],[646,656],[622,653],
+    [598,656],[572,653],[548,646],[534,634],[528,615],[530,591]
+  ]));
+
+  // Daumen – lila Markierung
+  override('detail_hand_finger_1',poly([
+    [506,592],[520,598],[528,613],[524,632],[519,652],[514,674],
+    [508,693],[498,695],[488,688],[486,680],[491,663],[496,642],
+    [500,620],[501,606]
+  ]));
+
+  // Zeigefinger – rote Markierung
+  override('detail_hand_finger_2',poly([
+    [538,649],[553,649],[560,661],[562,684],[562,715],[562,750],
+    [563,785],[564,804],[559,818],[550,823],[541,819],[535,808],
+    [533,781],[532,747],[532,713],[532,682],[533,660]
+  ]));
+
+  // Mittelfinger – blaue Markierung
+  override('detail_hand_finger_3',poly([
+    [577,658],[592,658],[600,668],[602,695],[602,729],[603,764],
+    [604,799],[605,817],[599,827],[589,830],[581,824],[577,809],
+    [576,779],[575,746],[575,713],[575,681]
+  ]));
+
+  // Ringfinger – pinke Markierung
+  override('detail_hand_finger_4',poly([
+    [616,660],[632,661],[644,669],[650,691],[653,718],[656,748],
+    [659,776],[661,798],[657,811],[650,817],[641,813],[636,800],
+    [633,775],[630,747],[627,719],[622,694],[617,676]
+  ]));
+
+  // Kleiner Finger – grüne Markierung
+  override('detail_hand_finger_5',poly([
+    [672,643],[684,648],[692,660],[697,680],[703,701],[709,721],
+    [714,739],[712,747],[706,752],[698,747],[691,733],[685,716],
+    [679,698],[674,679],[668,661]
+  ]));
 
   // Verletzungsarten – bewusst identisch zum gewünschten Kontextmenü.
   const injuryTypes=[

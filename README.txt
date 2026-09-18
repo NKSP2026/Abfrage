@@ -193,3 +193,15 @@ Datum: 18.09.2026
 - „Auswahl löschen“ setzt Körperauswahl, Verletzungsdetails und Zusatzfragen gemeinsam zurück.
 - Die anatomischen Sollpositionen aus V68.4 bleiben unverändert; diese Version ändert ausschließlich die Platzierung der Zusatzfragen außerhalb der Grafik.
 - Es bleibt bei genau einer README.txt.
+
+
+=== V68.6 – NEUES MASTER-REFERENZBILD ===
+Datum: 18.09.2026
+
+- Das vom Nutzer neu bereitgestellte Bild 84591.png ist ab dieser Version das aktuelle Master-Referenzbild der Körperkarte.
+- Das bisher verwendete Körperkartenbild wurde vollständig ersetzt; die Datei bleibt für die bestehende Programmstruktur unter dem Namen koerperkarte_verbrennung.jpg eingebunden.
+- Das neue Bild wird in seinem vollständigen Seitenverhältnis 1536 x 868 dargestellt und nicht mehr auf das alte 1536 x 759-Bild zugeschnitten.
+- Die vorhandene SVG-Struktur bleibt bis zur nächsten Sollpositions-Kalibrierung erhalten. Die farbig markierten Nutzerbilder sind künftig die verbindliche Grundlage für die exakten Klickpositionen.
+- Regel für die nächsten Korrekturen: farbig markierter Bereich = exakte SOLLPOSITION; Orange = ausschließlich die vom Programm daraus erzeugte Auswahl.
+- Die Detailbereiche Hand/Finger, Fuß/Zehen und Kopf/Gesicht werden bei den nächsten Korrekturen ausschließlich anhand der jeweils neu gelieferten Referenzbilder positioniert.
+- Es bleibt weiterhin genau diese eine README.txt.

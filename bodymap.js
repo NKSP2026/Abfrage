@@ -167,13 +167,13 @@
   const btl=[['Großzehe',1,976,1100,994,1135],['2. Zehe',2,986,1095,1002,1138],['3. Zehe',3,999,1092,1015,1138],['4. Zehe',4,1012,1092,1028,1139],['5. Zehe',5,1025,1095,1037,1136]];
   btl.forEach(([n,i,x1,y1,x2,y2])=>add(`back_toe_l_${i}`,`${n} links hinten`,poly([[x1,y1],[x1+10,y1-5],[x2,y2],[x1+5,y2+2]])));
 
-  // ---------------- EXAKTE KORREKTUR AUF DIE REFERENZGRAFIK 1536x759 ----------------
+  // ---------------- EXAKTE KORREKTUR AUF DIE REFERENZGRAFIK 1536x867 ----------------
   // WICHTIG: Die orange Fläche muss auf der TATSÄCHLICHEN anatomischen Struktur
   // der Hintergrundgrafik liegen. Die vom Nutzer rot markierte Stelle ist dabei
   // die Sollposition; alte, nur ungefähr platzierte Flächen werden nicht übernommen.
   const override=(id,d)=>{const r=regions.find(x=>x.id===id); if(r){r.d=d; r.corrected=true;}};
 
-  // Vorderseite – Koordinaten direkt im 1536x759-Pixelraster des Hintergrundbildes.
+  // Vorderseite – Koordinaten direkt im 1536x867-Pixelraster des Hintergrundbildes.
   // Rechte/links beziehen sich auf die Person (Patientensicht).
   override('front_neck',rect(438,105,44,34,5));
   override('front_clavicle_r',poly([[365,119],[405,108],[452,126],[447,144],[410,139],[376,132]]));
@@ -281,9 +281,9 @@
   ]);
   regions.forEach(r=>{ if(DETAIL_HIDE.has(r.id)) r.hidden=true; });
 
-  // Alte 1536x1251-Koordinaten auf die exakt verwendete 1536x759-Referenzgrafik
+  // Alte 1536x1251-Koordinaten auf die exakt verwendete 1536x867-Referenzgrafik
   // abbilden. Vorder- und Rückseite liegen im neuen Bild an unterschiedlichen X-Positionen.
-  // Korrigierte Hauptregionen liegen direkt im 1536x759-System. Noch nicht
+  // Korrigierte Hauptregionen liegen direkt im 1536x867-System. Noch nicht
   // korrigierte Bein-/Restregionen behalten ihre bewährte Alt-Transformation,
   // damit nicht durch diese Überarbeitung funktionierende Bereiche verrutschen.
   const FRONT_T='matrix(.82 0 0 .67 123 0)';
@@ -365,6 +365,24 @@
   override('detail_toe_3',poly([[88,686],[100,681],[111,688],[113,706],[107,720],[97,725],[88,719],[84,703]]));
   override('detail_toe_4',poly([[65,685],[77,681],[88,688],[90,704],[84,716],[74,721],[65,716],[60,702]]));
   override('detail_toe_5',poly([[44,679],[56,676],[67,683],[70,697],[65,709],[55,714],[45,709],[40,696]]));
+
+  // ---------------- HAND: SOLLPOSITIONEN AUS DER NEUEN REFERENZ 85514 ----------------
+  // Die farbigen Markierungen im Referenzbild dienen NUR zur Kalibrierung und
+  // werden niemals als Farben in der Anwendung angezeigt. Die tatsächliche
+  // Körperkarte bleibt das normale, unveränderte Skelettbild.
+  // Neue Mastergrafik: 1536 x 867 px.
+  // Explizite Zuordnung des aktuellen Hand-Referenzbildes:
+  // Lila = Daumen, Rot = Zeigefinger, Blau = Ringfinger, Grün = kleiner Finger,
+  // Cyan = Handgelenk, Gelb = Handfläche. Die pinke Markierung (Mittelfinger)
+  // bleibt bis zur ausdrücklichen Zuordnung des Nutzers unaktiviert.
+  override('detail_hand_wrist',poly([[554,505],[574,493],[603,492],[631,498],[653,508],[660,523],[652,539],[626,539],[600,534],[575,531],[558,524]]));
+  override('detail_hand_palm',poly([[529,548],[551,542],[578,546],[607,552],[636,551],[662,563],[679,584],[687,613],[692,642],[686,661],[666,666],[642,660],[619,657],[593,660],[566,656],[542,649],[526,634],[518,611],[516,586]]));
+  override('detail_hand_finger_1',poly([[507,592],[524,598],[528,614],[523,635],[518,657],[513,679],[506,694],[493,694],[485,687],[488,672],[493,651],[498,629],[501,608]]));
+  override('detail_hand_finger_2',poly([[536,649],[556,650],[562,664],[562,694],[561,729],[561,765],[563,800],[557,817],[548,823],[538,818],[533,806],[532,772],[531,735],[531,699],[532,670]]));
+  // Pink = Mittelfinger ist in dieser Runde bewusst NICHT als Hotspot aktiviert.
+  const middleFinger=regions.find(r=>r.id==='detail_hand_finger_3'); if(middleFinger) middleFinger.hidden=true;
+  override('detail_hand_finger_4',poly([[573,655],[592,655],[601,666],[602,697],[602,735],[604,774],[604,809],[598,825],[588,829],[579,823],[576,807],[576,774],[575,738],[574,700]]));
+  override('detail_hand_finger_5',poly([[659,644],[676,648],[686,661],[692,684],[699,708],[710,733],[714,744],[706,752],[696,746],[687,730],[680,713],[672,691],[665,669]]));
 
   // Verletzungsarten – bewusst identisch zum gewünschten Kontextmenü.
   const injuryTypes=[

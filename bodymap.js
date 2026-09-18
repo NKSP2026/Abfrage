@@ -323,11 +323,12 @@
   handXs.forEach(([n,i,x1,y1,x2,y2])=>add(`detail_hand_finger_${i}`,`${n}`,poly([[x1,y1],[x1+15,y1-5],[x2,y2],[x1+6,y2+4]]),{detail:true,detailSide:true}));
 
   // Fuß-Detailbild links unten.
-  add('detail_ankle','Knöchel / Sprunggelenk',poly([[83,590],[112,580],[137,594],[139,625],[118,641],[87,628]]),{detail:true,burnValue:.15,detailSide:true});
-  add('detail_foot','Fuß',poly([[50,622],[88,620],[122,633],[154,659],[166,700],[141,720],[96,720],[60,700],[40,665]]),{detail:true,burnValue:.5,detailSide:true});
+  add('detail_ankle','Sprunggelenk',poly([[83,590],[112,580],[137,594],[139,625],[118,641],[87,628]]),{detail:true,burnValue:.15,detailSide:true});
+  add('detail_foot_joint','Fußgelenk',poly([[50,622],[88,620],[122,633],[154,659],[166,700],[141,720],[96,720],[60,700],[40,665]]),{detail:true,burnValue:.15,detailSide:true});
+  add('detail_foot','Fußfläche',poly([[50,622],[88,620],[122,633],[154,659],[166,700],[141,720],[96,720],[60,700],[40,665]]),{detail:true,burnValue:.5,detailSide:true});
   const toeXs=[
-    ['Großzehe',1,111,681,150,711],['2. Zehe',2,93,690,124,724],['3. Zehe',3,77,690,105,726],
-    ['4. Zehe',4,62,688,86,720],['5. Zehe',5,48,681,69,710]
+    ['Großzehe',1,111,681,150,711],['Lange Zehe',2,93,690,124,724],['Mittlere Zehe',3,77,690,105,726],
+    ['Ringzehe',4,62,688,86,720],['Kleine Zehe',5,48,681,69,710]
   ];
   toeXs.forEach(([n,i,x1,y1,x2,y2])=>add(`detail_toe_${i}`,n,poly([[x1,y1],[x1+16,y1-4],[x2,y2],[x1+6,y2+3]]),{detail:true,detailSide:true}));
 
@@ -366,21 +367,36 @@
   override('detail_toe_4',poly([[65,685],[77,681],[88,688],[90,704],[84,716],[74,721],[65,716],[60,702]]));
   override('detail_toe_5',poly([[44,679],[56,676],[67,683],[70,697],[65,709],[55,714],[45,709],[40,696]]));
 
+  // ---------------- FUSS: SOLLPOSITIONEN AUS DER NEUEN REFERENZ 85515 ----------------
+  // Die Farben der Referenz dienen ausschließlich der Positionskalibrierung und
+  // sind in der Anwendung nicht sichtbar. Die Hotspots liegen exakt auf den
+  // markierten Bereichen der aktuellen Fuß-Referenzgrafik.
+  // Rot = kleine Zehe, Blau = Ringzehe, Lila = mittlere Zehe,
+  // Pink = lange Zehe, Grün = Großzehe, Cyan = Sprunggelenk,
+  // Gelb = Fußfläche, Schwarz = Fußgelenk.
+  override('detail_ankle',poly([[896,599],[884,596],[870,598],[864,602],[858,612],[856,630],[842,660],[837,679],[852,682],[860,687],[871,682],[891,653],[895,641]]));
+  override('detail_foot_joint',poly([[910,558],[934,553],[964,556],[982,570],[992,590],[992,622],[988,648],[978,658],[963,664],[940,665],[916,661],[901,653],[895,640],[895,616],[897,589]]));
+  override('detail_foot',poly([[793,739],[836,763],[853,753],[867,755],[871,763],[895,754],[919,769],[937,745],[977,762],[988,734],[995,679],[993,664],[988,656],[958,664],[894,654],[870,686],[858,691],[836,681]]));
+  override('detail_toe_5',poly([[811,751],[798,748],[773,768],[766,783],[765,796],[767,805],[773,810],[781,811],[787,806],[801,775],[818,759]]));
+  override('detail_toe_4',poly([[831,762],[820,760],[802,778],[790,804],[790,812],[795,819],[812,820],[821,796],[831,783],[835,771]]));
+  override('detail_toe_3',poly([[864,758],[849,757],[836,772],[816,813],[816,826],[826,829],[841,825],[847,802],[859,785],[871,777],[872,767]]));
+  override('detail_toe_2',poly([[904,760],[888,759],[880,762],[872,778],[856,790],[844,814],[845,826],[850,832],[869,833],[884,823],[913,782],[915,772],[907,770]]));
+  override('detail_toe_1',poly([[981,768],[945,746],[938,746],[902,801],[906,817],[916,823],[935,824],[955,814],[966,796],[979,783],[983,774]]));
+
   // ---------------- HAND: SOLLPOSITIONEN AUS DER NEUEN REFERENZ 85514 ----------------
   // Die farbigen Markierungen im Referenzbild dienen NUR zur Kalibrierung und
   // werden niemals als Farben in der Anwendung angezeigt. Die tatsächliche
   // Körperkarte bleibt das normale, unveränderte Skelettbild.
   // Neue Mastergrafik: 1536 x 867 px.
   // Explizite Zuordnung des aktuellen Hand-Referenzbildes:
-  // Lila = Daumen, Rot = Zeigefinger, Blau = Ringfinger, Grün = kleiner Finger,
-  // Cyan = Handgelenk, Gelb = Handfläche. Die pinke Markierung (Mittelfinger)
-  // bleibt bis zur ausdrücklichen Zuordnung des Nutzers unaktiviert.
+  // Lila = Daumen, Rot = Zeigefinger, Blau = Mittelfinger, Pink = Ringfinger,
+  // Grün = kleiner Finger, Cyan = Handgelenk, Gelb = Handfläche.
   override('detail_hand_wrist',poly([[554,505],[574,493],[603,492],[631,498],[653,508],[660,523],[652,539],[626,539],[600,534],[575,531],[558,524]]));
   override('detail_hand_palm',poly([[529,548],[551,542],[578,546],[607,552],[636,551],[662,563],[679,584],[687,613],[692,642],[686,661],[666,666],[642,660],[619,657],[593,660],[566,656],[542,649],[526,634],[518,611],[516,586]]));
   override('detail_hand_finger_1',poly([[507,592],[524,598],[528,614],[523,635],[518,657],[513,679],[506,694],[493,694],[485,687],[488,672],[493,651],[498,629],[501,608]]));
   override('detail_hand_finger_2',poly([[536,649],[556,650],[562,664],[562,694],[561,729],[561,765],[563,800],[557,817],[548,823],[538,818],[533,806],[532,772],[531,735],[531,699],[532,670]]));
-  // Pink = Mittelfinger ist in dieser Runde bewusst NICHT als Hotspot aktiviert.
-  const middleFinger=regions.find(r=>r.id==='detail_hand_finger_3'); if(middleFinger) middleFinger.hidden=true;
+  // Alle fünf Finger sind aktiv: Blau = Mittelfinger, Pink = Ringfinger.
+  const middleFinger=regions.find(r=>r.id==='detail_hand_finger_3'); if(middleFinger) middleFinger.hidden=false;
   override('detail_hand_finger_4',poly([[573,655],[592,655],[601,666],[602,697],[602,735],[604,774],[604,809],[598,825],[588,829],[579,823],[576,807],[576,774],[575,738],[574,700]]));
   override('detail_hand_finger_5',poly([[659,644],[676,648],[686,661],[692,684],[699,708],[710,733],[714,744],[706,752],[696,746],[687,730],[680,713],[672,691],[665,669]]));
 

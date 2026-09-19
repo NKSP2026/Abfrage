@@ -1,4 +1,4 @@
-/* NABS V68.11 – hochgranulare anatomische Verletzungskarte
+/* NABS V68.15 – hochgranulare anatomische Verletzungskarte
  * Rechtsklick (PC) bzw. Tippen (Touch) öffnet die Verletzungsart.
  * Linksklick am PC markiert NICHT direkt. Hover zeigt den exakten Bereich.
  * Die SVG-Flächen liegen direkt über dem Körperschema und werden im Ergebnis
@@ -269,6 +269,7 @@
     'front_wrist_r','front_wrist_l','front_palm_r','front_palm_l',
     'front_finger_r_1','front_finger_r_2','front_finger_r_3','front_finger_r_4','front_finger_r_5',
     'front_finger_l_1','front_finger_l_2','front_finger_l_3','front_finger_l_4','front_finger_l_5',
+    'detail_ear_r','detail_ear_l','detail_upperjaw_r','detail_upperjaw_l',
     'front_ankle_r','front_ankle_l','front_foot_r','front_foot_l',
     'front_toe_r_1','front_toe_r_2','front_toe_r_3','front_toe_r_4','front_toe_r_5',
     'front_toe_l_1','front_toe_l_2','front_toe_l_3','front_toe_l_4','front_toe_l_5',
@@ -310,23 +311,33 @@
     else if(r.id.startsWith('back_')) r.transform=BACK_T;
   });
 
-  // Gesicht: ausschließlich die große Gesichtsdarstellung in der Bildmitte.
-  add('detail_scalp','Schädeldecke',poly([[820,28],[850,17],[884,14],[916,20],[943,37],[952,72],[946,116],[932,143],[821,143],[806,113],[802,73]]),{burnValue:4.5,detail:true});
-  add('detail_forehead','Stirn',poly([[829,126],[850,112],[878,116],[905,112],[932,126],[925,164],[835,164]]),{detail:true});
-  add('detail_temple_r','Schläfe rechts',poly([[806,140],[828,134],[835,164],[826,192],[807,185]]),{detail:true});
-  add('detail_temple_l','Schläfe links',poly([[930,134],[951,140],[950,185],[932,192],[925,164]]),{detail:true});
-  add('detail_eye_r','Auge rechts',poly([[832,165],[850,158],[870,164],[875,174],[856,181],[837,177]]),{detail:true});
-  add('detail_eye_l','Auge links',poly([[884,164],[903,158],[923,165],[918,177],[899,181],[881,174]]),{detail:true});
-  add('detail_nose','Nase',poly([[872,170],[891,170],[900,205],[892,225],[875,225],[864,205]]),{detail:true});
-  add('detail_jaw_r','Unterkiefer rechts',poly([[811,201],[839,215],[864,231],[858,259],[837,272],[820,254],[809,225]]),{detail:true});
-  add('detail_jaw_l','Unterkiefer links',poly([[915,215],[943,201],[945,225],[934,254],[917,272],[896,259],[890,231]]),{detail:true});
-  add('detail_chin','Kinn',poly([[854,250],[875,258],[895,250],[899,274],[886,294],[866,294],[850,274]]),{detail:true});
-  add('detail_upperjaw_r','Oberkiefer rechts',poly([[838,216],[864,221],[870,241],[854,250],[837,241]]),{detail:true});
-  add('detail_upperjaw_l','Oberkiefer links',poly([[891,221],[917,216],[918,241],[901,250],[885,241]]),{detail:true});
-  add('detail_mouth','Mund',poly([[855,239],[871,235],[886,235],[902,239],[897,253],[883,258],[869,258],[855,253]]),{detail:true});
-  // Ohren – Teil der großen Gesichtsansicht und separat auswählbar.
-  add('detail_ear_r','Ohr rechts',poly([[790,150],[801,142],[811,150],[814,178],[807,199],[796,205],[788,192],[786,170]]),{detail:true});
-  add('detail_ear_l','Ohr links',poly([[963,150],[974,142],[985,150],[989,170],[987,192],[979,205],[968,199],[961,178]]),{detail:true});
+  // Gesicht/Kopf – exakte Sollflächen aus der aktuellen Kopf-Referenz 85516.png.
+  // Die farbigen Referenzmarkierungen selbst werden NICHT dargestellt.
+  // Alle Koordinaten beziehen sich auf die 1536x867-Körperkarte und werden
+  // anschließend ausschließlich durch DETAIL_FACE_T an die SVG-Darstellung angepasst.
+  add('detail_scalp','Schädeldecke',poly([[673,62],[673,86],[682,108],[728,85],[768,77],[811,81],[851,95],[860,102],[869,85],[865,60],[830,28],[799,18],[751,11],[731,12],[702,32]]),{burnValue:4.5,detail:true});
+  add('detail_forehead','Stirn',poly([[689,111],[694,124],[691,157],[715,150],[738,149],[822,150],[847,157],[845,119],[856,101],[809,83],[760,80],[711,94],[695,103]]),{detail:true});
+
+  // Patientenseite rechts = im Bild links, Patientenseite links = im Bild rechts.
+  add('detail_temple_r','Schläfe rechts',poly([[686,112],[678,113],[667,147],[666,168],[675,184],[691,143],[691,124]]),{detail:true});
+  add('detail_temple_l','Schläfe links',poly([[858,104],[849,113],[847,133],[849,159],[857,175],[867,140],[867,122],[863,107]]),{detail:true});
+
+  add('detail_eye_r','Auge rechts',poly([[696,184],[702,189],[724,191],[736,189],[742,183],[733,178],[713,177]]),{detail:true});
+  add('detail_eye_l','Auge links',poly([[796,183],[799,189],[809,192],[833,190],[840,185],[829,178],[806,178]]),{detail:true});
+
+  add('detail_cheek_r','Jochbein links',poly([[668,212],[671,230],[683,231],[708,244],[722,238],[745,217],[742,207],[725,214],[702,212],[683,201],[673,202]]),{detail:true});
+  add('detail_cheek_l','Jochbein rechts',poly([[869,218],[862,196],[854,197],[838,212],[815,215],[805,210],[792,211],[802,230],[835,242],[860,230],[866,231]]),{detail:true});
+
+  add('detail_nose','Nase',poly([[763,159],[756,165],[755,203],[739,244],[745,255],[784,259],[794,249],[795,238],[782,201],[781,166],[776,160]]),{detail:true});
+
+  // Ein gemeinsamer Bereich für den gesamten Oberkiefer.
+  add('detail_upperjaw','Oberkiefer',poly([[671,239],[690,243],[716,250],[739,253],[753,258],[768,260],[785,258],[801,253],[820,248],[844,243],[868,236],[870,263],[856,274],[835,282],[814,287],[796,293],[773,296],[751,294],[731,289],[710,283],[691,274],[676,265]]),{detail:true});
+
+  add('detail_mouth','Zähne / Mund',poly([[814,285],[812,275],[794,280],[751,280],[733,276],[724,279],[730,290],[753,304],[772,306],[796,303]]),{detail:true});
+
+  add('detail_jaw_r','Unterkiefer links',poly([[673,264],[673,288],[678,303],[713,339],[733,315],[750,308],[750,304],[727,289],[688,276]]),{detail:true});
+  add('detail_jaw_l','Unterkiefer rechts',poly([[865,254],[821,280],[800,302],[799,308],[807,321],[814,324],[824,338],[829,337],[847,318],[862,296],[867,264]]),{detail:true});
+  add('detail_chin','Kinn',poly([[712,340],[737,361],[760,367],[792,364],[809,354],[821,341],[812,327],[804,323],[796,304],[776,308],[764,304],[752,306],[734,316]]),{detail:true});
 
   // Hand-Detailbild links: keine Hand-/Finger-Hotspots mehr auf dem großen Skelett.
   add('detail_hand_wrist','Handgelenk',poly([[76,244],[105,238],[139,247],[151,269],[141,292],[105,286],[77,274]]),{detail:true,detailSide:true});
@@ -485,6 +496,25 @@
     if(type)a.verletzung_v51_koerperdetails[id]=type; else delete a.verletzung_v51_koerperdetails[id];
   }
   function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+
+  // V68.15: Auf der Körperkarte bleiben ausschließlich die aktuell
+  // freigegebenen Detailbereiche sichtbar. Die alten Flächen auf Vorder-
+  // und Rückseite sowie alte Kopf-/Gesichtsflächen werden nicht mehr
+  // als Klickflächen erzeugt. Hand, Fuß und der neue Kopf bleiben erhalten.
+  const KEEP_DETAIL_IDS=new Set([
+    'detail_scalp','detail_forehead','detail_temple_r','detail_temple_l',
+    'detail_eye_r','detail_eye_l','detail_cheek_r','detail_cheek_l',
+    'detail_nose','detail_upperjaw','detail_mouth','detail_jaw_r',
+    'detail_jaw_l','detail_chin',
+    'detail_hand_wrist','detail_hand_palm',
+    'detail_hand_finger_1','detail_hand_finger_2','detail_hand_finger_3',
+    'detail_hand_finger_4','detail_hand_finger_5',
+    'detail_ankle','detail_foot_joint','detail_foot',
+    'detail_toe_1','detail_toe_2','detail_toe_3','detail_toe_4','detail_toe_5'
+  ]);
+  for(let i=regions.length-1;i>=0;i--){
+    if(!KEEP_DETAIL_IDS.has(regions[i].id)) regions.splice(i,1);
+  }
 
   let tooltip=null;
   function showTip(region,e){

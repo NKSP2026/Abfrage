@@ -1,0 +1,554 @@
+/* NABS V68.11 – hochgranulare anatomische Verletzungskarte
+ * Rechtsklick (PC) bzw. Tippen (Touch) öffnet die Verletzungsart.
+ * Linksklick am PC markiert NICHT direkt. Hover zeigt den exakten Bereich.
+ * Die SVG-Flächen liegen direkt über dem Körperschema und werden im Ergebnis
+ * und beim Drucken mit derselben Koordinatenbasis wiederverwendet.
+ */
+(function(){
+  const P=(id,label,d,opts={})=>({id,label,d,...opts});
+  const regions=[];
+
+  // Hilfsfunktionen für einfache anatomische Teilflächen.
+  const poly=(pts)=>'M '+pts.map(p=>p.join(' ')).join(' L ')+' Z';
+  const rect=(x,y,w,h,r=0)=>{
+    if(!r)return `M${x} ${y}H${x+w}V${y+h}H${x}Z`;
+    return `M${x+r} ${y}H${x+w-r}Q${x+w} ${y} ${x+w} ${y+r}V${y+h-r}Q${x+w} ${y+h} ${x+w-r} ${y+h}H${x+r}Q${x} ${y+h} ${x} ${y+h-r}V${y+r}Q${x} ${y} ${x+r} ${y}Z`;
+  };
+  const ell=(cx,cy,rx,ry)=>`M${cx-rx} ${cy}A${rx} ${ry} 0 1 0 ${cx+rx} ${cy}A${rx} ${ry} 0 1 0 ${cx-rx} ${cy}Z`;
+  const add=(id,label,d,opts={})=>regions.push(P(id,label,d,opts));
+
+  // ---------------- VORDERSEITE ----------------
+  // Kopf / Gesicht
+  add('front_head','Kopf / Schädeldecke', 'M365 55 Q395 38 425 55 Q440 75 432 105 Q425 128 395 135 Q365 128 358 105 Q350 75 365 55Z',{burnValue:4.5});
+  add('front_forehead','Stirn',poly([[370,58],[395,48],[420,58],[423,91],[368,91]]));
+  add('front_temple_r','Schläfe rechts',poly([[357,78],[370,75],[369,105],[360,110],[354,98]]));
+  add('front_temple_l','Schläfe links',poly([[420,75],[433,78],[436,98],[430,110],[421,105]]));
+  add('front_eye_r','Auge rechts',poly([[369,92],[382,88],[391,95],[382,102],[370,101]]));
+  add('front_eye_l','Auge links',poly([[399,95],[408,88],[421,92],[420,101],[408,102]]));
+  add('front_nose','Nase',poly([[392,91],[399,91],[405,116],[399,123],[391,116]]));
+  add('front_cheek_r','Wange rechts',poly([[365,105],[390,110],[389,129],[373,128],[365,118]]));
+  add('front_cheek_l','Wange links',poly([[400,110],[425,105],[425,118],[417,128],[401,129]]));
+  add('front_ear_r','Ohr rechts',ell(360,99,8,15));
+  add('front_ear_l','Ohr links',ell(430,99,8,15));
+  add('front_mouth','Mund / Lippen',poly([[382,126],[395,123],[408,126],[403,134],[387,134]]));
+  add('front_jaw_r','Kiefer rechts',poly([[365,118],[388,126],[394,137],[378,140],[365,130]]));
+  add('front_jaw_l','Kiefer links',poly([[396,137],[402,126],[425,118],[425,130],[412,140]]));
+  add('front_chin','Kinn',poly([[383,133],[407,133],[402,146],[390,146]]));
+
+  add('front_neck','Hals vorne',rect(378,142,34,42,4),{burnValue:.5});
+  add('front_clavicle_r','Schlüsselbein rechts',poly([[348,177],[380,165],[393,180],[370,190],[346,190]]));
+  add('front_clavicle_l','Schlüsselbein links',poly([[397,180],[410,165],[442,177],[444,190],[420,190]]));
+
+  // Brustkorb / Rippen
+  add('front_chest','Brustkorb', 'M350 184 Q395 170 440 184 Q458 215 452 272 Q440 300 395 305 Q350 300 338 272 Q332 215 350 184Z',{burnValue:9,children:['front_upperchest_r','front_upperchest_l','front_midchest_r','front_midchest_l','front_lowerchest_r','front_lowerchest_l']});
+  add('front_upperchest_r','oberer Brustkorb rechts',poly([[345,191],[393,184],[392,225],[347,229]]));
+  add('front_upperchest_l','oberer Brustkorb links',poly([[397,184],[445,191],[443,229],[398,225]]));
+  add('front_midchest_r','mittlerer Brustkorb / Rippen rechts',poly([[343,228],[392,224],[392,267],[343,263]]));
+  add('front_midchest_l','mittlerer Brustkorb / Rippen links',poly([[398,224],[447,228],[447,263],[398,267]]));
+  add('front_lowerchest_r','unterer Brustkorb / Rippen rechts',poly([[343,263],[392,267],[388,301],[350,292]]));
+  add('front_lowerchest_l','unterer Brustkorb / Rippen links',poly([[398,267],[447,263],[440,292],[402,301]]));
+  add('front_sternum','Brustbein / Sternum',poly([[391,188],[400,188],[401,299],[391,299]]));
+
+  // Schultern und Arme
+  add('front_shoulder_r','Schulter rechts', 'M292 188 Q318 177 345 192 L350 235 Q324 244 294 231 Q280 215 292 188Z');
+  add('front_shoulder_l','Schulter links', 'M445 192 Q472 177 498 188 Q510 215 496 231 Q466 244 440 235Z');
+  add('front_upperarm_r','Oberarm rechts', 'M286 225 Q305 232 323 242 L302 356 Q287 374 270 356 L248 250 Q255 232 286 225Z');
+  add('front_upperarm_l','Oberarm links', 'M466 242 Q485 232 504 225 Q535 232 542 250 L520 356 Q503 374 488 356Z');
+  add('front_elbow_r','Ellenbogen rechts', 'M270 350 Q288 342 304 354 L304 390 Q286 401 268 390Z');
+  add('front_elbow_l','Ellenbogen links', 'M486 354 Q502 342 520 350 L522 390 Q504 401 486 390Z');
+  add('front_forearm_r','Unterarm rechts', 'M268 386 Q286 394 304 386 L245 505 Q228 520 213 505 L260 395Z');
+  add('front_forearm_l','Unterarm links', 'M486 386 Q504 394 522 386 L530 395 L577 505 Q562 520 545 505Z');
+  add('front_wrist_r','Handgelenk rechts', 'M213 500 Q230 494 247 505 L235 535 Q218 540 205 527Z');
+  add('front_wrist_l','Handgelenk links', 'M545 505 Q562 494 579 500 L587 527 Q574 540 557 535Z');
+  add('front_palm_r','Handfläche rechts', 'M198 523 Q218 510 238 528 L235 565 Q216 580 197 565 Q188 545 198 523Z');
+  add('front_palm_l','Handfläche links', 'M552 528 Q572 510 592 523 Q602 545 593 565 Q574 580 555 565Z');
+  // Finger – einzeln, mit eigener Kontur
+  const fr=[['Daumen',1,194,535,203,574],['Zeigefinger',2,205,532,214,580],['Mittelfinger',3,216,531,225,582],['Ringfinger',4,227,534,236,579],['Kleiner Finger',5,238,540,246,573]];
+  fr.forEach(([n,i,x1,y1,x2,y2])=>add(`front_finger_r_${i}`,`${n} rechts`,poly([[x1,y1],[x1+9,y1-5],[x2,y2],[x1+3,y2+5]])));
+  const fl=[['Daumen',1,544,544,555,578],['Zeigefinger',2,554,537,563,581],['Mittelfinger',3,565,532,574,582],['Ringfinger',4,576,530,585,582],['Kleiner Finger',5,587,530,596,579]];
+  fl.forEach(([n,i,x1,y1,x2,y2])=>add(`front_finger_l_${i}`,`${n} links`,poly([[x1,y1],[x1+8,y1-4],[x2,y2],[x1+3,y2+3]])));
+
+  // Abdomen – Gesamtfläche und vier Quadranten
+  add('front_abdomen','Abdomen', 'M352 270 Q395 295 438 270 L438 382 Q425 410 395 414 Q365 410 352 382Z',{burnValue:6,children:['front_upperabd_r','front_upperabd_l','front_lowerabd_r','front_lowerabd_l']});
+  add('front_upperabd_r','Oberbauch rechts',poly([[353,273],[393,286],[393,337],[353,332]]),{burnValue:1.5});
+  add('front_upperabd_l','Oberbauch links',poly([[397,286],[437,273],[437,332],[397,337]]),{burnValue:1.5});
+  add('front_lowerabd_r','Unterbauch rechts',poly([[353,333],[393,337],[393,401],[365,395],[353,378]]),{burnValue:1.5});
+  add('front_lowerabd_l','Unterbauch links',poly([[397,337],[437,333],[437,378],[425,395],[397,401]]),{burnValue:1.5});
+  add('front_umbilicus','Nabelbereich',ell(395,334,10,10),{burnValue:.15});
+  add('front_pelvis','Becken / Hüfte', 'M350 378 Q395 402 440 378 Q454 410 448 454 Q425 486 395 486 Q365 486 342 454 Q336 410 350 378Z',{burnValue:3});
+  add('front_groin_r','Leiste rechts',poly([[345,388],[394,405],[391,452],[365,445],[346,424]]));
+  add('front_groin_l','Leiste links',poly([[396,405],[445,388],[444,424],[425,445],[399,452]]));
+
+  // Beine vorne
+  add('front_thigh_r','Oberschenkel rechts', 'M350 475 Q370 465 392 475 L394 735 Q382 775 352 768 Q332 760 330 720 L338 500Z',{burnValue:4.5,children:['front_thigh_upper_r','front_thigh_lower_r']});
+  add('front_thigh_l','Oberschenkel links', 'M398 475 Q420 465 440 475 L452 500 L460 720 Q458 760 438 768 Q408 775 396 735Z',{burnValue:4.5,children:['front_thigh_upper_l','front_thigh_lower_l']});
+  add('front_thigh_upper_r','oberer Oberschenkel rechts',poly([[344,492],[391,482],[393,610],[338,610]]));
+  add('front_thigh_lower_r','unterer Oberschenkel rechts',poly([[338,612],[393,612],[393,720],[350,760],[338,720]]));
+  add('front_thigh_upper_l','oberer Oberschenkel links',poly([[399,482],[446,492],[452,610],[397,610]]));
+  add('front_thigh_lower_l','unterer Oberschenkel links',poly([[397,612],[452,612],[458,720],[446,760],[397,720]]));
+  add('front_knee_r','Kniescheibe / Knie rechts','M330 725 Q360 712 394 730 L392 790 Q365 804 336 790Z',{burnValue:.25});
+  add('front_knee_l','Kniescheibe / Knie links','M396 730 Q430 712 460 725 L454 790 Q425 804 398 790Z',{burnValue:.25});
+  add('front_lowerleg_r','Unterschenkel / Schienbein rechts','M336 785 Q365 798 392 785 L388 1060 Q374 1092 345 1070 Q334 1040 332 995Z',{burnValue:4,children:['front_shin_upper_r','front_shin_lower_r']});
+  add('front_lowerleg_l','Unterschenkel / Schienbein links','M398 785 Q425 798 454 785 L458 995 Q456 1040 445 1070 Q416 1092 402 1060Z',{burnValue:4,children:['front_shin_upper_l','front_shin_lower_l']});
+  add('front_shin_upper_r','oberes Schienbein rechts',poly([[339,795],[391,795],[388,925],[338,925]]));
+  add('front_shin_lower_r','unteres Schienbein rechts',poly([[338,927],[388,927],[386,1055],[347,1068]]));
+  add('front_shin_upper_l','oberes Schienbein links',poly([[399,795],[453,795],[455,925],[400,925]]));
+  add('front_shin_lower_l','unteres Schienbein links',poly([[400,927],[455,927],[450,1055],[414,1068]]));
+  add('front_ankle_r','Sprunggelenk rechts','M340 1055 Q360 1048 386 1058 L386 1090 Q360 1100 340 1088Z',{burnValue:.15});
+  add('front_ankle_l','Sprunggelenk links','M404 1058 Q430 1048 450 1055 L450 1088 Q430 1100 404 1090Z',{burnValue:.15});
+  add('front_foot_r','Fuß rechts','M330 1082 Q355 1075 387 1085 L395 1118 Q370 1142 335 1132 Q316 1120 330 1082Z',{burnValue:.5});
+  add('front_foot_l','Fuß links','M403 1085 Q435 1075 460 1082 Q474 1120 455 1132 Q420 1142 395 1118Z',{burnValue:.5});
+  const tr=[['Großzehe',1,331,1100,343,1136],['2. Zehe',2,344,1095,356,1139],['3. Zehe',3,357,1092,369,1138],['4. Zehe',4,370,1092,382,1136],['5. Zehe',5,382,1095,392,1128]];
+  tr.forEach(([n,i,x1,y1,x2,y2])=>add(`front_toe_r_${i}`,`${n} rechts`,poly([[x1,y1],[x1+12,y1-5],[x2,y2],[x1+5,y2+3]])));
+  const tl=[['Großzehe',1,400,1100,418,1135],['2. Zehe',2,410,1095,426,1138],['3. Zehe',3,423,1092,439,1138],['4. Zehe',4,436,1092,452,1139],['5. Zehe',5,449,1095,461,1136]];
+  tl.forEach(([n,i,x1,y1,x2,y2])=>add(`front_toe_l_${i}`,`${n} links`,poly([[x1,y1],[x1+10,y1-5],[x2,y2],[x1+5,y2+2]])));
+
+  // ---------------- RÜCKSEITE ----------------
+  add('back_head','Kopf / Schädeldecke hinten','M940 55 Q970 38 1000 55 Q1015 75 1007 105 Q1000 128 970 135 Q940 128 933 105 Q925 75 940 55Z',{burnValue:4.5});
+  add('back_occiput','Hinterkopf / Hinterhaupt',poly([[940,58],[970,45],[1000,58],[1005,110],[935,110]]));
+  add('back_neck','Nacken','M957 132 L983 132 L989 180 L951 180Z',{burnValue:.5});
+  add('back_cervical','Halswirbelsäule / HWS',poly([[963,138],[977,138],[981,178],[959,178]]));
+  add('back_upperback','Oberer Rücken','M925 184 Q970 170 1015 184 Q1033 215 1027 272 Q1015 300 970 305 Q925 300 913 272 Q907 215 925 184Z',{burnValue:9,children:['back_scapula_r','back_scapula_l','back_thoracic']});
+  add('back_scapula_r','Schulterblatt rechts',poly([[915,190],[950,190],[952,255],[928,268],[915,240]]));
+  add('back_scapula_l','Schulterblatt links',poly([[990,190],[1025,190],[1025,240],[1012,268],[988,255]]));
+  add('back_thoracic','Brustwirbelsäule / mittlerer Rücken',poly([[963,184],[977,184],[980,300],[960,300]]));
+  add('back_ribs_r','Rippen rechts hinten',poly([[917,220],[958,218],[958,285],[920,275]]));
+  add('back_ribs_l','Rippen links hinten',poly([[982,218],[1023,220],[1020,275],[982,285]]));
+  add('back_lowerback','Unterer Rücken','M927 270 Q970 295 1013 270 L1013 382 Q1000 410 970 414 Q940 410 927 382Z',{burnValue:6,children:['back_lumbar_r','back_lumbar_l']});
+  add('back_lumbar_r','Lendenwirbelsäule / LWS rechts',poly([[928,274],[967,292],[967,380],[940,391],[928,378]]));
+  add('back_lumbar_l','Lendenwirbelsäule / LWS links',poly([[973,292],[1012,274],[1012,378],[1000,391],[973,380]]));
+  add('back_flank_r','Flanke rechts',poly([[915,276],[940,292],[940,382],[922,370]]));
+  add('back_flank_l','Flanke links',poly([[1000,292],[1025,276],[1018,370],[1000,382]]));
+  add('back_sacrum','Kreuzbein / Sakrum',poly([[955,380],[985,380],[994,420],[970,450],[946,420]]));
+  add('back_pelvis','Becken / Hüfte hinten','M925 378 Q970 402 1015 378 Q1029 410 1023 454 Q1000 486 970 486 Q940 486 917 454 Q911 410 925 378Z',{burnValue:3});
+  add('back_glute_r','Gesäß rechts',poly([[918,410],[967,410],[967,475],[940,482],[920,452]]));
+  add('back_glute_l','Gesäß links',poly([[973,410],[1022,410],[1020,452],[1000,482],[973,475]]));
+
+  add('back_shoulder_r','Schulter rechts hinten','M867 188 Q893 177 920 192 L925 235 Q899 244 869 231 Q855 215 867 188Z');
+  add('back_shoulder_l','Schulter links hinten','M1020 192 Q1047 177 1073 188 Q1085 215 1071 231 Q1041 244 1015 235Z');
+  add('back_upperarm_r','Oberarm rechts hinten','M861 225 Q880 232 898 242 L877 356 Q862 374 845 356 L823 250 Q830 232 861 225Z');
+  add('back_upperarm_l','Oberarm links hinten','M1041 242 Q1060 232 1079 225 Q1110 232 1117 250 L1095 356 Q1078 374 1063 356Z');
+  add('back_elbow_r','Ellenbogen rechts hinten','M845 350 Q863 342 879 354 L879 390 Q861 401 843 390Z');
+  add('back_elbow_l','Ellenbogen links hinten','M1061 354 Q1077 342 1095 350 L1097 390 Q1079 401 1061 390Z');
+  add('back_forearm_r','Unterarm rechts hinten','M843 386 Q861 394 879 386 L820 505 Q803 520 788 505 L835 395Z');
+  add('back_forearm_l','Unterarm links hinten','M1061 386 Q1079 394 1097 386 L1144 505 Q1129 520 1112 505Z');
+  add('back_wrist_r','Handgelenk rechts hinten','M788 500 Q805 494 822 505 L810 535 Q793 540 780 527Z');
+  add('back_wrist_l','Handgelenk links hinten','M1112 505 Q1129 494 1146 500 L1154 527 Q1141 540 1124 535Z');
+  add('back_palm_r','Handfläche rechts hinten','M773 523 Q793 510 813 528 L810 565 Q791 580 772 565 Q763 545 773 523Z');
+  add('back_palm_l','Handfläche links hinten','M1127 528 Q1147 510 1167 523 Q1177 545 1168 565 Q1149 580 1130 565Z');
+  const bfr=[['Daumen',1,769,535,778,574],['Zeigefinger',2,780,532,789,580],['Mittelfinger',3,791,531,800,582],['Ringfinger',4,802,534,811,579],['Kleiner Finger',5,813,540,821,573]];
+  bfr.forEach(([n,i,x1,y1,x2,y2])=>add(`back_finger_r_${i}`,`${n} rechts hinten`,poly([[x1,y1],[x1+9,y1-5],[x2,y2],[x1+3,y2+5]])));
+  const bfl=[['Daumen',1,1119,544,1130,578],['Zeigefinger',2,1129,537,1138,581],['Mittelfinger',3,1140,532,1149,582],['Ringfinger',4,1151,530,1160,582],['Kleiner Finger',5,1162,530,1171,579]];
+  bfl.forEach(([n,i,x1,y1,x2,y2])=>add(`back_finger_l_${i}`,`${n} links hinten`,poly([[x1,y1],[x1+8,y1-4],[x2,y2],[x1+3,y2+3]])));
+
+  // Rückenbeine
+  add('back_thigh_r','Oberschenkel rechts hinten','M925 475 Q945 465 967 475 L969 735 Q957 775 927 768 Q907 760 905 720 L913 500Z',{burnValue:4.5,children:['back_ham_upper_r','back_ham_lower_r']});
+  add('back_thigh_l','Oberschenkel links hinten','M973 475 Q995 465 1015 475 L1027 500 L1035 720 Q1033 760 1013 768 Q983 775 971 735Z',{burnValue:4.5,children:['back_ham_upper_l','back_ham_lower_l']});
+  add('back_ham_upper_r','oberer hinterer Oberschenkel rechts',poly([[914,492],[968,482],[969,610],[908,610]]));
+  add('back_ham_lower_r','unterer hinterer Oberschenkel rechts',poly([[908,612],[969,612],[969,720],[930,760],[908,720]]));
+  add('back_ham_upper_l','oberer hinterer Oberschenkel links',poly([[972,482],[1026,492],[1032,610],[971,610]]));
+  add('back_ham_lower_l','unterer hinterer Oberschenkel links',poly([[971,612],[1032,612],[1032,720],[1010,760],[971,720]]));
+  add('back_knee_r','Kniekehle / Knie rechts hinten','M905 725 Q935 712 969 730 L967 790 Q940 804 911 790Z',{burnValue:.25});
+  add('back_knee_l','Kniekehle / Knie links hinten','M971 730 Q1005 712 1035 725 L1029 790 Q1000 804 973 790Z',{burnValue:.25});
+  add('back_lowerleg_r','Unterschenkel rechts hinten','M911 785 Q940 798 967 785 L963 1060 Q949 1092 920 1070 Q909 1040 907 995Z',{burnValue:4,children:['back_calf_upper_r','back_calf_lower_r']});
+  add('back_lowerleg_l','Unterschenkel links hinten','M973 785 Q1000 798 1029 785 L1033 995 Q1031 1040 1020 1070 Q991 1092 977 1060Z',{burnValue:4,children:['back_calf_upper_l','back_calf_lower_l']});
+  add('back_calf_upper_r','obere Wade rechts hinten',poly([[914,795],[966,795],[962,925],[910,925]]));
+  add('back_calf_lower_r','untere Wade rechts hinten',poly([[910,927],[962,927],[960,1055],[921,1068]]));
+  add('back_calf_upper_l','obere Wade links hinten',poly([[974,795],[1028,795],[1030,925],[975,925]]));
+  add('back_calf_lower_l','untere Wade links hinten',poly([[975,927],[1030,927],[1025,1055],[990,1068]]));
+  add('back_ankle_r','Sprunggelenk rechts hinten','M915 1055 Q935 1048 961 1058 L961 1090 Q935 1100 915 1088Z',{burnValue:.15});
+  add('back_ankle_l','Sprunggelenk links hinten','M979 1058 Q1005 1048 1025 1055 L1025 1088 Q1005 1100 979 1090Z',{burnValue:.15});
+  add('back_heel_r','Ferse rechts hinten',poly([[912,1085],[940,1082],[958,1105],[955,1125],[918,1128]]));
+  add('back_heel_l','Ferse links hinten',poly([[982,1085],[1010,1082],[1035,1105],[1032,1125],[995,1128]]));
+  add('back_foot_r','Fuß rechts hinten','M905 1082 Q930 1075 962 1085 L970 1118 Q945 1142 910 1132 Q891 1120 905 1082Z',{burnValue:.5});
+  add('back_foot_l','Fuß links hinten','M978 1085 Q1010 1075 1035 1082 Q1049 1120 1030 1132 Q995 1142 970 1118Z',{burnValue:.5});
+  const btr=[['Großzehe',1,906,1100,923,1136],['2. Zehe',2,919,1095,935,1139],['3. Zehe',3,932,1092,948,1138],['4. Zehe',4,945,1092,960,1136],['5. Zehe',5,957,1095,969,1128]];
+  btr.forEach(([n,i,x1,y1,x2,y2])=>add(`back_toe_r_${i}`,`${n} rechts hinten`,poly([[x1,y1],[x1+12,y1-5],[x2,y2],[x1+5,y2+3]])));
+  const btl=[['Großzehe',1,976,1100,994,1135],['2. Zehe',2,986,1095,1002,1138],['3. Zehe',3,999,1092,1015,1138],['4. Zehe',4,1012,1092,1028,1139],['5. Zehe',5,1025,1095,1037,1136]];
+  btl.forEach(([n,i,x1,y1,x2,y2])=>add(`back_toe_l_${i}`,`${n} links hinten`,poly([[x1,y1],[x1+10,y1-5],[x2,y2],[x1+5,y2+2]])));
+
+  // ---------------- EXAKTE KORREKTUR AUF DIE REFERENZGRAFIK 1536x867 ----------------
+  // WICHTIG: Die orange Fläche muss auf der TATSÄCHLICHEN anatomischen Struktur
+  // der Hintergrundgrafik liegen. Die vom Nutzer rot markierte Stelle ist dabei
+  // die Sollposition; alte, nur ungefähr platzierte Flächen werden nicht übernommen.
+  const override=(id,d)=>{const r=regions.find(x=>x.id===id); if(r){r.d=d; r.corrected=true;}};
+
+  // Vorderseite – Koordinaten direkt im 1536x867-Pixelraster des Hintergrundbildes.
+  // Rechte/links beziehen sich auf die Person (Patientensicht).
+  override('front_neck',rect(438,105,44,34,5));
+  override('front_clavicle_r',poly([[365,119],[405,108],[452,126],[447,144],[410,139],[376,132]]));
+  override('front_clavicle_l',poly([[468,126],[515,108],[555,119],[544,132],[510,139],[473,144]]));
+
+  override('front_chest','M387 137 Q458 121 529 137 Q548 174 544 228 Q535 265 505 278 L410 278 Q380 263 372 228 Q368 174 387 137Z');
+  override('front_upperchest_r',poly([[379,143],[457,130],[457,184],[383,188]]));
+  override('front_upperchest_l',poly([[461,130],[538,143],[534,188],[461,184]]));
+  override('front_midchest_r',poly([[381,188],[457,184],[457,231],[382,226]]));
+  override('front_midchest_l',poly([[461,184],[534,188],[538,226],[461,231]]));
+  override('front_lowerchest_r',poly([[382,226],[457,231],[454,274],[406,268],[384,250]]));
+  override('front_lowerchest_l',poly([[461,231],[538,226],[536,250],[514,268],[464,274]]));
+  override('front_sternum',poly([[454,137],[464,137],[464,274],[454,274]]));
+
+  // Schultern: nur die sichtbare Schulterform, nicht bis in den Oberarm hinein.
+  override('front_shoulder_r','M359 119 Q374 108 397 115 L421 132 L407 163 Q385 171 364 157 Q351 143 359 119Z');
+  override('front_shoulder_l','M523 115 Q546 108 561 119 Q569 143 556 157 Q535 171 513 163 L499 132Z');
+
+  // Oberarme: bewusst breiter und entlang des echten äußeren Körperumrisses.
+  override('front_upperarm_r','M375 151 Q391 145 407 158 L414 184 L392 268 Q386 286 372 293 Q357 287 352 270 L358 196 Q357 169 375 151Z');
+  override('front_upperarm_l','M513 158 Q529 145 545 151 Q563 169 562 196 L568 270 Q563 287 548 293 Q534 286 528 268 L506 184Z');
+  override('front_elbow_r','M353 267 Q372 273 392 267 L390 298 Q375 308 358 298Z');
+  override('front_elbow_l','M528 267 Q548 273 567 267 L562 298 Q545 308 530 298Z');
+  override('front_forearm_r','M358 295 Q375 304 391 295 L346 374 Q336 391 322 389 Q309 384 309 370 L351 303Z');
+  override('front_forearm_l','M529 295 Q545 304 562 295 L569 303 L611 370 Q611 384 598 389 Q584 391 574 374 L529 295Z');
+
+  // Bauch: obere und untere Etage sauber trennen. Der Unterbauch liegt
+  // deutlich UNTERHALB des Nabelbereichs – genau wie in der roten Markierung.
+  override('front_abdomen','M401 268 Q458 278 517 268 L519 361 Q505 383 458 387 Q412 383 399 361Z');
+  override('front_upperabd_r',poly([[402,269],[457,279],[457,319],[402,315]]));
+  override('front_upperabd_l',poly([[461,279],[516,269],[516,315],[461,319]]));
+  override('front_lowerabd_r',poly([[402,317],[457,320],[457,361],[415,357],[402,347]]));
+  override('front_lowerabd_l',poly([[461,320],[516,317],[516,347],[503,357],[461,361]]));
+  override('front_umbilicus',ell(459,319,8,8));
+
+  // Becken/Hüfte: die rote Sollposition liegt unter dem Unterbauch und über
+  // dem Beginn der Oberschenkel – nicht im oberen Bauchbereich.
+  override('front_pelvis','M402 357 Q459 375 516 357 Q527 378 523 410 Q507 431 459 435 Q411 431 395 410 Q391 378 402 357Z');
+  override('front_groin_r',poly([[398,361],[457,378],[455,418],[423,413],[401,397]]));
+  override('front_groin_l',poly([[461,378],[520,361],[517,397],[495,413],[463,418]]));
+
+  // Beine vorne – entlang des tatsächlichen Umrisses der Referenzfigur.
+  override('front_thigh_r','M405 423 Q426 414 451 423 L453 580 Q448 604 431 612 Q412 605 406 582 L401 470Z');
+  override('front_thigh_l','M466 423 Q491 414 512 423 L516 470 L511 582 Q505 605 486 612 Q469 604 464 580Z');
+  override('front_thigh_upper_r',poly([[405,427],[451,427],[452,504],[404,504]]));
+  override('front_thigh_lower_r',poly([[404,506],[452,506],[452,580],[430,608],[408,580]]));
+  override('front_thigh_upper_l',poly([[466,427],[512,427],[513,504],[466,504]]));
+  override('front_thigh_lower_l',poly([[466,506],[513,506],[511,580],[489,608],[466,580]]));
+  override('front_knee_r','M406 578 Q429 589 452 578 L451 616 Q430 627 409 616Z');
+  override('front_knee_l','M466 578 Q489 589 512 578 L511 616 Q490 627 468 616Z');
+  override('front_lowerleg_r','M409 612 Q430 622 451 612 L449 741 Q442 758 428 758 Q414 758 408 741Z');
+  override('front_lowerleg_l','M468 612 Q490 622 511 612 L512 741 Q506 758 492 758 Q478 758 470 741Z');
+  override('front_shin_upper_r',poly([[410,616],[451,616],[450,680],[410,680]]));
+  override('front_shin_lower_r',poly([[410,682],[450,682],[449,741],[428,755],[411,741]]));
+  override('front_shin_upper_l',poly([[469,616],[510,616],[511,680],[470,680]]));
+  override('front_shin_lower_l',poly([[470,682],[511,682],[511,741],[493,755],[470,741]]));
+
+  // Rückseite – gleiche anatomische Logik, direkt auf der rechten Figur.
+  override('back_neck',rect(1237,105,44,34,5));
+  override('back_cervical',poly([[1243,112],[1275,112],[1278,139],[1240,139]]));
+  override('back_upperback','M1194 137 Q1260 120 1326 137 Q1340 175 1337 228 Q1330 267 1305 278 L1215 278 Q1190 263 1183 228 Q1180 175 1194 137Z');
+  override('back_scapula_r',poly([[1184,145],[1225,126],[1250,145],[1243,213],[1208,228],[1188,205]]));
+  override('back_scapula_l',poly([[1270,145],[1295,126],[1336,145],[1332,205],[1312,228],[1277,213]]));
+  override('back_thoracic',poly([[1252,137],[1268,137],[1270,270],[1250,270]]));
+  override('back_ribs_r',poly([[1192,205],[1249,197],[1249,271],[1206,263]]));
+  override('back_ribs_l',poly([[1271,197],[1328,205],[1314,263],[1271,271]]));
+  override('back_lowerback','M1209 267 Q1260 278 1311 267 L1312 358 Q1298 380 1260 383 Q1222 380 1208 358Z');
+  override('back_lumbar_r',poly([[1211,269],[1252,280],[1252,357],[1225,365],[1210,350]]));
+  override('back_lumbar_l',poly([[1268,280],[1309,269],[1310,350],[1295,365],[1268,357]]));
+  override('back_flank_r',poly([[1192,270],[1222,280],[1222,355],[1200,344]]));
+  override('back_flank_l',poly([[1298,280],[1328,270],[1320,344],[1298,355]]));
+  override('back_sacrum',poly([[1244,350],[1276,350],[1286,390],[1260,420],[1234,390]]));
+  override('back_pelvis','M1208 350 Q1260 371 1312 350 Q1323 374 1318 405 Q1301 426 1260 430 Q1219 426 1202 405 Q1197 374 1208 350Z');
+  override('back_glute_r',poly([[1204,374],[1253,374],[1253,422],[1225,428],[1206,405]]));
+  override('back_glute_l',poly([[1267,374],[1316,374],[1314,405],[1295,428],[1267,422]]));
+  override('back_shoulder_r','M1172 119 Q1190 108 1211 115 L1235 132 L1221 163 Q1199 171 1178 157 Q1165 143 1172 119Z');
+  override('back_shoulder_l','M1309 115 Q1330 108 1348 119 Q1355 143 1342 157 Q1321 171 1299 163 L1285 132Z');
+  override('back_upperarm_r','M1184 151 Q1200 145 1216 158 L1223 184 L1201 268 Q1195 286 1180 293 Q1165 287 1160 270 L1166 196 Q1166 169 1184 151Z');
+  override('back_upperarm_l','M1304 158 Q1320 145 1336 151 Q1354 169 1354 196 L1360 270 Q1355 287 1340 293 Q1325 286 1319 268 L1297 184Z');
+  override('back_elbow_r','M1161 267 Q1180 273 1201 267 L1199 298 Q1184 308 1167 298Z');
+  override('back_elbow_l','M1319 267 Q1340 273 1359 267 L1354 298 Q1337 308 1322 298Z');
+  override('back_forearm_r','M1167 295 Q1184 304 1200 295 L1155 374 Q1145 391 1131 389 Q1118 384 1118 370 L1160 303Z');
+  override('back_forearm_l','M1322 295 Q1337 304 1354 295 L1361 303 L1403 370 Q1403 384 1390 389 Q1376 391 1366 374 L1322 295Z');
+
+  // ---------------- DETAILBEREICHE / REFERENZBILD 83075 ----------------
+  // Die große Körpergrafik wird nur für die großen anatomischen Regionen verwendet.
+  // Kopf/Gesicht sowie Hand- und Fußdetails liegen ausschließlich in den dafür
+  // vorgesehenen Detailbildern des Referenzbildes 83075.jpg.
+  const DETAIL_HIDE = new Set([
+    'front_head','front_forehead','front_temple_r','front_temple_l','front_eye_r','front_eye_l',
+    'front_nose','front_cheek_r','front_cheek_l','front_ear_r','front_ear_l','front_mouth',
+    'front_jaw_r','front_jaw_l','front_chin',
+    'front_wrist_r','front_wrist_l','front_palm_r','front_palm_l',
+    'front_finger_r_1','front_finger_r_2','front_finger_r_3','front_finger_r_4','front_finger_r_5',
+    'front_finger_l_1','front_finger_l_2','front_finger_l_3','front_finger_l_4','front_finger_l_5',
+    'front_ankle_r','front_ankle_l','front_foot_r','front_foot_l',
+    'front_toe_r_1','front_toe_r_2','front_toe_r_3','front_toe_r_4','front_toe_r_5',
+    'front_toe_l_1','front_toe_l_2','front_toe_l_3','front_toe_l_4','front_toe_l_5',
+    'back_head','back_occiput',
+    'back_wrist_r','back_wrist_l','back_palm_r','back_palm_l',
+    'back_finger_r_1','back_finger_r_2','back_finger_r_3','back_finger_r_4','back_finger_r_5',
+    'back_finger_l_1','back_finger_l_2','back_finger_l_3','back_finger_l_4','back_finger_l_5',
+    'back_ankle_r','back_ankle_l','back_foot_r','back_foot_l',
+    'back_toe_r_1','back_toe_r_2','back_toe_r_3','back_toe_r_4','back_toe_r_5'
+  ]);
+  regions.forEach(r=>{ if(DETAIL_HIDE.has(r.id)) r.hidden=true; });
+
+  // Alte 1536x1251-Koordinaten auf die exakt verwendete 1536x867-Referenzgrafik
+  // abbilden. Vorder- und Rückseite liegen im neuen Bild an unterschiedlichen X-Positionen.
+  // Korrigierte Hauptregionen liegen direkt im 1536x867-System. Noch nicht
+  // korrigierte Bein-/Restregionen behalten ihre bewährte Alt-Transformation,
+  // damit nicht durch diese Überarbeitung funktionierende Bereiche verrutschen.
+  const FRONT_T='matrix(.82 0 0 .67 123 0)';
+  const BACK_T='matrix(.82 0 0 .67 490 0)';
+  // Die Detailgrafiken (Hand/Fuß/Gesicht) liegen in derselben 1536x867-
+  // Referenzgrafik wie der Hintergrund. Die Browser-Darstellung des SVG-
+  // Layers war vertikal etwas gestreckt. Dadurch lagen die Auswahlflächen
+  // sichtbar unterhalb der tatsächlichen Anatomie. Diese Korrektur
+  // komprimiert ausschließlich die Detailflächen vertikal und hebt sie
+  // damit auf die tatsächlichen Bildpositionen an. Die Farben der
+  // Referenzbilder werden weiterhin nicht dargestellt.
+  const DETAIL_FACE_T='matrix(1 0 0 .865 0 10)';
+  const DETAIL_HAND_T='matrix(1 0 0 .865 0 -80)';
+  const DETAIL_FOOT_T='matrix(1 0 0 .865 0 -150)';
+  regions.forEach(r=>{
+    if(r.hidden) return;
+    if(r.detail){
+      if(r.id.startsWith('detail_hand_')) r.transform=DETAIL_HAND_T;
+      else if(r.id.startsWith('detail_foot') || r.id.startsWith('detail_toe_') || r.id==='detail_ankle' || r.id==='detail_foot_joint') r.transform=DETAIL_FOOT_T;
+      else r.transform=DETAIL_FACE_T;
+    }
+    else if(r.corrected) r.transform=null;
+    else if(r.id.startsWith('front_')) r.transform=FRONT_T;
+    else if(r.id.startsWith('back_')) r.transform=BACK_T;
+  });
+
+  // Gesicht: ausschließlich die große Gesichtsdarstellung in der Bildmitte.
+  add('detail_scalp','Schädeldecke',poly([[820,28],[850,17],[884,14],[916,20],[943,37],[952,72],[946,116],[932,143],[821,143],[806,113],[802,73]]),{burnValue:4.5,detail:true});
+  add('detail_forehead','Stirn',poly([[829,126],[850,112],[878,116],[905,112],[932,126],[925,164],[835,164]]),{detail:true});
+  add('detail_temple_r','Schläfe rechts',poly([[806,140],[828,134],[835,164],[826,192],[807,185]]),{detail:true});
+  add('detail_temple_l','Schläfe links',poly([[930,134],[951,140],[950,185],[932,192],[925,164]]),{detail:true});
+  add('detail_eye_r','Auge rechts',poly([[832,165],[850,158],[870,164],[875,174],[856,181],[837,177]]),{detail:true});
+  add('detail_eye_l','Auge links',poly([[884,164],[903,158],[923,165],[918,177],[899,181],[881,174]]),{detail:true});
+  add('detail_nose','Nase',poly([[872,170],[891,170],[900,205],[892,225],[875,225],[864,205]]),{detail:true});
+  add('detail_jaw_r','Unterkiefer rechts',poly([[811,201],[839,215],[864,231],[858,259],[837,272],[820,254],[809,225]]),{detail:true});
+  add('detail_jaw_l','Unterkiefer links',poly([[915,215],[943,201],[945,225],[934,254],[917,272],[896,259],[890,231]]),{detail:true});
+  add('detail_chin','Kinn',poly([[854,250],[875,258],[895,250],[899,274],[886,294],[866,294],[850,274]]),{detail:true});
+  add('detail_upperjaw_r','Oberkiefer rechts',poly([[838,216],[864,221],[870,241],[854,250],[837,241]]),{detail:true});
+  add('detail_upperjaw_l','Oberkiefer links',poly([[891,221],[917,216],[918,241],[901,250],[885,241]]),{detail:true});
+  add('detail_mouth','Mund',poly([[855,239],[871,235],[886,235],[902,239],[897,253],[883,258],[869,258],[855,253]]),{detail:true});
+  // Ohren – Teil der großen Gesichtsansicht und separat auswählbar.
+  add('detail_ear_r','Ohr rechts',poly([[790,150],[801,142],[811,150],[814,178],[807,199],[796,205],[788,192],[786,170]]),{detail:true});
+  add('detail_ear_l','Ohr links',poly([[963,150],[974,142],[985,150],[989,170],[987,192],[979,205],[968,199],[961,178]]),{detail:true});
+
+  // Hand-Detailbild links: keine Hand-/Finger-Hotspots mehr auf dem großen Skelett.
+  add('detail_hand_wrist','Handgelenk',poly([[76,244],[105,238],[139,247],[151,269],[141,292],[105,286],[77,274]]),{detail:true,detailSide:true});
+  add('detail_hand_palm','Handfläche',poly([[57,274],[87,263],[119,276],[145,296],[140,355],[118,381],[83,370],[57,342]]),{detail:true,burnValue:0.7,detailSide:true});
+  const handXs=[
+    ['Daumen',1,45,300,75,354],['Zeigefinger',2,69,290,88,389],['Mittelfinger',3,88,285,108,397],
+    ['Ringfinger',4,108,287,127,391],['Kleiner Finger',5,128,294,145,374]
+  ];
+  handXs.forEach(([n,i,x1,y1,x2,y2])=>add(`detail_hand_finger_${i}`,`${n}`,poly([[x1,y1],[x1+15,y1-5],[x2,y2],[x1+6,y2+4]]),{detail:true,detailSide:true}));
+
+  // Fuß-Detailbild links unten.
+  add('detail_ankle','Sprunggelenk',poly([[83,590],[112,580],[137,594],[139,625],[118,641],[87,628]]),{detail:true,burnValue:.15,detailSide:true});
+  add('detail_foot_joint','Fußgelenk',poly([[50,622],[88,620],[122,633],[154,659],[166,700],[141,720],[96,720],[60,700],[40,665]]),{detail:true,burnValue:.15,detailSide:true});
+  add('detail_foot','Fußfläche',poly([[50,622],[88,620],[122,633],[154,659],[166,700],[141,720],[96,720],[60,700],[40,665]]),{detail:true,burnValue:.5,detailSide:true});
+  const toeXs=[
+    ['Großzehe',1,111,681,150,711],['Lange Zehe',2,93,690,124,724],['Mittlere Zehe',3,77,690,105,726],
+    ['Ringzehe',4,62,688,86,720],['Kleine Zehe',5,48,681,69,710]
+  ];
+  toeXs.forEach(([n,i,x1,y1,x2,y2])=>add(`detail_toe_${i}`,n,poly([[x1,y1],[x1+16,y1-4],[x2,y2],[x1+6,y2+3]]),{detail:true,detailSide:true}));
+
+  // ---------------- ZIELPOSITIONEN AUS DEN NUTZER-MARKIERUNGEN ----------------
+  // WICHTIG: Orange = aktuelle Programmfläche, farbige Markierungen (rot/cyan/blau/
+  // pink/grün) aus den Referenz-Screenshots = SOLLPOSITION. Diese Korrekturen
+  // überschreiben deshalb die bisherigen Näherungsflächen.
+  //
+  // Vorderseite: Unterarme und Knie
+  override('front_forearm_r',poly([[343.4,236.4],[331.3,236.4],[323.5,246.4],[312.5,253.0],[308.1,258.5],[299.2,268.5],[290.4,278.4],[282.7,290.6],[273.9,309.3],[272.7,317.1],[278.3,323.7],[286.0,323.7],[291.5,316.0],[298.1,312.7],[302.6,298.3],[307.0,300.5],[310.3,288.4],[315.8,282.8],[323.5,277.3],[321.3,269.6],[326.9,269.6],[336.8,259.6],[333.5,258.5],[344.5,248.6]]));
+  override('front_forearm_l',poly([[558.7,244.2],[557.6,256.3],[567.6,275.1],[583.0,289.5],[586.4,297.2],[599.6,307.1],[608.4,321.5],[619.5,329.2],[629.4,322.6],[619.5,293.9],[566.5,244.2]]));
+  override('front_knee_r',poly([[377.7,486.1],[373.2,492.7],[373.2,518.2],[379.9,530.3],[394.2,533.6],[410.8,519.3],[410.8,497.2],[403.0,488.3]]));
+  override('front_knee_l',poly([[513.5,495.0],[503.5,495.0],[482.6,508.2],[480.3,523.7],[489.2,536.9],[505.7,536.9],[514.6,530.3],[520.1,512.6],[519.0,501.6]]));
+
+  // Rückseite: obere/untere Wade. Die Zuordnung folgt der Beschriftung im
+  // Referenzbild: links = sichtbare linke Körperseite, rechts = sichtbare rechte.
+  override('back_calf_l',poly([[1242.3,522.6],[1234.5,524.8],[1223.5,535.8],[1218.0,611.0],[1225.7,618.7],[1237.9,617.6],[1247.8,609.9],[1256.6,585.5],[1256.6,545.8],[1251.1,532.5]]));
+  override('back_calf_r',poly([[1346.1,523.7],[1337.2,541.4],[1336.1,556.8],[1340.5,608.7],[1346.1,624.2],[1357.1,624.2],[1367.1,634.2],[1374.8,624.2],[1378.1,581.1],[1368.2,539.1],[1351.6,524.8]]));
+  override('back_calf_lower_l',poly([[1232.3,619.8],[1220.2,628.6],[1223.5,689.4],[1227.9,708.2],[1240.1,711.5],[1247.8,702.7],[1251.1,668.4],[1245.6,633.1],[1240.1,623.1]]));
+  override('back_calf_lower_r',poly([[1350.5,626.4],[1341.7,630.8],[1333.9,657.4],[1333.9,680.6],[1343.9,707.1],[1350.5,712.6],[1356.0,712.6],[1364.8,704.9],[1370.4,651.8],[1360.4,629.7]]));
+
+  // Hand-/Fuß-Detailbereiche: die alten kleinen Flächen werden an die im
+  // Referenzbild rot markierten Strukturen angepasst. Sie bleiben ausschließlich
+  // im Detailbild aktiv.
+  override('detail_hand_finger_1',poly([[31,300],[48,286],[66,280],[82,294],[73,322],[63,355],[54,392],[43,418],[32,414],[27,398],[31,370]]));
+  override('detail_hand_finger_2',poly([[69,291],[84,282],[101,290],[105,324],[103,366],[99,414],[94,468],[82,477],[70,468],[68,430],[69,380]]));
+  override('detail_hand_finger_3',poly([[92,286],[108,283],[122,293],[126,337],[126,390],[126,444],[123,484],[112,492],[101,483],[99,441],[99,391],[96,340]]));
+  override('detail_hand_finger_4',poly([[113,289],[129,286],[143,296],[149,339],[153,383],[157,430],[153,456],[143,463],[132,452],[128,414],[124,372],[119,332]]));
+  override('detail_hand_finger_5',poly([[135,294],[150,287],[163,294],[174,326],[182,365],[188,405],[184,423],[174,429],[164,421],[158,385],[151,346],[143,316]]));
+
+  // Zehen im Fuß-Detailbild. Großzehe ist die breite Zehe rechts im Bild,
+  // die 5. Zehe liegt links.
+  override('detail_toe_1',poly([[141,655],[154,650],[167,658],[171,674],[165,699],[154,712],[141,709],[136,694]]));
+  override('detail_toe_2',poly([[110,677],[122,670],[134,678],[137,698],[131,716],[120,722],[110,715],[106,699]]));
+  override('detail_toe_3',poly([[88,686],[100,681],[111,688],[113,706],[107,720],[97,725],[88,719],[84,703]]));
+  override('detail_toe_4',poly([[65,685],[77,681],[88,688],[90,704],[84,716],[74,721],[65,716],[60,702]]));
+  override('detail_toe_5',poly([[44,679],[56,676],[67,683],[70,697],[65,709],[55,714],[45,709],[40,696]]));
+
+  // ---------------- FUSS: SOLLPOSITIONEN AUS DER NEUEN REFERENZ 85515 ----------------
+  // Die Farben der Referenz dienen ausschließlich der Positionskalibrierung und
+  // sind in der Anwendung nicht sichtbar. Die Hotspots liegen exakt auf den
+  // markierten Bereichen der aktuellen Fuß-Referenzgrafik.
+  // Rot = kleine Zehe, Blau = Ringzehe, Lila = mittlere Zehe,
+  // Pink = lange Zehe, Grün = Großzehe, Cyan = Sprunggelenk,
+  // Gelb = Fußfläche, Schwarz = Fußgelenk.
+  override('detail_ankle',poly([[896,599],[884,596],[870,598],[864,602],[858,612],[856,630],[842,660],[837,679],[852,682],[860,687],[871,682],[891,653],[895,641]]));
+  override('detail_foot_joint',poly([[910,558],[934,553],[964,556],[982,570],[992,590],[992,622],[988,648],[978,658],[963,664],[940,665],[916,661],[901,653],[895,640],[895,616],[897,589]]));
+  override('detail_foot',poly([[793,739],[836,763],[853,753],[867,755],[871,763],[895,754],[919,769],[937,745],[977,762],[988,734],[995,679],[993,664],[988,656],[958,664],[894,654],[870,686],[858,691],[836,681]]));
+  override('detail_toe_5',poly([[811,751],[798,748],[773,768],[766,783],[765,796],[767,805],[773,810],[781,811],[787,806],[801,775],[818,759]]));
+  override('detail_toe_4',poly([[831,762],[820,760],[802,778],[790,804],[790,812],[795,819],[812,820],[821,796],[831,783],[835,771]]));
+  override('detail_toe_3',poly([[864,758],[849,757],[836,772],[816,813],[816,826],[826,829],[841,825],[847,802],[859,785],[871,777],[872,767]]));
+  override('detail_toe_2',poly([[904,760],[888,759],[880,762],[872,778],[856,790],[844,814],[845,826],[850,832],[869,833],[884,823],[913,782],[915,772],[907,770]]));
+  override('detail_toe_1',poly([[981,768],[945,746],[938,746],[902,801],[906,817],[916,823],[935,824],[955,814],[966,796],[979,783],[983,774]]));
+
+  // ---------------- HAND: SOLLPOSITIONEN AUS DER NEUEN REFERENZ 85514 ----------------
+  // Die Farben im Referenzbild dienen NUR als Kalibrierhilfe und werden in der
+  // Anwendung niemals angezeigt. Alle Hotspots liegen auf den vom Nutzer
+  // markierten anatomischen Bereichen der Hand-Detailgrafik.
+  // Lila = Daumen, Rot = Zeigefinger, Blau = Mittelfinger, Pink = Ringfinger,
+  // Grün = kleiner Finger, Cyan = Handgelenk, Gelb = Handfläche.
+  //
+  // WICHTIG: Die Finger-Hotspots bleiben vollständig im jeweiligen Finger und
+  // werden nicht mehr über die Nachbarfinger oder die Handfläche gelegt.
+  override('detail_hand_wrist',poly([
+    [554,505],[574,493],[603,492],[631,498],[653,508],[660,523],
+    [652,539],[626,539],[600,534],[575,531],[558,524]
+  ]));
+
+  override('detail_hand_palm',poly([
+    [541,536],[568,525],[603,529],[635,541],[661,558],[678,582],
+    [686,608],[691,638],[686,654],[669,660],[646,656],[622,653],
+    [598,656],[572,653],[548,646],[534,634],[528,615],[530,591]
+  ]));
+
+  // Daumen – lila Markierung
+  override('detail_hand_finger_1',poly([
+    [506,592],[520,598],[528,613],[524,632],[519,652],[514,674],
+    [508,693],[498,695],[488,688],[486,680],[491,663],[496,642],
+    [500,620],[501,606]
+  ]));
+
+  // Zeigefinger – rote Markierung
+  override('detail_hand_finger_2',poly([
+    [538,649],[553,649],[560,661],[562,684],[562,715],[562,750],
+    [563,785],[564,804],[559,818],[550,823],[541,819],[535,808],
+    [533,781],[532,747],[532,713],[532,682],[533,660]
+  ]));
+
+  // Mittelfinger – blaue Markierung
+  override('detail_hand_finger_3',poly([
+    [577,658],[592,658],[600,668],[602,695],[602,729],[603,764],
+    [604,799],[605,817],[599,827],[589,830],[581,824],[577,809],
+    [576,779],[575,746],[575,713],[575,681]
+  ]));
+
+  // Ringfinger – pinke Markierung
+  override('detail_hand_finger_4',poly([
+    [616,660],[632,661],[644,669],[650,691],[653,718],[656,748],
+    [659,776],[661,798],[657,811],[650,817],[641,813],[636,800],
+    [633,775],[630,747],[627,719],[622,694],[617,676]
+  ]));
+
+  // Kleiner Finger – grüne Markierung
+  override('detail_hand_finger_5',poly([
+    [672,643],[684,648],[692,660],[697,680],[703,701],[709,721],
+    [714,739],[712,747],[706,752],[698,747],[691,733],[685,716],
+    [679,698],[674,679],[668,661]
+  ]));
+
+  // Verletzungsarten – bewusst identisch zum gewünschten Kontextmenü.
+  const injuryTypes=[
+    'Verletzungsart unklar','Amputation','Bissverletzung','Erfrierung','Fraktur','Luxation',
+    'Platzwunde / Schürfung','Prellung / Bänderverletzung','Quetschung','Riss- / Quetsch- / Schnittverletzung',
+    'Tiefe Schnittwunde','Schussverletzung','Stich- / Pfählungsverletzung','Verbrennung / Verbrühung / Verätzung',
+    'Hiebverletzung','Verletzungsmechanismus schwer'
+  ];
+
+  const byId=id=>regions.find(r=>r.id===id);
+  const burnMapValue=(selected)=>{
+    let total=0;
+    const set=selected instanceof Set?selected:new Set(selected||[]);
+    // Wenn eine Gesamtfläche ausgewählt ist, werden ihre Unterbereiche nicht zusätzlich gezählt.
+    for(const r of regions){
+      if(!set.has(r.id)) continue;
+      if(r.children?.length) total+=Number(r.burnValue)||0;
+      else {
+        const parent=regions.find(p=>p.children?.includes(r.id));
+        if(parent && set.has(parent.id)) continue;
+        total+=Number(r.burnValue)||0;
+      }
+    }
+    return Math.min(100,total);
+  };
+
+  function getDetails(){return window.__NABS_ANSWERS__?.verletzung_v51_koerperdetails||{};}
+  function setDetail(id,type){
+    const a=window.__NABS_ANSWERS__; if(!a)return;
+    a.verletzung_v51_koerperdetails=a.verletzung_v51_koerperdetails||{};
+    if(type)a.verletzung_v51_koerperdetails[id]=type; else delete a.verletzung_v51_koerperdetails[id];
+  }
+  function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+
+  let tooltip=null;
+  function showTip(region,e){
+    if(tooltip)tooltip.remove();
+    tooltip=document.createElement('div');tooltip.className='nabs-body-tooltip';tooltip.textContent=region.label;
+    document.body.appendChild(tooltip);
+    const x=Math.min(window.innerWidth-260,Math.max(10,(e.clientX||0)+14));
+    const y=Math.min(window.innerHeight-55,Math.max(10,(e.clientY||0)+14));
+    tooltip.style.left=x+'px';tooltip.style.top=y+'px';
+  }
+  function hideTip(){if(tooltip){tooltip.remove();tooltip=null;}}
+
+  function closeMenu(){document.querySelectorAll('.nabs-injury-menu').forEach(x=>x.remove());}
+  function openMenu(region,anchor,onChange){
+    closeMenu();
+    const menu=document.createElement('div');menu.className='nabs-injury-menu';
+    const sideOptions=region.detailSide?`<div class="nabs-injury-menu-sub">Seite auswählen</div><div class="nabs-injury-menu-options side-options"><button type="button" data-side="rechts">Rechts</button><button type="button" data-side="links">Links</button></div><div class="nabs-injury-menu-sep"></div>`:'';
+    menu.innerHTML=`<div class="nabs-injury-menu-title">📍 ${esc(region.label)}</div>${sideOptions}<div class="nabs-injury-menu-sub">Verletzungsart auswählen</div><div class="nabs-injury-menu-options">${injuryTypes.map(t=>`<button type="button" data-type="${esc(t)}">${esc(t)}</button>`).join('')}</div><div class="nabs-injury-menu-sep"></div><button type="button" class="nabs-menu-reset">Auswahl zurücksetzen</button><button type="button" class="nabs-menu-reset-all">ALLE VERLETZUNGEN ZURÜCKSETZEN</button>`;
+    document.body.appendChild(menu);
+    let selectedSide='';
+    menu.querySelectorAll('[data-side]').forEach(b=>b.onclick=()=>{selectedSide=b.dataset.side;menu.querySelectorAll('[data-side]').forEach(x=>x.classList.toggle('active',x===b));});
+    menu.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{const value=selectedSide?`${b.dataset.type} (${selectedSide})`:b.dataset.type;setDetail(region.id,value);onChange(region.id,value);closeMenu();});
+    menu.querySelector('.nabs-menu-reset').onclick=()=>{setDetail(region.id,null);onChange(region.id,null);closeMenu();};
+    menu.querySelector('.nabs-menu-reset-all').onclick=()=>{window.__NABS_CLEAR_BODYMAP__?.();closeMenu();};
+    const r=anchor.getBoundingClientRect(); const mw=Math.min(340,window.innerWidth-20); const mh=Math.min(560,window.innerHeight-20);
+    let left=r.left,top=r.bottom+8;
+    if(left+mw>window.innerWidth-10)left=window.innerWidth-mw-10;
+    if(left<10)left=10;
+    if(top+mh>window.innerHeight-10)top=Math.max(10,r.top-mh-8);
+    menu.style.left=left+'px';menu.style.top=top+'px';
+    setTimeout(()=>{
+      const outside=e=>{if(!menu.contains(e.target)){closeMenu();document.removeEventListener('pointerdown',outside)}};
+      document.addEventListener('pointerdown',outside);
+    },0);
+  }
+
+  function makeSvg(container,selected,onSummary){
+    const svg=container,ns='http://www.w3.org/2000/svg';
+    svg.innerHTML='';
+    window.__NABS_CLEAR_BODYMAP__=()=>{selected.clear();const a=window.__NABS_ANSWERS__;if(a){a.verletzung_v51_koerperkarte=[];a.verletzung_v51_koerperdetails={};}svg.querySelectorAll('.nabs-body-region').forEach(e=>e.classList.remove('selected'));onSummary?.();};
+    // Große Regionen zuerst, anatomisch feinere Regionen zuletzt.
+    regions.forEach(r=>{
+      if(r.hidden) return;
+      const el=document.createElementNS(ns,'path');
+      el.setAttribute('d',r.d); if(r.transform) el.setAttribute('transform',r.transform); el.setAttribute('class','nabs-body-region');el.setAttribute('tabindex','0');el.setAttribute('role','button');el.setAttribute('aria-label',r.label);el.dataset.region=r.id;
+      if(selected.has(r.id))el.classList.add('selected');
+      el.addEventListener('pointermove',e=>showTip(r,e));
+      el.addEventListener('pointerleave',hideTip);
+      const act=e=>{
+        e?.preventDefault?.();
+        openMenu(r,el,(id,type)=>{
+          if(type){selected.add(id);el.classList.add('selected');}
+          else {selected.delete(id);el.classList.remove('selected');}
+          const a=window.__NABS_ANSWERS__;if(a)a.verletzung_v51_koerperkarte=[...selected];
+          onSummary?.();
+        });
+      };
+      // PC: ausschließlich Rechtsklick. Touch: normaler Tap.
+      el.addEventListener('contextmenu',act);
+      el.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse')act(e);});
+      el.addEventListener('click',e=>{if(e.detail===0)act(e);}); // Tastatur
+      el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){act(e);}});
+      svg.appendChild(el);
+    });
+  }
+  window.NABSBodyMap={regions,injuryTypes,burnMapValue,makeSvg,openMenu};
+})();

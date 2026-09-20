@@ -689,3 +689,13 @@ Version 5.3 – EHSI neu strukturiert und regionale Quellen erweitert
 - Leitstelle / Region mit aktuellen regionalen Quellen für RettZV Südwestsachsen, Landkreis Zwickau, Feuerwehr Zwickau und REVOSax ergänzt.
 - Neuer Bereich Tiere/Natur mit Zuständigkeiten für Hornissen/Artenschutz, Jagdbehörde, Veterinäramt, Tierschutz und Wild-/ASP-Lagen für den Landkreis Zwickau einschließlich Zwickau/Mosel.
 - Quellen sind als direkte Dokument-/Weblinks hinterlegt und sollen bei Änderungen über die jeweils aktuelle Behörden-/Fachquelle geprüft werden.
+
+
+Version 5.3 – EHSI-Bereichsfenster
+===================================
+- Die EHSI-Startseite zeigt beim Laden nur noch die Bereichs-Buttons.
+- Rettungsdienst, Feuerwehr, Gefahrgut, Leitstelle / Region sowie Tiere / Natur & Zuständigkeiten öffnen ihre Inhalte erst nach Klick in einem eigenen Fenster/Overlay.
+- Im geöffneten Bereich stehen oben gesammelt die hinterlegten Quellen & Dokumente. Doppelte Links werden automatisch nur einmal angezeigt.
+- Darunter werden die Fachinformationen und Einsatzhilfen des jeweiligen Bereichs angezeigt.
+- Das Bereichsfenster kann über X, „Bereich schließen“, Klick auf den Hintergrund oder die ESC-Taste geschlossen werden.
+- Die vorhandenen EHSI-Inhalte und Quellen bleiben erhalten; die Darstellung wurde ausschließlich übersichtlicher strukturiert.

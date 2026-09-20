@@ -268,3 +268,19 @@ V68.23 – 20.09.2026
 - Alte nicht gewünschte Rückseitenflächen bleiben deaktiviert.
 - bodymap.js Cache-Version auf 20260920v723 erhöht.
 - Bestehende README.txt fortgeführt; keine neue README-Datei angelegt.
+
+
+V68.24 – 20.09.2026
+- Rückseite Unterkörper/Beine vollständig neu nach Referenz 87245.jpg aufgebaut.
+- Rosa = Oberschenkelkopf links/rechts.
+- Rot = Schenkelbein links/rechts (proximaler Schenkelhalsbereich gemäß Markierung).
+- Zyan = Oberschenkel (Femur) links/rechts.
+- Lila = Schienbein (Tibia) links/rechts.
+- Blau = Wadenbein (Fibula) links/rechts.
+- Pink = Sprungbein (Talus) links/rechts.
+- Braun = Fersenbein (Calcaneus) links/rechts.
+- Die alten groben Rückseiten-Flächen für Oberschenkel, Knie, Unterschenkel, Wade, Sprunggelenk, Ferse, Fuß und Zehen wurden deaktiviert, damit ausschließlich die neuen Sollpositionen verwendet werden.
+- Die neuen Knochenflächen liegen direkt im 1536x867-Bildkoordinatensystem und erhalten keine alte BACK_T-Transformation.
+- Referenzfarben werden nicht dargestellt; ausgewählte Bereiche bleiben orange.
+- bodymap.js Cache-Version in abfrage.html auf 20260920v824 erhöht.
+- Die bestehende README.txt wurde weitergeführt; keine neue README-Datei angelegt.

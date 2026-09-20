@@ -1,4 +1,4 @@
-/* NABS V68.23 – hochgranulare anatomische Verletzungskarte
+/* NABS V68.24 – hochgranulare anatomische Verletzungskarte
  * Rechtsklick (PC) bzw. Tippen (Touch) öffnet die Verletzungsart.
  * Linksklick am PC markiert NICHT direkt. Hover zeigt den exakten Bereich.
  * Die SVG-Flächen liegen direkt über dem Körperschema und werden im Ergebnis
@@ -739,6 +739,106 @@
   const oldPelvis=regions.find(x=>x.id==='front_pelvis');
   if(oldPelvis) oldPelvis.hidden=true;
 
+
+  // V68.24: RÜCKSEITE UNTERE EXTREMITÄT – exakt nach Referenz 87245.jpg.
+  // Die farbigen Markierungen der Referenz werden NICHT dargestellt.
+  // Bildkoordinaten direkt im 1536x867-Raster; keine alte BACK_T-Transformation.
+  // Bildseite links = anatomisch rechts, Bildseite rechts = anatomisch links.
+  const backBoneRegion=(id,label,d)=>{
+    const r=regions.find(x=>x.id===id);
+    if(r){ r.hidden=true; }
+    add(id,label,d,{corrected:true});
+  };
+
+  // Alte grobe Beinflächen vollständig deaktivieren.
+  [
+    'back_thigh_r','back_thigh_l','back_ham_upper_r','back_ham_upper_l',
+    'back_ham_lower_r','back_ham_lower_l','back_knee_r','back_knee_l',
+    'back_lowerleg_r','back_lowerleg_l','back_calf_upper_r','back_calf_upper_l',
+    'back_calf_lower_r','back_calf_lower_l','back_ankle_r','back_ankle_l',
+    'back_heel_r','back_heel_l','back_foot_r','back_foot_l',
+    'back_toe_r_1','back_toe_r_2','back_toe_r_3','back_toe_r_4','back_toe_r_5',
+    'back_toe_l_1','back_toe_l_2','back_toe_l_3','back_toe_l_4','back_toe_l_5'
+  ].forEach(id=>{ const r=regions.find(x=>x.id===id); if(r) r.hidden=true; });
+
+  // Rosa = Oberschenkelkopf links/rechts.
+  add('back_femoral_head_r','Oberschenkelkopf rechts',
+      poly([[1197,387],[1195,392],[1197,392],[1200,395],[1203,401],[1207,401],
+            [1208,399],[1210,400],[1210,398],[1204,392],[1206,391],[1203,386]]),
+      {corrected:true});
+  add('back_femoral_head_l','Oberschenkelkopf links',
+      poly([[1298,388],[1294,387],[1291,389],[1291,392],[1286,397],[1286,400],
+            [1288,401],[1287,403],[1288,402],[1289,403],[1293,402],[1300,394],
+            [1299,393],[1301,392]]),
+      {corrected:true});
+
+  // Rot = Schenkelbein (proximaler Schenkelhalsbereich) links/rechts.
+  add('back_femoral_neck_r','Schenkelbein rechts',
+      poly([[1188,397],[1189,402],[1193,404],[1200,411],[1201,410],
+            [1200,408],[1200,400],[1196,395],[1193,395]]),
+      {corrected:true});
+  add('back_femoral_neck_l','Schenkelbein links',
+      poly([[1307,397],[1306,396],[1301,396],[1294,405],[1293,410],
+            [1300,410],[1305,408],[1307,406]]),
+      {corrected:true});
+
+  // Zyan = Oberschenkel (Femur) links/rechts.
+  add('back_femur_r','Oberschenkel (Femur) rechts',
+      poly([[1181,416],[1178,550],[1167,584],[1202,593],[1195,425]]),
+      {corrected:true});
+  add('back_femur_l','Oberschenkel (Femur) links',
+      poly([[1315,416],[1297,423],[1292,595],[1326,584],[1314,544]]),
+      {corrected:true});
+
+  // Lila = Schienbein (Tibia) links/rechts.
+  add('back_tibia_r','Schienbein (Tibia) rechts',
+      poly([[1172,596],[1165,601],[1176,660],[1170,788],[1189,789],
+            [1184,668],[1201,601]]),
+      {corrected:true});
+  add('back_tibia_l','Schienbein (Tibia) links',
+      poly([[1307,595],[1292,603],[1309,681],[1301,785],[1321,790],
+            [1317,650],[1330,602]]),
+      {corrected:true});
+
+  // Blau = Wadenbein (Fibula) links/rechts.
+  add('back_fibula_r','Wadenbein (Fibula) rechts',
+      poly([[1163,612],[1159,677],[1168,786],[1171,785],[1168,677]]),
+      {corrected:true});
+  add('back_fibula_l','Wadenbein (Fibula) links',
+      poly([[1331,612],[1324,773],[1328,782],[1331,773],[1335,650],[1334,612]]),
+      {corrected:true});
+
+  // Pink = Sprungbein (Talus) links/rechts.
+  add('back_talus_r','Sprungbein (Talus) rechts',
+      poly([[1169,794],[1168,800],[1177,799],[1185,805],[1188,805],
+            [1190,802],[1188,791],[1178,790],[1171,792]]),
+      {corrected:true});
+  add('back_talus_l','Sprungbein (Talus) links',
+      poly([[1322,795],[1316,789],[1310,788],[1304,790],[1302,793],
+            [1302,805],[1305,805],[1312,799],[1321,800]]),
+      {corrected:true});
+
+  // Braun = Fersenbein (Calcaneus) links/rechts.
+  add('back_calcaneus_r','Fersenbein (Calcaneus) rechts',
+      poly([[1163,805],[1155,815],[1156,821],[1168,825],[1174,835],
+            [1186,835],[1190,831],[1190,824],[1184,810],[1177,804]]),
+      {corrected:true});
+  add('back_calcaneus_l','Fersenbein (Calcaneus) links',
+      poly([[1327,804],[1313,804],[1305,810],[1302,831],[1306,836],
+            [1310,837],[1317,834],[1323,826],[1333,821],[1335,814]]),
+      {corrected:true});
+
+  // Neue Sollflächen bleiben unverändert im Bildkoordinatensystem.
+  [
+    'back_femoral_head_r','back_femoral_head_l','back_femoral_neck_r','back_femoral_neck_l',
+    'back_femur_r','back_femur_l','back_tibia_r','back_tibia_l',
+    'back_fibula_r','back_fibula_l','back_talus_r','back_talus_l',
+    'back_calcaneus_r','back_calcaneus_l'
+  ].forEach(id=>{
+    const r=regions.find(x=>x.id===id);
+    if(r){ r.corrected=true; r.transform=null; }
+  });
+
   // V68.15: Auf der Körperkarte bleiben ausschließlich die aktuell
   // freigegebenen Detailbereiche sichtbar. Die alten Flächen auf Vorder-
   // und Rückseite sowie alte Kopf-/Gesichtsflächen werden nicht mehr
@@ -754,6 +854,11 @@
     'detail_elbow_l','detail_elbow_r','detail_forearm_l','detail_forearm_r',
     'detail_ribs_l','detail_ribs_r','detail_sternum',
     'detail_upperabd_l','detail_upperabd_r','detail_lowerabd_l','detail_lowerabd_r',
+    // V68.24: Rückseite Beine – neue Knochen-Sollflächen aus 87245.jpg.
+    'back_femoral_head_r','back_femoral_head_l','back_femoral_neck_r','back_femoral_neck_l',
+    'back_femur_r','back_femur_l','back_tibia_r','back_tibia_l',
+    'back_fibula_r','back_fibula_l','back_talus_r','back_talus_l',
+    'back_calcaneus_r','back_calcaneus_l',
     // V68.23: Rückseiten-Sollflächen aus 87178.jpg ausdrücklich aktiv halten.
     // In V68.22 wurden sie durch den abschließenden Filter versehentlich entfernt.
     'back_head','back_cervical','back_thoracic','back_lumbar_r','back_sacrum','back_flank_r',

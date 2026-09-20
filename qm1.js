@@ -1,4 +1,4 @@
-import { authState, login, logout, anonymous, read, write } from './firebase-rest.js?v=20260920v40';
+import { authState, login, logout, anonymous, read, write } from './firebase-rest.js?v=20260920v41';
 import { defaults, CATALOG_SCHEMA_VERSION } from './data.js?v=20260915v27';
 const $=id=>document.getElementById(id);
 const TWO_MONTHS_MS=60*24*60*60*1000;

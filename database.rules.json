@@ -4,7 +4,8 @@
     ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
     "abbruchAbfragen": {
       ".read": "auth != null",
-      ".write": "auth != null"
+      ".write": "auth != null",
+      ".indexOn": ["createdAt"]
     }
   }
 }

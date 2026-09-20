@@ -1,6 +1,6 @@
 // Einsatzabfrage V20 – dynamischer Entscheidungsbaum mit permanenter Aktionsleiste
 import { startupDefaults } from "./startup-data.js?v=20260915v39";
-import { anonymous, read, authState, push } from "./firebase-rest.js?v=20260920v40";
+import { anonymous, read, authState, push } from "./firebase-rest.js?v=20260920v41";
 
 const $ = id => document.getElementById(id);
 const mainCategories = [
@@ -1312,7 +1312,7 @@ function currentResult(){
 }
 async function recordAbort(reason, otherReason="") {
   const now=new Date();
-  const a=authState();
+  let a=authState();
   const username=(a?.email||sessionStorage.getItem("nabs_username")||"Einsatzbearbeiter").trim() || "Einsatzbearbeiter";
   const record={
     category:"Abbruch abfragen",
@@ -1329,35 +1329,52 @@ async function recordAbort(reason, otherReason="") {
     status:phaseText()
   };
   try{
-    const active=authState().token ? authState() : await anonymous();
-    if(!active?.token) throw new Error("Keine Firebase-Anmeldung verfügbar.");
+    if(!a?.token) a=await anonymous();
+    if(!a?.token) throw new Error("Keine Firebase-Anmeldung verfügbar. Bitte in Firebase Authentication die anonyme Anmeldung aktivieren.");
     await push("abbruchAbfragen",record);
     return true;
   }catch(e){
     console.error("Abbruch konnte nicht gespeichert werden",e);
-    alert("Der Abbruch konnte nicht gespeichert werden. Bitte Netzwerk/Firebase prüfen.\n\n"+e.message);
+    const msg=String(e?.message||e);
+    if(/permission denied/i.test(msg)){
+      alert("Der Abbruch konnte nicht gespeichert werden.\n\nFirebase meldet: Permission denied.\n\nBitte in Firebase Realtime Database die Regeln aus der Datei database.rules.json veröffentlichen. Unter abbruchAbfragen muss .write für angemeldete Benutzer erlaubt sein.");
+    }else{
+      alert("Der Abbruch konnte nicht gespeichert werden.\n\n"+msg);
+    }
     return false;
   }
 }
 function openAbortReason(onDone){
   const reasons=["Böswilliger Anruf","Fehlanruf","Verschlechterung","Test","Servicefrage","Sonstiges"];
-  openModal(`<div class="modal-title">⏹ Abfrage abbrechen</div><p class="hint">Bitte zuerst den Grund für den Abbruch auswählen.</p><div class="modal-buttons">${reasons.map((r,i)=>`<button class="abort-choice ${r==='Verschlechterung'?"danger-choice":""}" data-abort-reason="${i}">${r}</button>`).join("")}</div><div id="abortOtherWrap" style="display:none"><label for="abortOther">Grund für „Sonstiges“</label><textarea id="abortOther" class="modal-textarea" placeholder="Bitte Grund eintragen …"></textarea></div><div class="modal-actions"><button class="secondary modal-close">Abbrechen</button></div>`);
-  document.querySelectorAll("[data-abort-reason]").forEach(btn=>btn.onclick=async()=>{
-    const reason=reasons[Number(btn.dataset.abortReason)];
-    if(reason==="Sonstiges"){
-      $("abortOtherWrap").style.display="block";
-      const ta=$("abortOther");
-      ta.focus();
-      if(!$('abortSave')){const actions=document.querySelector("#modalBackdrop .modal-actions");const b=document.createElement("button");b.id="abortSave";b.textContent="Abbruch speichern";actions.insertBefore(b,actions.firstChild);b.onclick=async()=>{const text=String(ta.value||"").trim();if(!text){alert("Bitte bei „Sonstiges“ einen Grund eintragen.");return;}b.disabled=true;b.textContent="Speichert …";const ok=await recordAbort(reason,text);if(ok){if(durationTimer)clearInterval(durationTimer);closeModal();onDone?.();}}; }
-      return;
-    }
-    btn.disabled=true;
-    const ok=await recordAbort(reason,"");
-    if(ok){if(durationTimer)clearInterval(durationTimer);closeModal();onDone?.();}
-    else btn.disabled=false;
+  openModal(`<div class="modal-title">⏹ Abfrage abbrechen</div><p class="hint">Bitte zuerst den Grund für den Abbruch auswählen und anschließend auf „Abbruch speichern“ klicken.</p><div class="modal-buttons">${reasons.map((r,i)=>`<button class="abort-choice ${r==='Verschlechterung'?"danger-choice":""}" data-abort-reason="${i}">${r}</button>`).join("")}</div><div id="abortOtherWrap" style="display:none"><label for="abortOther">Grund für „Sonstiges“</label><textarea id="abortOther" class="modal-textarea" placeholder="Bitte Grund eintragen …"></textarea></div><div class="modal-actions"><button id="abortSave" disabled>Abbruch speichern</button><button class="secondary modal-close">Abbrechen</button></div>`);
+  let selectedReason="";
+  document.querySelectorAll("[data-abort-reason]").forEach(btn=>btn.onclick=()=>{
+    selectedReason=reasons[Number(btn.dataset.abortReason)];
+    document.querySelectorAll("[data-abort-reason]").forEach(x=>x.classList.remove("selected"));
+    btn.classList.add("selected");
+    const other=selectedReason==="Sonstiges";
+    $("abortOtherWrap").style.display=other?"block":"none";
+    $("abortSave").disabled=false;
+    if(other) $("abortOther").focus();
   });
+  $("abortSave").onclick=async()=>{
+    if(!selectedReason)return;
+    const text=selectedReason==="Sonstiges"?String($("abortOther").value||"").trim():"";
+    if(selectedReason==="Sonstiges"&&!text){alert("Bitte bei „Sonstiges“ einen Grund eintragen.");return;}
+    const b=$("abortSave"); b.disabled=true; b.textContent="Speichert …";
+    const ok=await recordAbort(selectedReason,text);
+    if(ok){
+      if(durationTimer)clearInterval(durationTimer);
+      closeModal();
+      if(typeof onDone==="function") await onDone();
+      else location.href="index.html";
+    }else{
+      b.disabled=false; b.textContent="Abbruch speichern";
+    }
+  };
   $("modalRoot").querySelector(".modal-close").onclick=closeModal;
 }
+
 function finish(){const r=currentResult();const result={createdAt:new Date().toISOString(),category,mode,categoryTitle:title(),answers:{...answers},reasons:r.reasons,resources:r.resources,stichwort:r.stichwort,aao:r.aao,alarmierung:r.alarmierung,dispatchText:r.dispatchText,rea:reaShown,partialExit:!reaShown&&steps>0,abfrageStatus:phaseText(),questionsAnswered:steps,abfragedauer:durationText()};if(durationTimer)clearInterval(durationTimer);sessionStorage.setItem("einsatzabfrage_result",JSON.stringify(result));location.href="ergebnis.html";}
 
 function openModal(html){$("modalRoot").innerHTML=`<div class="modal-backdrop" id="modalBackdrop"><div class="modal-card">${html}</div></div>`;$("modalBackdrop").onclick=e=>{if(e.target.id==="modalBackdrop")closeModal();};}

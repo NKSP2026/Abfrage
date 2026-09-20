@@ -316,3 +316,12 @@ Datum: 20.09.2026
 - QM1 bietet „PDF / Drucken“. Der Browser-Druckdialog kann die Liste als PDF speichern.
 - Die bestehende README.txt wurde weitergeführt; keine neue README-Datei angelegt.
 - Hinweis zur Benutzerkennung: Eine normale GitHub-Webanwendung kann den Windows-/PC-Benutzernamen aus Sicherheitsgründen nicht automatisch auslesen. Wenn ein Firebase-Benutzer angemeldet ist, wird dessen E-Mail-Adresse als Benutzerkennung gespeichert; bei einer anonymen Einsatzsitzung wird „Einsatzbearbeiter“ gespeichert.
+
+
+=== V68.29 – ABRUCH SPEICHERN / WEITERLEITUNG ===
+- Abbruchdialog über Launcher/Ausstieg verlangt jetzt immer eine explizite Auswahl und anschließend „Abbruch speichern“.
+- „Sonstiges“ verlangt eine Begründung.
+- Nach erfolgreichem Firebase-Speichern wird automatisch zu index.html (Startseite) weitergeleitet.
+- Bei „Permission denied“ bleibt die Abbruchmaske offen und zeigt einen eindeutigen Hinweis auf die Firebase-Realtime-Database-Regeln.
+- Die vorhandene zentrale README.txt wurde weitergeführt; keine neue README angelegt.
+- Für gemeinsame Speicherung in QM1 muss die mitgelieferte database.rules.json in Firebase Realtime Database → Rules veröffentlicht werden. Unter abbruchAbfragen ist Schreiben für authentifizierte Benutzer erlaubt; die übrigen Bereiche bleiben administrativ geschützt.

@@ -1,4 +1,4 @@
-/* NABS V68.24 – hochgranulare anatomische Verletzungskarte
+/* NABS V68.26 – hochgranulare anatomische Verletzungskarte
  * Rechtsklick (PC) bzw. Tippen (Touch) öffnet die Verletzungsart.
  * Linksklick am PC markiert NICHT direkt. Hover zeigt den exakten Bereich.
  * Die SVG-Flächen liegen direkt über dem Körperschema und werden im Ergebnis
@@ -344,6 +344,28 @@
   rename('back_forearm_l','Elle (Ulna) links');
   rename('back_glute_r','Hüftbein (Os coxae) rechts');
   rename('back_glute_l','Hüftbein (Os coxae) links');
+
+  // V68.26: Nur die Beschriftung der rechten/linken Rückseitenbereiche wird getauscht.
+  // Die geometrischen Klickflächen bleiben exakt an ihren bisherigen Sollpositionen.
+  const BACK_LABEL_SWAP = [
+    ['back_scapula_r','back_scapula_l'],
+    ['back_upperarm_r','back_upperarm_l'],
+    ['back_elbow_r','back_elbow_l'],
+    ['back_forearm_r','back_forearm_l'],
+    ['back_radius_r','back_radius_l'],
+    ['back_glute_r','back_glute_l'],
+    ['back_femoral_head_r','back_femoral_head_l'],
+    ['back_femoral_neck_r','back_femoral_neck_l'],
+    ['back_femur_r','back_femur_l'],
+    ['back_tibia_r','back_tibia_l'],
+    ['back_fibula_r','back_fibula_l'],
+    ['back_talus_r','back_talus_l'],
+    ['back_calcaneus_r','back_calcaneus_l']
+  ];
+  for (const [a,b] of BACK_LABEL_SWAP) {
+    const ra=regions.find(x=>x.id===a), rb=regions.find(x=>x.id===b);
+    if(ra && rb){ const label=ra.label; ra.label=rb.label; rb.label=label; }
+  }
 
   // Alle alten, nicht mehr gewünschten Rückenkörper-Flächen deaktivieren.
   const BACK_OLD_HIDE = new Set([

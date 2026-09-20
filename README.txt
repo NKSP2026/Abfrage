@@ -284,3 +284,11 @@ V68.24 – 20.09.2026
 - Referenzfarben werden nicht dargestellt; ausgewählte Bereiche bleiben orange.
 - bodymap.js Cache-Version in abfrage.html auf 20260920v824 erhöht.
 - Die bestehende README.txt wurde weitergeführt; keine neue README-Datei angelegt.
+
+
+V68.26 – 20.09.2026
+- Rückseite: Die Geometrie/Klickflächen bleiben unverändert an den bisher exakt eingemessenen Sollpositionen.
+- Ausschließlich die Beschriftungen „rechts“ und „links“ der paarigen Rückseitenbereiche wurden vertauscht, damit die Bezeichnung zur gewünschten anatomischen Seitenzuordnung passt.
+- Betroffen: Schulterblätter, Humerus, Ellenbogen, Ulna, Radius, Hüftbein sowie die neu angelegten Bereiche Oberschenkelkopf/Schenkelbein, Schenkelhals, Femur, Tibia, Fibula, Talus und Calcaneus.
+- Keine Spiegelung oder Verschiebung der Klickflächen.
+- Bestehende README.txt weitergeführt; keine neue README-Datei angelegt.

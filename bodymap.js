@@ -1,4 +1,4 @@
-/* NABS V68.16 – hochgranulare anatomische Verletzungskarte
+/* NABS V68.17 – hochgranulare anatomische Verletzungskarte
  * Rechtsklick (PC) bzw. Tippen (Touch) öffnet die Verletzungsart.
  * Linksklick am PC markiert NICHT direkt. Hover zeigt den exakten Bereich.
  * Die SVG-Flächen liegen direkt über dem Körperschema und werden im Ergebnis
@@ -344,6 +344,106 @@
   add('detail_jaw_l','Unterkiefer rechts',poly([[865,254],[821,280],[800,302],[799,308],[807,321],[814,324],[824,338],[829,337],[847,318],[862,296],[867,264]]),{detail:true});
   add('detail_chin','Kinn',poly([[712,340],[737,361],[760,367],[792,364],[809,354],[821,341],[812,327],[804,323],[796,304],[776,308],[764,304],[752,306],[734,316]]),{detail:true});
 
+
+  // ---------------- VORDERKÖRPER – NEUE EXAKTE SOLLFLÄCHEN ----------------
+  // Die aktuelle Referenz 86593.jpg wurde direkt als 1536x868-Pixelraster
+  // ausgewertet. Die Referenzfarben dienen ausschließlich zur Festlegung der
+  // Klickflächen und werden in der Anwendung NICHT angezeigt.
+  //
+  // Bildseite = Beschriftung des Nutzers: links ist die linke Bildseite,
+  // rechts ist die rechte Bildseite.
+  add('detail_body_head','Kopf',poly([
+    [283,15],[264,22],[256,30],[252,40],[252,61],[256,72],[256,95],
+    [260,108],[280,121],[289,122],[303,115],[312,106],[319,41],[309,24],[296,17]
+  ]),{corrected:true,burnValue:4.5});
+
+  add('detail_body_neck','Hals',poly([
+    [329,155],[314,129],[311,109],[298,120],[288,124],[277,121],[262,110],
+    [259,127],[239,153],[256,159],[309,159]
+  ]),{corrected:true,burnValue:1});
+
+  // Rot = Speiche links/rechts
+  add('detail_radius_l','Speiche links',poly([
+    [207,151],[225,154],[235,159],[241,159],[247,163],[272,166],
+    [273,163],[272,159],[249,160],[220,149]
+  ]),{corrected:true,burnValue:.5});
+  add('detail_radius_r','Speiche rechts',poly([
+    [366,152],[362,150],[345,151],[324,159],[299,161],[301,167],
+    [311,167],[349,154]
+  ]),{corrected:true,burnValue:.5});
+
+  // Gelb = Schulter links/rechts
+  add('detail_shoulder_l','Schulter links',poly([
+    [182,158],[174,170],[200,181],[215,199],[233,161],[224,157],[204,155],[198,151]
+  ]),{corrected:true,burnValue:1});
+  add('detail_shoulder_r','Schulter rechts',poly([
+    [383,155],[371,153],[340,160],[346,167],[358,199],[368,188],
+    [383,182],[395,173],[394,165]
+  ]),{corrected:true,burnValue:1});
+
+  // Zyan = Oberarm links/rechts
+  add('detail_upperarm_l','Oberarm links',poly([
+    [170,175],[165,210],[159,220],[148,259],[161,262],[180,272],
+    [186,266],[197,245],[201,226],[210,210],[210,202],[200,187]
+  ]),{corrected:true,burnValue:2});
+  add('detail_upperarm_r','Oberarm rechts',poly([
+    [399,177],[386,186],[369,193],[363,201],[363,207],[372,229],
+    [376,248],[385,271],[392,279],[421,260],[418,237]
+  ]),{corrected:true,burnValue:2});
+
+  // Blau = Ellenbeuge links/rechts
+  add('detail_elbow_l','Ellenbeuge links',poly([
+    [147,263],[138,279],[153,290],[170,296],[177,277],[159,265]
+  ]),{corrected:true,burnValue:.25});
+  add('detail_elbow_r','Ellenbeuge rechts',poly([
+    [423,264],[395,281],[395,286],[402,298],[420,291],[431,281],[432,276]
+  ]),{corrected:true,burnValue:.25});
+
+  // Lila = Unterarm links/rechts
+  add('detail_forearm_l','Unterarm links',poly([
+    [167,297],[154,293],[136,280],[132,281],[120,295],[75,369],
+    [92,382],[95,382],[150,327],[169,302]
+  ]),{corrected:true,burnValue:1.5});
+  add('detail_forearm_r','Unterarm rechts',poly([
+    [434,280],[422,292],[404,300],[404,307],[415,322],[474,383],
+    [481,377],[492,373],[493,370],[476,346],[455,305],[443,287]
+  ]),{corrected:true,burnValue:1.5});
+
+  // Dunkelgrün = Rippen links/rechts
+  add('detail_ribs_l','Rippen links',poly([
+    [272,170],[236,163],[223,193],[205,224],[202,243],[218,303],
+    [227,304],[233,302],[240,295],[265,258],[281,241],[280,232],
+    [275,222],[277,180]
+  ]),{corrected:true,burnValue:4.5});
+  add('detail_ribs_r','Rippen rechts',poly([
+    [333,163],[321,168],[298,173],[298,203],[301,217],[294,241],
+    [311,261],[327,292],[337,302],[351,306],[354,304],[358,293],
+    [360,274],[367,255],[370,236],[367,222],[361,208],[353,198],[342,167],[338,163]
+  ]),{corrected:true,burnValue:4.5});
+
+  // Schwarz = Brustbein
+  add('detail_sternum','Brustbein',poly([
+    [275,160],[281,160],[289,164],[298,164],[298,244],[290,244],[282,244],[275,244]
+  ]),{corrected:true,burnValue:1});
+
+  // Dunkelblau = Oberbauch (Abdomen) links/rechts
+  add('detail_upperabd_l','Oberbauch (Abdomen) links',poly([
+    [284,246],[281,246],[266,262],[246,293],[236,304],[226,308],[218,308],
+    [218,322],[241,318],[283,317]
+  ]),{corrected:true,burnValue:3.5});
+  add('detail_upperabd_r','Oberbauch (Abdomen) rechts',poly([
+    [287,248],[287,295],[290,318],[331,319],[355,323],[352,310],[337,306],
+    [324,295],[323,289],[308,263],[295,247],[290,246]
+  ]),{corrected:true,burnValue:3.5});
+
+  // Grün = Unterbauch (Abdomen) links/rechts
+  add('detail_lowerabd_l','Unterbauch (Abdomen) links',poly([
+    [281,323],[239,323],[219,327],[216,337],[218,360],[281,362],[284,353]
+  ]),{corrected:true,burnValue:3.5});
+  add('detail_lowerabd_r','Unterbauch (Abdomen) rechts',poly([
+    [290,323],[292,362],[353,360],[353,329],[335,324]
+  ]),{corrected:true,burnValue:3.5});
+
   // Hand-Detailbild links: keine Hand-/Finger-Hotspots mehr auf dem großen Skelett.
   add('detail_hand_wrist','Handgelenk',poly([[76,244],[105,238],[139,247],[151,269],[141,292],[105,286],[77,274]]),{detail:true,detailSide:true});
   add('detail_hand_palm','Handfläche',poly([[57,274],[87,263],[119,276],[145,296],[140,355],[118,381],[83,370],[57,342]]),{detail:true,burnValue:0.7,detailSide:true});
@@ -512,6 +612,11 @@
     'detail_ear_r','detail_ear_l',
     'detail_nose','detail_upperjaw','detail_mouth','detail_jaw_r',
     'detail_jaw_l','detail_chin',
+    'detail_body_head','detail_body_neck','detail_radius_l','detail_radius_r',
+    'detail_shoulder_l','detail_shoulder_r','detail_upperarm_l','detail_upperarm_r',
+    'detail_elbow_l','detail_elbow_r','detail_forearm_l','detail_forearm_r',
+    'detail_ribs_l','detail_ribs_r','detail_sternum',
+    'detail_upperabd_l','detail_upperabd_r','detail_lowerabd_l','detail_lowerabd_r',
     'detail_hand_wrist','detail_hand_palm',
     'detail_hand_finger_1','detail_hand_finger_2','detail_hand_finger_3',
     'detail_hand_finger_4','detail_hand_finger_5',

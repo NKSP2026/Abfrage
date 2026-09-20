@@ -1,4 +1,4 @@
-/* NABS V68.17 – hochgranulare anatomische Verletzungskarte
+/* NABS V68.18 – hochgranulare anatomische Verletzungskarte
  * Rechtsklick (PC) bzw. Tippen (Touch) öffnet die Verletzungsart.
  * Linksklick am PC markiert NICHT direkt. Hover zeigt den exakten Bereich.
  * Die SVG-Flächen liegen direkt über dem Körperschema und werden im Ergebnis
@@ -230,6 +230,38 @@
   override('front_shin_lower_r',poly([[410,682],[450,682],[449,741],[428,755],[411,741]]));
   override('front_shin_upper_l',poly([[469,616],[510,616],[511,680],[470,680]]));
   override('front_shin_lower_l',poly([[470,682],[511,682],[511,741],[493,755],[470,741]]));
+
+  // Beine vorne – EXAKTE SOLLPOSITIONEN AUS DER NEUEN REFERENZ (86682.jpg)
+  // Grün = Hüfte links/rechts, Rot = Leiste links/rechts, Schwarz = Intimbereich,
+  // Orange = Oberschenkel links/rechts, Zyan = Knie/Kniescheibe,
+  // Blau = Unterschenkel links/rechts, Dunkelgrün = Fußsohle links/rechts.
+  override('front_pelvis','M399 350 Q458 365 518 350 Q528 370 523 398 Q509 414 487 421 L430 421 Q407 414 393 398 Q388 370 399 350Z');
+  override('front_groin_r',poly([[396,397],[457,385],[456,417],[433,422],[408,414]]));
+  override('front_groin_l',poly([[459,385],[520,397],[508,414],[483,422],[460,417]]));
+  add('front_intimate','Intimbereich',poly([[451,397],[465,397],[468,424],[458,434],[448,424]]),{corrected:true});
+
+  // Oberschenkel – orange, jeweils als komplette Seitenfläche.
+  override('front_thigh_r','M397 420 Q425 411 454 420 L454 579 Q449 601 430 611 Q409 604 404 582 L397 470Z');
+  override('front_thigh_l','M462 420 Q491 411 519 420 L519 470 L512 582 Q507 604 486 611 Q467 601 462 579Z');
+  // Unterteilungen des alten Systems werden unsichtbar gemacht, damit keine
+  // zusätzlichen Klickflächen über den beiden orangefarbenen Oberschenkeln liegen.
+  ['front_thigh_upper_r','front_thigh_lower_r','front_thigh_upper_l','front_thigh_lower_l'].forEach(id=>{const r=regions.find(x=>x.id===id); if(r) r.hidden=true;});
+
+  // Knie / Kniescheiben – zyan.
+  override('front_knee_r','M404 578 Q429 585 454 578 L452 616 Q430 627 409 616Z');
+  override('front_knee_l','M462 578 Q489 585 514 578 L512 616 Q490 627 469 616Z');
+
+  // Unterschenkel – blau.
+  override('front_lowerleg_r','M408 612 Q430 621 452 612 L450 742 Q443 758 429 759 Q414 758 408 742Z');
+  override('front_lowerleg_l','M469 612 Q491 621 513 612 L513 742 Q507 758 493 759 Q478 758 470 742Z');
+  ['front_shin_upper_r','front_shin_lower_r','front_shin_upper_l','front_shin_lower_l'].forEach(id=>{const r=regions.find(x=>x.id===id); if(r) r.hidden=true;});
+
+  // Fußsohlen – dunkelgrün. Die Flächen liegen auf den sichtbaren Füßen der
+  // Vorderfigur; die bestehende Detail-Fußauswahl bleibt separat erhalten.
+  override('front_foot_r','M327 793 Q349 785 377 795 L396 813 Q391 837 365 845 Q338 845 318 831 Q313 815 327 793Z');
+  override('front_foot_l','M407 795 Q435 785 457 793 Q471 815 466 831 Q446 845 419 845 Q393 837 388 813Z');
+  const ar=regions.find(x=>x.id==='front_ankle_r'); if(ar) ar.hidden=true;
+  const al=regions.find(x=>x.id==='front_ankle_l'); if(al) al.hidden=true;
 
   // Rückseite – gleiche anatomische Logik, direkt auf der rechten Figur.
   override('back_neck',rect(1237,105,44,34,5));

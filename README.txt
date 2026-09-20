@@ -356,3 +356,16 @@ Datum: 20.09.2026
 - Für diese Änderung der gespeicherten Felder müssen die Firebase-Realtime-Database-Regeln nicht geändert werden. Die vorhandenen Regeln unter „abbruchAbfragen“ können unverändert bleiben.
 - Voraussetzung für das Speichern bleibt eine vorhandene Firebase-Authentifizierung der Abfrage; bei der bisherigen anonymen Speicherung muss „Anonyme Anmeldung“ in Firebase Authentication aktiviert sein.
 - Die bestehende zentrale README.txt wurde weitergeführt; keine neue README-Datei angelegt.
+
+
+V68.32 – QM1 ABBRUCHLISTE / AKTUALISIERUNG REPARIERT
+Datum: 20.09.2026
+
+- Fehler behoben, bei dem QM1 bei der Abbruch-Liste dauerhaft „Abbruch-Liste wird geladen …“ anzeigen konnte.
+- Die Abbruch-Einträge werden jetzt zuerst aus Firebase gelesen und sofort in der Liste dargestellt.
+- Die automatische Zwei-Monats-Bereinigung läuft anschließend im Hintergrund und darf die Anzeige nicht mehr blockieren.
+- „Aktualisieren“ lädt die Liste erneut und zeigt danach die aktuell vorhandenen Einträge.
+- Die Anzahl der Einträge und „PDF / Drucken“ werden nach jedem Laden neu gesetzt.
+- Das einzelne Löschen bleibt ausschließlich für den QM1-Administrator möglich.
+- Es wurden keine Firebase-Regeln für diese Korrektur geändert.
+- Die bestehende zentrale README.txt wurde weitergeführt; keine neue README-Datei angelegt.

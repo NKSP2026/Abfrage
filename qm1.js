@@ -28,12 +28,20 @@ async function loadAbortData(){
       if(Number.isFinite(t)&&t<cutoff){removed++;continue;}
       keep[id]=r;
     }
-    if(removed){await write("abbruchAbfragen",keep);}
     const rows=Object.entries(keep).map(([id,r])=>({...r,_id:id})).sort((a,b)=>parseAbortDate(b)-parseAbortDate(a));
     el.innerHTML=rows.length?`<div class="abort-table-wrap"><table class="abort-table"><thead><tr><th>Datum</th><th>Uhrzeit</th><th>Abbruchgrund</th><th>Aktion</th></tr></thead><tbody>${rows.map(r=>{const reason=r.abbruchgrund||r.grund||((r.sonstigerGrund)?`Sonstiges: ${r.sonstigerGrund}`:"");return `<tr><td>${esc(r.datum)}</td><td>${esc(r.uhrzeit)}</td><td>${esc(reason)}</td><td><button type="button" class="button danger abort-delete" data-abort-id="${esc(r._id||"")}">Löschen</button></td></tr>`;}).join("")}</tbody></table></div>`:`<div class="module-note">Keine Abbruch-Abfragen innerhalb der letzten zwei Monate.</div>`;
     $("abortCount").textContent=`${rows.length} Einträge`;
     $("abortPdf").disabled=!rows.length;
     window.__NABS_ABORT_ROWS__=rows;
+    // Die Liste wird zuerst angezeigt. Die automatische Zwei-Monats-Bereinigung
+    // darf die Darstellung nicht blockieren. Nur ein angemeldeter QM1-Administrator
+    // darf die entfernten Datensätze anschließend tatsächlich aus Firebase löschen.
+    if(removed){
+      const a=authState();
+      if(a.admin){
+        write("abbruchAbfragen",keep).catch(e=>console.warn("Abbruch-Bereinigung",e));
+      }
+    }
   }catch(e){
     el.innerHTML=`<div class="module-note">Abbruch-Liste konnte nicht geladen werden: ${esc(e.message)}</div>`;
     $("abortCount").textContent="Fehler";

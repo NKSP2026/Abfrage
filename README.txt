@@ -260,3 +260,11 @@ Datum: 20.09.2026
 - Die Referenzfarben werden nicht in der Anwendung angezeigt; ausgewählte Bereiche werden weiterhin ausschließlich orange dargestellt.
 - bodymap.js-Cache in abfrage.html auf v822 erhöht.
 - Es bleibt bei genau einer README.txt; diese Änderung wurde hier ergänzt.
+
+
+V68.23 – 20.09.2026
+- Fehler in V68.22 behoben: Die neu aufgebauten Rückseiten-Sollflächen wurden zwar definiert, aber anschließend durch die zentrale KEEP_DETAIL_IDS-Filterung entfernt. Dadurch war die Körperkarte nicht auswählbar bzw. zeigte keine aktiven Rückseitenflächen.
+- Rückseitenflächen aus Referenz 87178.jpg bleiben jetzt ausdrücklich aktiv: Schädel, HWS, BWS, LWS, Kreuzbein, Steißbein, Hüftbein links/rechts, Schulterblatt links/rechts, Humerus links/rechts, Ellenbogen links/rechts, Ulna links/rechts und Radius links/rechts.
+- Alte nicht gewünschte Rückseitenflächen bleiben deaktiviert.
+- bodymap.js Cache-Version auf 20260920v723 erhöht.
+- Bestehende README.txt fortgeführt; keine neue README-Datei angelegt.

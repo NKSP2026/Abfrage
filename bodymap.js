@@ -1,4 +1,4 @@
-/* NABS V68.22 – hochgranulare anatomische Verletzungskarte
+/* NABS V68.23 – hochgranulare anatomische Verletzungskarte
  * Rechtsklick (PC) bzw. Tippen (Touch) öffnet die Verletzungsart.
  * Linksklick am PC markiert NICHT direkt. Hover zeigt den exakten Bereich.
  * Die SVG-Flächen liegen direkt über dem Körperschema und werden im Ergebnis
@@ -754,6 +754,12 @@
     'detail_elbow_l','detail_elbow_r','detail_forearm_l','detail_forearm_r',
     'detail_ribs_l','detail_ribs_r','detail_sternum',
     'detail_upperabd_l','detail_upperabd_r','detail_lowerabd_l','detail_lowerabd_r',
+    // V68.23: Rückseiten-Sollflächen aus 87178.jpg ausdrücklich aktiv halten.
+    // In V68.22 wurden sie durch den abschließenden Filter versehentlich entfernt.
+    'back_head','back_cervical','back_thoracic','back_lumbar_r','back_sacrum','back_flank_r',
+    'back_scapula_r','back_scapula_l','back_upperarm_r','back_upperarm_l',
+    'back_elbow_r','back_elbow_l','back_forearm_r','back_forearm_l',
+    'back_radius_r','back_radius_l','back_glute_r','back_glute_l',
     // V68.21: Unterkörper vorne mit den neuen Sollpositionen aus 86682.jpg aktivieren.
     // Diese Bereiche sind die neuen, exakt positionierten Sollflächen aus 86682.jpg.
     'front_hip_l','front_hip_r','front_groin_r','front_groin_l','front_intimate',

@@ -1,6 +1,6 @@
 // Einsatzabfrage V20 – dynamischer Entscheidungsbaum mit permanenter Aktionsleiste
 import { startupDefaults } from "./startup-data.js?v=20260920v40";
-import { anonymous, read, authState, push } from "./firebase-rest.js?v=20260920v46";
+import { anonymous, read, authState, push, pushPublic } from "./firebase-rest.js?v=20260920v55";
 import { KEMLER_MEANINGS, UN_DANGEROUS_GOODS, GHS_SYMBOLS, ADR_LABELS, TRANSPORT_TYPES } from "./hazmat-data.js?v=20260920v2";
 
 const $ = id => document.getElementById(id);
@@ -1213,7 +1213,7 @@ function openQuestionReport(){
     try{
       const a=authState().token?authState():await anonymous();
       if(!a?.token) throw new Error('Keine Verbindung zur Meldungsverwaltung möglich.');
-      await push('frageMeldungen',{
+      await pushPublic('frageMeldungen',{
         createdAt:new Date().toISOString(),status:'neu',
         category:category||'',categoryTitle:title(),mode:mode||'',
         questionId:q.id||'',questionText:q.text||'',questionType:q.type||'choice',
@@ -1290,7 +1290,7 @@ function render(){
   updatePhase();
   $("questionText").textContent=q.text;
   const reportBtn=$("reportQuestionBtn"); if(reportBtn){reportBtn.disabled=q.type==="hazmat"; reportBtn.onclick=openQuestionReport;}
-  const suggestionBtn=$("suggestionBtn"); if(suggestionBtn){suggestionBtn.onclick=openImprovementSuggestion;}
+
   const area=$("answerArea");area.innerHTML="";
   if(q.id.startsWith("erkrankung_Fieber_")){
     const note=document.createElement("div");
@@ -1705,9 +1705,7 @@ async function recordAbort(reason, otherReason="") {
     mode:mode||""
   };
   try{
-    const a=authState().token?authState():await anonymous();
-    if(!a?.token) throw new Error("Keine Verbindung zur Abbruchverwaltung möglich.");
-    await push("abbruchAbfragen",record);
+    await pushPublic("abbruchAbfragen",record);
     return true;
   }catch(e){
     console.error("Abbruch konnte nicht gespeichert werden",e);
@@ -1719,10 +1717,8 @@ async function recordAbort(reason, otherReason="") {
 
 async function recordUsage(){
   try{
-    const a=authState().token?authState():await anonymous();
-    if(!a?.token) return;
     const key=mode==="fw"?"feuerwehr":mode==="vu"?"verkehrsunfall":mode==="wasser"?"wasserunfall":mode==="aufzug"?"aufzug":mode==="grossschaden"?"grossschaden":category||"sonstiges";
-    await push("nutzungsereignisse",{category:key,categoryTitle:title(),createdAt:new Date().toISOString()});
+    await pushPublic("nutzungsereignisse",{category:key,categoryTitle:title(),createdAt:new Date().toISOString()});
   }catch(e){
     console.warn("Nutzungszähler konnte nicht gespeichert werden.",e);
   }

@@ -499,3 +499,5 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
   .ehsi-form-actions{flex-direction:column-reverse}
   .ehsi-form-actions .button{width:100%;text-align:center}
 }
+
+.launcher-tile.improvement{outline:2px solid #6bb6ff;outline-offset:-3px}.launcher-tile.improvement .tile-name{color:#0b5fae}

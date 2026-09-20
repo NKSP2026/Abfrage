@@ -745,3 +745,15 @@ VERSION 5.8 – EHSI QUELLENLÖSCHUNG / QM2 ABBRUCH-WORKFLOW (20.09.2026)
 - „Erledigt“ fragt nach einem kurzen Erledigungsgrund und speichert diesen mit Datum/Zeit.
 - Die beim Abbruch bereits gespeicherte Abfragekategorie wird in QM2 angezeigt und als Filter verwendet.
 - Firebase-Regeln wurden für die tatsächlich verwendeten Pfade (inkl. verbesserungsvorschlaege und ehsi_sources) abgestimmt; einsatzAufwertungen bleiben für angemeldete Einsatzbearbeiter auf-/abwertbar.
+
+
+VERSION 5.9 – VERBESSERUNG / ABBRUCH-SPEICHERUNG (20.09.2026)
+- Der kleine Button „💡 Verbesserung“ wurde aus der laufenden Abfrage entfernt.
+- Im Launcher gibt es jetzt einen eigenen Bereich „Verbesserung – Vorschlag senden“.
+- Verbesserungsvorschläge werden dort ohne Administrator-Anmeldung als Einsatzbearbeiter erfasst und in QM2 unter „Verbesserungsvorschläge“ bereitgestellt.
+- Optionaler Bezug zu einer laufenden Frage kann über URL-Parameter übernommen werden.
+- Abbruch-Abfragen können als Einsatzbearbeiter ohne Administrator-Anmeldung gespeichert werden. Die QM2-Lesefunktion und Bearbeitung bleiben ausschließlich für den Administrator geschützt.
+- Frage melden bleibt für Einsatzbearbeiter möglich; Lesen/Bearbeiten in QM2 bleibt administrativ geschützt.
+- Firebase-Regeln wurden entsprechend angepasst.
+
+- Abbruch-, Fragemeldungs-, Verbesserungsvorschlags- und Nutzungszähler-Erfassung nutzt für Einsatzbearbeiter den öffentlichen Create-Pfad; QM2-Lesen/Ändern bleibt Admin-only.

@@ -198,7 +198,7 @@ if(!result){location.href="index.html";}else{
       if(!result.baseDispatchText) result.baseDispatchText=result.dispatchText||"";
       rebuildDispatchWithAdjustments();
       sessionStorage.setItem("einsatzabfrage_result",JSON.stringify(result));
-      try{const mod=await import("./firebase-rest.js?v=20260921v50");await mod.pushPublic("einsatzAufwertungen",{einsatz:result.createdAt||new Date().toISOString(),category:result.category,richtung:direction,stichwort_von:from,stichwort_auf:to,grund:reason,zeitpunkt:entry.timestamp});}catch(e){console.warn("Auf-/Abwertung lokal gespeichert; Firebase-Protokoll nicht erreichbar",e);}
+      try{const mod=await import("./firebase-rest.js?v=20260921v51");await mod.pushPublic("einsatzAufwertungen",{einsatz:result.createdAt||new Date().toISOString(),category:result.category,richtung:direction,stichwort_von:from,stichwort_auf:to,grund:reason,zeitpunkt:entry.timestamp});}catch(e){console.warn("Auf-/Abwertung lokal gespeichert; Firebase-Protokoll nicht erreichbar",e);}
       closeModal();location.reload();
     };
     document.querySelector(".modal-close").onclick=closeModal;

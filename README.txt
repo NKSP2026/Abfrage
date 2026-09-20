@@ -807,3 +807,14 @@ Version 5.13 – Firebase-Diagnose Fragenverwaltung
   Löschen von Fragen und NEF-Regeln entfernt; Löschen erfolgt direkt.
 - Keine Änderung an Firebase-Datenbankregeln oder der Administrator-UID.
 
+
+
+VERSION 5.15 – 21.09.2026
+- Firebase-Realtime-Database-Zugriff für regionale Datenbank-URLs verbessert.
+- Der bisher verwendete .firebaseio.com-Endpunkt kann bei regionalen Datenbanken auf firebasedatabase.app umleiten; solche Redirects können Browser-CORS-Preflights bei PUT blockieren.
+- NABS versucht neben der konfigurierten URL automatisch den regionalen europe-west1-Endpunkt und speichert den erfolgreich verwendeten Datenbank-Endpunkt für die Sitzung.
+- Der Button 'Grundkatalog in Firebase übernehmen' verwendet dadurch denselben robusten Schreibpfad.
+- Cache-Versionen der Firebase-Module erhöht.
+- Bestehende Firebase-Regeln, Admin-UID und restliche Funktionen unverändert belassen.
+
+- 5.15 nutzt weiterhin den vorhandenen REST-Ansatz ohne zusätzliche CDN-Abhängigkeit.

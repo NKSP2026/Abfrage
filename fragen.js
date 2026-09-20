@@ -1,6 +1,6 @@
 import { defaults, CATALOG_SCHEMA_VERSION } from './data-bridge.js?v=20260915v24';
-import { authState, login, logout, anonymous, read, write } from './firebase-rest.js?v=20260921v50';
-import { ADMIN_UID } from './firebase-config.js?v=20260921v01';
+import { authState, login, logout, anonymous, read, write } from './firebase-rest.js?v=20260921v51';
+import { ADMIN_UID } from './firebase-config.js?v=20260921v02';
 
 const $ = id => document.getElementById(id);
 const categories = ['medizin','brand','thl','abc'];

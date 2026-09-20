@@ -826,3 +826,49 @@ VERSION 5.15 – 21.09.2026
 - Administrator-Anmeldung wird über Firebase Authentication des SDKs durchgeführt; bei blockiertem SDK-CDN bleibt ein REST-Fallback vorhanden.
 - Der vollständige lokale Grundkatalog bleibt erhalten und kann über „Grundkatalog in Firebase übernehmen“ gespeichert werden.
 - Bestehende Firebase Security Rules und Administrator-UID wurden nicht verändert.
+
+
+=== Version 5.17 – FIREBASE AUTH-WIEDERHERSTELLUNG UND SDK-SCHREIBPFAD (21.09.2026) ===
+- Fehler aus V5.16 behoben: sessionStorage konnte noch einen Administrator anzeigen, während das Firebase-Web-SDK nach einem Seitenneuladen noch keinen Administrator als aktuellen Auth-Nutzer hatte.
+- Firebase Auth verwendet jetzt lokale Persistence und wartet beim Start auf die Wiederherstellung des Auth-Zustands.
+- Öffentliche Katalogdaten werden ohne erzwungene anonyme Anmeldung gelesen.
+- Administrator-Schreibvorgänge über den Fragenkatalog laufen ausschließlich über das offizielle Firebase Web SDK. Der alte REST-PUT-Fallback wurde für Schreibvorgänge entfernt, weil er den im Browser beobachteten CORS-Preflight auslöste.
+- Authentifizierte Nicht-Admin-Schreibvorgänge verwenden ebenfalls das Firebase SDK.
+- Beim Start wird der aktuelle Firebase-Auth-Nutzer mit Token/UID in der Sitzung synchronisiert.
+- Cache-Version von firebase-rest.js auf v70 erhöht.
+- Firebase-URL, Admin-UID, Security Rules und der vollständige lokale Fragenkatalog bleiben unverändert.
+
+
+Version 5.18 – Firebase-Fragenkatalog nach Einsatzbereichen
+============================================================
+
+- Der vollständige Grundkatalog enthält 1.249 Fragen.
+- Die Fragen werden beim Button „Alle 1.249 Fragen in Firebase übernehmen“
+  vollständig in der Realtime Database gespeichert.
+- Firebase-Struktur für den Fragenkatalog:
+  - catalog/rettungsdienst = 1.081 Fragen
+  - catalog/feuerwehr = 124 Fragen (53 Brand + 71 Technische Hilfeleistung)
+  - catalog/gefahrgut = 44 Fragen
+- Jede gespeicherte Frage erhält zusätzlich sourceCategory, damit die interne
+  Unterscheidung zwischen Medizin, Brand, THL und ABC erhalten bleibt.
+- Die Fragenverwaltung kann das neue Firebase-Format wieder in die internen
+  Kategorien Medizin, Brand, THL und ABC zurückwandeln.
+- Altes Firebase-Format mit medizin/brand/thl/abc bleibt lesbar.
+- Firebase-Authentifizierungs-Wiederherstellung über das Web SDK ergänzt, damit
+  die Administrator-Sitzung beim Laden zuverlässig wiederhergestellt wird.
+- Firebase Web SDK verwendet lokale Auth-Persistenz.
+- Cache-Versionen der Fragenverwaltung erhöht.
+- Keine Änderung an der Admin-UID oder den Firebase-Regeln.
+
+--- VERSION 5.19 (2026-09-21) ---
+- Fragenverwaltung um die Einsatzarten Verkehrsunfall, Wasserunfall, Aufzug und Großschaden erweitert.
+- Diese vier Einsatzarten werden jetzt als eigene Firebase-Katalogbereiche gespeichert.
+- Verkehrsunfall enthält die dafür vorgesehenen THL-Fragen inklusive gemeinsamer THL-Fragen.
+- Wasserunfall enthält die dafür vorgesehenen Wasser-/Eisunfall-Fragen inklusive gemeinsamer THL-Fragen.
+- Aufzug enthält den vollständigen Aufzugs-Fragenkatalog.
+- Großschaden enthält den vollständigen Großschadens-Fragenkatalog.
+- Neue Firebase-Struktur: catalog/verkehrsunfall, catalog/wasserunfall, catalog/aufzug und catalog/grossschaden.
+- Die vorhandenen Bereiche Rettungsdienst, Feuerwehr und Gefahrgut/ABC bleiben erhalten.
+- Die Fragenverwaltung kann alle diese Bereiche einzeln auswählen, bearbeiten, speichern und löschen.
+- Der Seed-Button übernimmt den vollständigen erweiterten Katalog nach Firebase.
+- Hinweis: Der bisherige Grundkatalog umfasst 1.398 eindeutige Fragen (1.081 Medizin + 202 Brand + 71 THL + 44 ABC). Durch die zusätzlichen, bewusst separat gespeicherten Einsatzarten entstehen 1.471 gespeicherte Katalogeinträge, da gemeinsame THL-Fragen in Verkehrsunfall/Wasserunfall zusätzlich als eigene Katalogeinträge abgelegt werden.

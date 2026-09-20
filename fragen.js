@@ -1,9 +1,71 @@
 import { defaults, CATALOG_SCHEMA_VERSION } from './data-bridge.js?v=20260915v24';
-import { authState, login, logout, anonymous, read, write } from './firebase-rest.js?v=20260921v60';
-import { ADMIN_UID } from './firebase-config.js?v=20260921v03';
+import { authState, login, logout, anonymous, restoreAuthState, read, write } from './firebase-rest.js?v=20260921v71';
+import { ADMIN_UID } from './firebase-config.js?v=20260921v04';
+import { specialCatalogs } from './catalog-special.js?v=20260921v01';
 
 const $ = id => document.getElementById(id);
-const categories = ['medizin','brand','thl','abc'];
+const categories = ['medizin','brand','thl','abc','verkehrsunfall','wasserunfall','aufzug','grossschaden'];
+const firebaseBereiche = {
+  rettungsdienst: ['medizin'],
+  feuerwehr: ['brand','thl'],
+  gefahrgut: ['abc'],
+  verkehrsunfall: ['verkehrsunfall'],
+  wasserunfall: ['wasserunfall'],
+  aufzug: ['aufzug'],
+  grossschaden: ['grossschaden']
+};
+const categoryToBereich = {medizin:'rettungsdienst',brand:'feuerwehr',thl:'feuerwehr',abc:'gefahrgut',verkehrsunfall:'verkehrsunfall',wasserunfall:'wasserunfall',aufzug:'aufzug',grossschaden:'grossschaden'};
+const bereichLabels = {rettungsdienst:'🚑 Rettungsdienst',feuerwehr:'🚒 Feuerwehr',gefahrgut:'☣️ Gefahrgut / ABC',verkehrsunfall:'🚗 Verkehrsunfall',wasserunfall:'🌊 Wasserunfall',aufzug:'🛗 Aufzug',grossschaden:'🚨 Großschaden'};
+
+function buildFirebaseCatalog(){
+  const out={
+    _meta:{
+      schemaVersion:CATALOG_SCHEMA_VERSION,
+      updatedAt:new Date().toISOString(),
+      storageFormat:'NABS-Bereiche-v1',
+      frageCount:0,
+      bereiche:Object.fromEntries(Object.keys(firebaseBereiche).map(k=>[k,{label:bereichLabels[k],frageCount:0}]))
+    }
+  };
+  for(const [bereich,cats] of Object.entries(firebaseBereiche)){
+    out[bereich]={};
+    for(const cat of cats){
+      const source = defaults.catalog?.[cat] || specialCatalogs[cat] || {};
+      for(const q of Object.values(source)){
+        const copy=JSON.parse(JSON.stringify(q));
+        copy.sourceCategory=cat;
+        copy.sourceCategoryLabel=cat==='medizin'?'Rettungsdienst':cat==='brand'?'Feuerwehr – Brand / Rauchentwicklung':cat==='thl'?'Feuerwehr – Technische Hilfeleistung':cat==='abc'?'Gefahrgut / ABC':bereichLabels[bereich];
+        out[bereich][copy.id]=copy;
+        out._meta.frageCount++;
+        out._meta.bereiche[bereich].frageCount++;
+      }
+    }
+  }
+  return out;
+}
+
+function normalizeFirebaseCatalog(remote){
+  if(!remote || typeof remote!=='object') return null;
+  const result={medizin:{},brand:{},thl:{},abc:{},verkehrsunfall:{},wasserunfall:{},aufzug:{},grossschaden:{}};
+  // Neues Speicherformat: Rettungsdienst / Feuerwehr / Gefahrgut sowie eigene Einsatzarten
+  for(const [bereich,cats] of Object.entries(firebaseBereiche)){
+    const items=remote[bereich];
+    if(!items || typeof items!=='object') continue;
+    for(const q of Object.values(items)){
+      if(!q?.id) continue;
+      const source=q.sourceCategory || (cats.length===1 ? cats[0] : bereich==='rettungsdienst'?'medizin':bereich==='gefahrgut'?'abc':'brand');
+      if(result[source]){ const copy={...q}; delete copy.sourceCategory; delete copy.sourceCategoryLabel; result[source][copy.id]=copy; }
+    }
+  }
+  // Rückwärtskompatibilität mit altem Format medizin/brand/thl/abc
+  for(const cat of categories){
+    if(remote[cat] && typeof remote[cat]==='object') result[cat]={...remote[cat]};
+  }
+  const count=Object.values(result).reduce((n,v)=>n+Object.keys(v).length,0);
+  return count ? result : null;
+}
+
+function countCatalog(c){return Object.values(c||{}).reduce((n,v)=>n+Object.keys(v||{}).length,0);}
 let catalog = null;
 let editingId = null;
 let notarztRules = {};
@@ -32,7 +94,7 @@ function questions(){
   return Object.values(catalog?.[$('category').value]||{}).filter(q=>q?.id&&q?.text).sort((a,b)=>(Number(a.order)||999999)-(Number(b.order)||999999));
 }
 function questionLabel(q){return `${q.__category ? categoryLabel(q.__category)+' – ' : ''}${q.id} – ${q.text}`;}
-function categoryLabel(cat){return ({medizin:'🚑 Medizin',brand:'🔥 Brand',thl:'🛠️ THL',abc:'☣️ ABC'})[cat]||cat;}
+function categoryLabel(cat){return ({medizin:'🚑 Medizin',brand:'🔥 Brand',thl:'🛠️ THL',abc:'☣️ ABC',verkehrsunfall:'🚗 Verkehrsunfall',wasserunfall:'🌊 Wasserunfall',aufzug:'🛗 Aufzug',grossschaden:'🚨 Großschaden'})[cat]||cat;}
 
 function parseDispatchMap(text){
   const out={};
@@ -248,6 +310,7 @@ function build(){
 }
 
 async function load(){
+  try{await restoreAuthState();}catch(e){console.warn('Firebase Auth Restore:',e);}
   /* V47: Lokalen Grundkatalog sofort bereitstellen. Firebase darf die Bedienoberfläche
      nicht blockieren und darf auch nicht verhindern, dass die NEF-Auswahl gefüllt wird. */
   if(!catalog){
@@ -274,11 +337,10 @@ async function load(){
   try{
     const remote=await read('catalog');
     try{notarztRules=await read('notarzt_rules')||{};}catch(e){notarztRules={};}
-    catalog={...defaults.catalog};
-    if(remote && remote._meta && Number(remote._meta.schemaVersion)>=CATALOG_SCHEMA_VERSION){
-      for(const cat of categories)if(remote[cat]&&typeof remote[cat]==='object')catalog[cat]=remote[cat];
-    }
-    setStatus(a.admin?'● Firebase – Administrator angemeldet':'● Firebase verbunden – Lesemodus');
+    const normalized=normalizeFirebaseCatalog(remote);
+    catalog=normalized || {...defaults.catalog};
+    const remoteCount=normalized?countCatalog(normalized):0;
+    setStatus(a.admin?`● Firebase – Administrator angemeldet · ${remoteCount} Fragen geladen`:`● Firebase verbunden – Lesemodus · ${remoteCount} Fragen geladen`);
     renderSelect(editingId);
     renderNefList();
   }catch(e){
@@ -287,7 +349,7 @@ async function load(){
     renderSelect(editingId);
     renderNefQuestions();
     renderNefList();
-    msg('Firebase ist derzeit nicht erreichbar. Der lokale Fragenkatalog bleibt bedienbar; zum Speichern bitte Administrator anmelden.');
+    msg('⚠️ Firebase-Lesen fehlgeschlagen: '+(e?.message||e)+' · Lokaler Grundkatalog aktiv.');
   }
 }
 function renderEmpty(){
@@ -326,12 +388,13 @@ $('seed').onclick=async()=>{
   const a=authState();
   if(!a.admin){msg('⚠️ Bitte zuerst als Administrator anmelden.');return;}
   try{
-    const payload={_meta:{schemaVersion:CATALOG_SCHEMA_VERSION,updatedAt:new Date().toISOString()},...defaults.catalog};
+    const payload=buildFirebaseCatalog();
     await write('catalog',payload);
-    msg('✓ Der komplette Grund-Fragenbaum wurde erfolgreich in Firebase gespeichert.');
-    setStatus('● Firebase – Grundkatalog gespeichert');
+    const total=payload._meta.frageCount;
+    msg(`✓ Alle ${total} Fragen wurden in Firebase gespeichert: 🚑 Rettungsdienst ${payload._meta.bereiche.rettungsdienst.frageCount} · 🚒 Feuerwehr ${payload._meta.bereiche.feuerwehr.frageCount} · ☣️ Gefahrgut ${payload._meta.bereiche.gefahrgut.frageCount}.`);
+    setStatus(`● Firebase – ${total} Fragen gespeichert`);
     await load();
-  }catch(e){msg('⚠️ Speichern fehlgeschlagen: '+e.message);}
+  }catch(e){msg('⚠️ Grundkatalog konnte nicht gespeichert werden: '+e.message);console.error('NABS Firebase seed error',e);}
 };
 $('save').onclick=async()=>{
   try{
@@ -340,8 +403,10 @@ $('save').onclick=async()=>{
     if(!a.token)throw Error('Keine Firebase-Anmeldung vorhanden. Bitte als Administrator anmelden.');
     if(!a.admin)throw Error(`Firebase-Konto ist nicht der Administrator. Angemeldete UID: ${a.uid||'unbekannt'} · erwartet: ${ADMIN_UID||'konfiguriert'}`);
     const q=build(),cat=$('category').value;
-    await write(`catalog/${cat}/${q.id}`,q);
-    await write('catalog/_meta',{schemaVersion:CATALOG_SCHEMA_VERSION,updatedAt:new Date().toISOString()});
+    const bereich=categoryToBereich[cat]||cat;
+    const stored={...q,sourceCategory:cat,sourceCategoryLabel:cat==='medizin'?'Rettungsdienst':cat==='brand'?'Feuerwehr – Brand / Rauchentwicklung':cat==='thl'?'Feuerwehr – Technische Hilfeleistung':cat==='abc'?'Gefahrgut / ABC':categoryLabel(cat)};
+    await write(`catalog/${bereich}/${q.id}`,stored);
+    await write('catalog/_meta',{schemaVersion:CATALOG_SCHEMA_VERSION,updatedAt:new Date().toISOString(),storageFormat:'NABS-Bereiche-v1'});
     msg('✓ Frage in Firebase gespeichert.');
     editingId=q.id;
     if(linkedReportId){
@@ -354,8 +419,10 @@ $('delete').onclick=async()=>{
   try{
     const a=authState();if(!a.admin)throw Error('Bitte zuerst als Administrator anmelden.');
     const id=$('id').value.trim();if(!id)throw Error('Keine Frage ausgewählt.');
-    await write(`catalog/${$('category').value}/${id}`,null);
-    await write('catalog/_meta',{schemaVersion:CATALOG_SCHEMA_VERSION,updatedAt:new Date().toISOString()});
+    const cat=$('category').value;
+    const bereich=categoryToBereich[cat]||cat;
+    await write(`catalog/${bereich}/${id}`,null);
+    await write('catalog/_meta',{schemaVersion:CATALOG_SCHEMA_VERSION,updatedAt:new Date().toISOString(),storageFormat:'NABS-Bereiche-v1'});
     msg('✓ Frage gelöscht.');editingId=null;await load();
   }catch(e){msg('⚠️ '+e.message);}
 };

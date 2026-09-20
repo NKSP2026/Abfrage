@@ -1,5 +1,5 @@
 // Firebase helper – SDK-first für Realtime Database, REST-Fallback für bestehende Bereiche.
-// Version 5.16: Die Fragenverwaltung nutzt damit nicht mehr den problematischen
+// Version 5.18: Die Fragenverwaltung nutzt damit nicht mehr den problematischen
 // browserseitigen REST-PUT-Preflight für catalog.
 import { firebaseConfig, ADMIN_UID } from './firebase-config.js?v=20260921v03';
 
@@ -14,7 +14,7 @@ let sdk=null;
 async function getSdk(){
   if(sdkPromise) return sdkPromise;
   sdkPromise=(async()=>{
-    const [{initializeApp,getApps},{getDatabase,ref,get,set,push:dbPush},{getAuth,signInAnonymously,signInWithEmailAndPassword,signOut}]=await Promise.all([
+    const [{initializeApp,getApps},{getDatabase,ref,get,set,push:dbPush},{getAuth,signInAnonymously,signInWithEmailAndPassword,signOut,onAuthStateChanged,setPersistence,browserLocalPersistence}]=await Promise.all([
       import('https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js'),
       import('https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js'),
       import('https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js')
@@ -22,7 +22,8 @@ async function getSdk(){
     const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig);
     const db=getDatabase(app);
     const auth=getAuth(app);
-    sdk={app,db,auth,ref,get,set,dbPush,signInAnonymously,signInWithEmailAndPassword,signOut};
+    try{ await setPersistence(auth,browserLocalPersistence); }catch{}
+    sdk={app,db,auth,ref,get,set,dbPush,signInAnonymously,signInWithEmailAndPassword,signOut,onAuthStateChanged,setPersistence,browserLocalPersistence};
     return sdk;
   })().catch(e=>{sdkPromise=null; throw e;});
   return sdkPromise;
@@ -134,6 +135,37 @@ async function dbRequest(path,options={},allowNullFallback=false){
     }
   }
   throw lastError||new Error('Keine Firebase-Datenbank erreichbar.');
+}
+
+export async function restoreAuthState(){
+  const f=await getSdk();
+  if(f.auth.currentUser){
+    const u=f.auth.currentUser;
+    const token=await u.getIdToken(false);
+    sessionStorage.setItem(TOKEN_KEY,token);
+    sessionStorage.setItem(UID_KEY,u.uid);
+    if(u.email) sessionStorage.setItem(EMAIL_KEY,u.email); else sessionStorage.removeItem(EMAIL_KEY);
+    sessionStorage.setItem(DB_URL_KEY,configuredDbUrl());
+    return authState();
+  }
+  return await new Promise((resolve,reject)=>{
+    let done=false;
+    const timer=setTimeout(()=>{if(!done){done=true;try{unsub();}catch{};resolve(authState());}},5000);
+    const unsub=f.onAuthStateChanged(f.auth,async u=>{
+      if(done)return;
+      done=true; clearTimeout(timer); try{unsub();}catch{}
+      try{
+        if(u){
+          const token=await u.getIdToken(false);
+          sessionStorage.setItem(TOKEN_KEY,token);
+          sessionStorage.setItem(UID_KEY,u.uid);
+          if(u.email) sessionStorage.setItem(EMAIL_KEY,u.email); else sessionStorage.removeItem(EMAIL_KEY);
+          sessionStorage.setItem(DB_URL_KEY,configuredDbUrl());
+        }
+        resolve(authState());
+      }catch(e){reject(e);}
+    });
+  });
 }
 
 export async function login(email,password){

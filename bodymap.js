@@ -649,6 +649,11 @@
     'detail_elbow_l','detail_elbow_r','detail_forearm_l','detail_forearm_r',
     'detail_ribs_l','detail_ribs_r','detail_sternum',
     'detail_upperabd_l','detail_upperabd_r','detail_lowerabd_l','detail_lowerabd_r',
+    // V68.20: Unterkörper vorne wieder als aktive Klickflächen zulassen.
+    // Diese Bereiche sind die neuen, exakt positionierten Sollflächen aus 86682.jpg.
+    'front_pelvis','front_groin_r','front_groin_l','front_intimate',
+    'front_thigh_r','front_thigh_l','front_knee_r','front_knee_l',
+    'front_lowerleg_r','front_lowerleg_l','front_foot_r','front_foot_l',
     'detail_hand_wrist','detail_hand_palm',
     'detail_hand_finger_1','detail_hand_finger_2','detail_hand_finger_3',
     'detail_hand_finger_4','detail_hand_finger_5',

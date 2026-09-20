@@ -203,3 +203,16 @@ Datum: 20.09.2026
 - Die permanente Abfragelogik und die Antwortmöglichkeiten bleiben unverändert.
 - Die Versionsnummer des abfrage.js-Cache wurde erhöht, damit GitHub Pages die Änderung sicher lädt.
 - Die bisherigen versionsbezogenen README-Dateien wurden in diese zentrale README.txt zusammengeführt. Es bleibt ab jetzt bei genau einer README.txt für die Änderungsdokumentation.
+
+
+=== V68.20 – UNTERKÖRPER / BEINE WIEDER AKTIV ===
+Datum: 20.09.2026
+
+- Fehler behoben: Hüfte, Leiste, Intimbereich, Oberschenkel, Knie, Unterschenkel und Fußsohle konnten nach der Bereinigung nicht mehr angeklickt werden.
+- Ursache: Die neu erstellten Vorderbein-Sollflächen waren korrekt im bodymap.js vorhanden, wurden aber beim abschließenden KEEP_DETAIL_IDS-Filter versehentlich wieder aus der aktiven Regionenliste entfernt.
+- Die exakt festgelegten Flächen aus der Referenz 86682.jpg sind jetzt wieder aktive Klickflächen.
+- Aktiviert sind: Hüfte links/rechts, Leiste links/rechts, Intimbereich, Oberschenkel links/rechts, Knie/Kniescheibe links/rechts, Unterschenkel links/rechts und Fußsohle links/rechts.
+- Die alten Unterteilungen der Oberschenkel und Unterschenkel bleiben deaktiviert.
+- Kopf, Hand, Fuß-Detail, Vorderkörper und die übrigen bisher freigegebenen Bereiche bleiben unverändert.
+- Der bodymap.js-Cache wurde in abfrage.html auf eine neue Versionsnummer erhöht.
+- Es bleibt bei genau einer README.txt; diese Änderung wurde hier ergänzt.

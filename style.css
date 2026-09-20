@@ -371,3 +371,25 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 .aufzug-medical{border-left:5px solid #ef4444;background:#281619}
 @media(max-width:900px){.ils-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.ils-grid{grid-template-columns:1fr}.ils-tile{min-height:150px}}
+
+/* V68.50 – ADR-Piktogramme als saubere Vektorgrafiken statt Emoji */
+.adr-svg{width:72%;height:72%;display:block;overflow:visible;flex:none}
+.adr-diamond b{z-index:2;color:#111;text-shadow:none;font-weight:900}
+.adr-gas-toxic .adr-diamond b,.adr-toxic .adr-diamond b,.adr-infectious .adr-diamond b,.adr-corrosive .adr-diamond b,.adr-misc .adr-diamond b,.adr-battery .adr-diamond b{color:#111}
+.adr-explosive .adr-diamond{background:#f6a500}
+.adr-gas-flammable .adr-diamond{background:#ef4444}
+.adr-gas .adr-diamond{background:#fff}
+.adr-gas-toxic .adr-diamond{background:#fff}
+.adr-flammable .adr-diamond,.adr-solid-flammable .adr-diamond,.adr-self-heating .adr-diamond,.adr-organic-peroxide .adr-diamond{background:#ef4444}
+.adr-water-reactive .adr-diamond{background:#f0c419}
+.adr-oxidizing .adr-diamond{background:#f6df3b}
+.adr-toxic .adr-diamond,.adr-infectious .adr-diamond,.adr-corrosive .adr-diamond,.adr-misc .adr-diamond,.adr-battery .adr-diamond{background:#fff}
+.adr-radioactive .adr-diamond{background:#f6df3b}
+@media(max-width:760px){.adr-svg{width:70%;height:70%}}
+
+/* V68.50: Originale ADR-Gefahrzettel des BMV – keine Emoji-/Ersatzsymbole */
+.adr-diamond{width:78px;height:78px;transform:none!important;border:0!important;background:transparent!important;overflow:visible!important;display:flex;align-items:center;justify-content:center;position:relative}
+.adr-diamond .adr-original{display:block;width:78px;height:78px;object-fit:contain;transform:none!important;border:0!important}
+.adr-diamond b{display:none!important}
+.adr-choice{min-height:145px}
+@media(max-width:760px){.adr-choice{min-height:125px}.adr-diamond,.adr-diamond .adr-original{width:70px;height:70px}}

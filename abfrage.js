@@ -1,7 +1,7 @@
 // Einsatzabfrage V20 – dynamischer Entscheidungsbaum mit permanenter Aktionsleiste
 import { startupDefaults } from "./startup-data.js?v=20260920v40";
 import { anonymous, read, authState, pushPublic } from "./firebase-rest.js?v=20260920v45";
-import { KEMLER_MEANINGS, UN_DANGEROUS_GOODS, GHS_SYMBOLS, ADR_LABELS, TRANSPORT_TYPES } from "./hazmat-data.js?v=20260920v1";
+import { KEMLER_MEANINGS, UN_DANGEROUS_GOODS, GHS_SYMBOLS, ADR_LABELS, TRANSPORT_TYPES } from "./hazmat-data.js?v=20260920v2";
 
 const $ = id => document.getElementById(id);
 const mainCategories = [
@@ -793,6 +793,26 @@ function hazmatSummary(){
   if(h.gefahrnummer && /^X/i.test(String(h.gefahrnummer))) out.push('Wassergefährliche Reaktion gemäß X-Kennzeichnung beachten');
   return out.join(' · ');
 }
+function adrSymbolSvg(kind){
+  const base='<svg class="adr-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false">';
+  const end='</svg>';
+  switch(kind){
+    case 'explosive': return base+'<path d="M50 6l8 22 19-13-7 24 24-1-20 14 20 14-24-1 7 24-19-13-8 24-8-24-19 13 7-24-24 1 20-14-20-14 24 1-7-24 19 13z" fill="#ff3b3b" stroke="#e60000" stroke-width="2"/><path d="M50 26l5 15 14-7-8 13 15 1-14 7 10 11-15-5 0 16-7-14-10 12 3-15-15 4 11-11-14-7 16-1-8-13 14 7z" fill="#ffd21a" stroke="#ff6a00" stroke-width="2"/>'+end;
+    case 'gas-flammable': return base+'<path d="M52 9c-3 15 8 18 5 29-2 7-8 8-8 17 0 10 7 17 16 17 10 0 18-8 18-19 0-16-13-22-18-36-3 7-6 11-8 14-3-7-4-14-5-22z" fill="#111"/><path d="M39 49c-8 8-12 15-12 23 0 12 9 20 21 20 9 0 17-4 21-12-13 4-22-3-22-12 0-7 4-11 8-16-5 0-10-2-16-3z" fill="#111"/>'+end;
+    case 'gas': return base+'<rect x="38" y="20" width="24" height="58" rx="7" fill="#111"/><rect x="43" y="13" width="14" height="10" rx="2" fill="#111"/><path d="M62 32h7M62 42h7M62 52h7" stroke="#111" stroke-width="4"/>'+end;
+    case 'gas-toxic': return base+'<path d="M50 30c-8 0-14 6-14 14v9l-7 12 7 7 7-7 7 7 7-7 7 7 7-7-7-12v-9c0-8-6-14-14-14z" fill="#111"/><circle cx="45" cy="46" r="3" fill="#fff"/><circle cx="55" cy="46" r="3" fill="#fff"/><path d="M45 56q5 6 10 0M50 30v-8M40 26l-5-6M60 26l5-6" stroke="#111" stroke-width="4" fill="none"/>'+end;
+    case 'flammable': case 'solid-flammable': case 'self-heating': case 'organic-peroxide': return base+'<path d="M51 8c-2 14 8 18 6 28-1 6-6 10-9 15-3-7-7-11-6-19-9 10-16 20-16 31 0 17 11 28 26 28 17 0 29-11 29-28 0-16-12-24-18-35-4-7-8-12-12-20z" fill="#111"/>'+end;
+    case 'water-reactive': return base+'<path d="M50 10C40 26 28 40 28 58c0 17 10 30 22 30s22-13 22-30c0-18-12-32-22-48z" fill="#1597ff" stroke="#111" stroke-width="4"/><path d="M39 67c4 6 9 9 16 10" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>'+end;
+    case 'oxidizing': return base+'<circle cx="50" cy="50" r="29" fill="none" stroke="#111" stroke-width="6"/><path d="M50 22c-2 10 4 13 3 19-1 4-4 6-5 10-2-4-4-7-3-11-5 6-8 11-8 17 0 9 6 15 14 15 9 0 15-6 15-15 0-9-7-13-10-19-2-4-4-8-6-16z" fill="#111"/>'+end;
+    case 'toxic': return base+'<path d="M31 65l8-8m30 8l-8-8M38 57l-8 8m32-8l8 8" stroke="#111" stroke-width="5"/><circle cx="50" cy="39" r="15" fill="#111"/><circle cx="45" cy="36" r="3" fill="#fff"/><circle cx="55" cy="36" r="3" fill="#fff"/><path d="M45 45q5 5 10 0" stroke="#fff" stroke-width="3" fill="none"/><path d="M42 53h16l5 17H37z" fill="#111"/><path d="M38 75h24" stroke="#111" stroke-width="5"/>'+end;
+    case 'infectious': return base+'<g fill="none" stroke="#111" stroke-width="4"><circle cx="50" cy="50" r="13"/><circle cx="50" cy="23" r="10"/><circle cx="27" cy="63" r="10"/><circle cx="73" cy="63" r="10"/></g><circle cx="50" cy="50" r="5" fill="#111"/>'+end;
+    case 'radioactive': return base+'<circle cx="50" cy="50" r="7" fill="#111"/><path d="M50 13a37 37 0 0 1 32 18l-20 12A14 14 0 0 0 50 37zM82 69a37 37 0 0 1-32 18V64a14 14 0 0 0 12-7zM18 69A37 37 0 0 1 18 31l20 12a14 14 0 0 0 0 14z" fill="#111"/>'+end;
+    case 'corrosive': return base+'<path d="M18 28h28v6H18zM55 22h27v6H55z" fill="#111"/><path d="M27 34l7 14M67 28l-6 16" stroke="#111" stroke-width="5"/><circle cx="37" cy="56" r="4" fill="#111"/><path d="M24 76h30M58 76h20" stroke="#111" stroke-width="6"/><path d="M58 47l-5 12 12 4 5-12z" fill="#111"/>'+end;
+    case 'misc': return base+'<path d="M22 22h10v56H22zM37 22h10v56H37zM52 22h10v56H52zM67 22h10v56H67z" fill="#111"/>'+end;
+    case 'battery': return base+'<rect x="24" y="28" width="52" height="44" rx="4" fill="none" stroke="#111" stroke-width="5"/><path d="M76 42h7v16h-7zM36 39h9v22h-9zM55 39h9v22h-9z" fill="#111"/><path d="M43 30v-7h14v7" fill="none" stroke="#111" stroke-width="4"/>'+end;
+    default: return base+'<circle cx="50" cy="50" r="25" fill="#111"/>'+end;
+  }
+}
 function hazmatFieldsMarkup(h={}){
   const kem=String(h.gefahrnummer||'').replace(/[^0-9X]/gi,'').slice(0,4).toUpperCase();
   const un=String(h.un||'').replace(/\\D/g,'').slice(0,4);
@@ -818,9 +838,31 @@ function wireHazmat(box,h,onSave,onClear){
   const selected=new Set(Array.isArray(h.ghs)?h.ghs:[]);
   const selectedAdr=new Set(Array.isArray(h.adrLabels)?h.adrLabels:[]);
   const g=box.querySelector('#adrGrid');
-  ADR_LABELS.forEach(([id,num,name,kind,icon])=>{
+  const ADR_ORIGINAL_IMAGES={
+    ADR1:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-1-pdf.jpg?__blob=publicationFile',
+    ADR1_4:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-1-4-pdf.jpg?__blob=publicationFile',
+    ADR1_5:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-1-5-pdf.jpg?__blob=publicationFile',
+    ADR1_6:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-1-6-pdf.jpg?__blob=publicationFile',
+    ADR2_1:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-2-1-schwarz-pdf.jpg?__blob=publicationFile',
+    ADR2_2:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-2-2-schwarz-pdf.jpg?__blob=publicationFile',
+    ADR2_3:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-2-3-pdf.jpg?__blob=publicationFile',
+    ADR3:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-3-schwarz-pdf.jpg?__blob=publicationFile',
+    ADR4_1:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-4-1-pdf.jpg?__blob=publicationFile',
+    ADR4_2:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-4-2-pdf.jpg?__blob=publicationFile',
+    ADR4_3:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-4-3-schwarz-pdf.jpg?__blob=publicationFile',
+    ADR5_1:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-5-1-pdf.jpg?__blob=publicationFile',
+    ADR5_2:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-5-2-schwarz-pdf.jpg?__blob=publicationFile',
+    ADR6_1:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-6-1-pdf.jpg?__blob=publicationFile',
+    ADR6_2:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-6-2-pdf.jpg?__blob=publicationFile',
+    ADR7:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-7a-pdf.jpg?__blob=publicationFile',
+    ADR8:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-8-pdf.jpg?__blob=publicationFile',
+    ADR9:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-9-pdf.jpg?__blob=publicationFile',
+    ADR9A:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-9-a-pdf.jpg?__blob=publicationFile'
+  };
+  ADR_LABELS.forEach(([id,num,name,kind])=>{
     const lab=document.createElement('label'); lab.className=`adr-choice adr-${kind}`;
-    lab.innerHTML=`<input type="checkbox" value="${name}"><span class="adr-diamond"><span class="adr-icon">${icon}</span><b>${num}</b></span><span class="adr-name">${name}</span>`;
+    const src=ADR_ORIGINAL_IMAGES[id]||'';
+    lab.innerHTML=`<input type="checkbox" value="${name}"><span class="adr-diamond"><img class="adr-original" src="${src}" alt="ADR-Gefahrzettel ${num}" loading="lazy"></span><span class="adr-name">${name}</span>`;
     const inp=lab.querySelector('input'); inp.checked=selectedAdr.has(name);
     inp.onchange=()=>inp.checked?selectedAdr.add(name):selectedAdr.delete(name); g.appendChild(lab);
   });

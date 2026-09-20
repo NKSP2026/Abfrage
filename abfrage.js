@@ -598,21 +598,21 @@ function normalizeChoiceOptions(q){
   return q;
 }
 const elevatorQuestions = [
-  {id:"aufzug_ort",text:"Ist der genaue Standort des Aufzugs bekannt?",type:"choice",options:["Ja – Adresse/Objekt bekannt","Teilweise bekannt","Nein / unklar"]},
+  {id:"aufzug_ort",text:"Ist der Aufzug über eine eindeutige Objekt-/Gebäudebezeichnung identifizierbar?",type:"choice",options:["Ja – eindeutig","Teilweise","Nein / unklar"]},
   {id:"aufzug_personen",text:"Wie viele Personen befinden sich im Aufzug?",type:"choice",options:["1 Person","2–5 Personen","Mehr als 5 Personen","Unklar"]},
-  {id:"aufzug_eingeschlossen",text:"Sind die Personen im Aufzug eingeschlossen?",type:"choice",options:["Ja","Nein","Unklar"]},
-  {id:"aufzug_position",text:"Wo befindet sich die Aufzugskabine?",type:"choice",options:["Zwischen zwei Etagen","Auf einer Etage – Türen geschlossen","Unklar"]},
+  {id:"aufzug_dauer",text:"Wie lange besteht die Störung ungefähr?",type:"choice",options:["Unter 10 Minuten","10–30 Minuten","Über 30 Minuten","Unklar"]},
+  {id:"aufzug_position",text:"Wo befindet sich die Aufzugskabine?",type:"choice",options:["Zwischen zwei Etagen","An einer Etage","Unklar"]},
   {id:"aufzug_tueren",text:"Wie ist der Zustand der Aufzugstüren?",type:"choice",options:["Geschlossen","Teilweise geöffnet","Offen","Unklar"]},
-  {id:"aufzug_bewegung",text:"Bewegt sich der Aufzug unkontrolliert oder besteht Absturz-/Quetschgefahr?",type:"choice",options:["Ja","Nein","Unklar"]},
+  {id:"aufzug_bewegung",text:"Besteht eine gefährliche Bewegung oder Quetsch-/Absturzgefahr?",type:"choice",options:["Ja","Nein","Unklar"]},
   {id:"aufzug_gefahr",text:"Gibt es Rauch, Feuer, Wasser oder eine andere akute Gefahr?",type:"choice",options:["Ja","Nein","Unklar"]},
-  {id:"aufzug_kommunikation",text:"Ist die Kommunikation mit den eingeschlossenen Personen möglich?",type:"choice",options:["Ja","Nein","Nur eingeschränkt"]},
-  {id:"aufzug_gefaehrdet",text:"Sind Personen akut gefährdet oder in Panik?",type:"choice",options:["Ja","Nein","Unklar"]},
+  {id:"aufzug_zugang",text:"Kann die Kabine von außen sicher erreicht werden?",type:"choice",options:["Ja","Nein","Unklar"]},
+  {id:"aufzug_gefaehrdet",text:"Sind Personen akut gefährdet oder stark beeinträchtigt?",type:"choice",options:["Ja","Nein","Unklar"]},
   {id:"aufzug_medizin",text:"Liegt zusätzlich ein medizinischer Notfall vor?",type:"choice",options:["Ja","Nein","Unklar"]},
   {id:"aufzug_med_bewusstsein",text:"Ist eine betroffene Person bewusstlos oder nicht ansprechbar?",type:"choice",options:["Ja","Nein","Unklar"],whenQuestion:"aufzug_medizin",whenValue:"Ja"},
-  {id:"aufzug_med_atmung",text:"Atmet eine betroffene Person nicht normal?",type:"choice",options:["Ja","Nein","Unklar"],whenQuestion:"aufzug_medizin",whenValue:"Ja"},
+  {id:"aufzug_med_atmung",text:"Atmet eine betroffene Person nicht normal oder hat schwere Atemnot?",type:"choice",options:["Ja","Nein","Unklar"],whenQuestion:"aufzug_medizin",whenValue:"Ja"},
   {id:"aufzug_med_blutung",text:"Besteht eine starke oder nicht stillbare Blutung?",type:"choice",options:["Ja","Nein","Unklar"],whenQuestion:"aufzug_medizin",whenValue:"Ja"},
-  {id:"aufzug_med_symptome",text:"Welche akuten Beschwerden liegen vor?",type:"choice",options:["Starke Atemnot","Brustschmerzen","Krampfanfall","Starke Schmerzen","Keine dieser Beschwerden / unklar"],whenQuestion:"aufzug_medizin",whenValue:"Ja"},
-  {id:"aufzug_med_sofort",text:"Wird sofort medizinische Hilfe benötigt?",type:"choice",options:["Ja","Nein","Unklar"],whenQuestion:"aufzug_medizin",whenValue:"Ja"}
+  {id:"aufzug_med_symptome",text:"Welche akuten Beschwerden liegen vor?",type:"choice",options:["Krampfanfall","Brustschmerzen","Starke Atemnot","Starke Schmerzen","Andere / unklar"],whenQuestion:"aufzug_medizin",whenValue:"Ja"},
+  {id:"aufzug_med_krampfstatus",text:"Dauert der Krampfanfall an oder tritt er wiederholt auf?",type:"choice",options:["Ja","Nein","Unklar / nicht bekannt"],whenQuestion:"aufzug_medizin",whenValue:"Ja"}
 ];
 
 const grossQuestions = [
@@ -1052,8 +1052,30 @@ function selectedBodyInjuries(){
 function bodyMapTypes(){return [...new Set(selectedBodyInjuries().map(x=>x.type).filter(Boolean))];}
 function primaryBodyMapType(){const types=bodyMapTypes();const rank=["Amputation","Schussverletzung","Stich- / Pfählungsverletzung","Tiefe Schnittwunde","Verbrennung / Verbrühung / Verätzung","Verletzungsmechanismus schwer","Fraktur","Luxation","Quetschung","Riss- / Quetsch- / Schnittverletzung","Platzwunde / Schürfung","Prellung / Bänderverletzung","Bissverletzung","Erfrierung","Verletzungsart unklar"];return types.sort((a,b)=>(rank.indexOf(a)<0?999:rank.indexOf(a))-(rank.indexOf(b)<0?999:rank.indexOf(b)))[0]||"";}
 function bodyMapDiagnosis(){const injuries=selectedBodyInjuries();const type=primaryBodyMapType();if(!type)return null;const labels=injuries.map(x=>`${x.label}${x.type?` – ${x.type}`:""}${x.side?` (${x.side})`:""}`);const loc=labels.length?` – ${labels.join(", ")}`:"";const category={"Amputation":"CHIR / TRAUMA","Schussverletzung":"TRAUMA","Stich- / Pfählungsverletzung":"TRAUMA","Tiefe Schnittwunde":"CHIR / TRAUMA","Verbrennung / Verbrühung / Verätzung":"TRAUMA","Verletzungsmechanismus schwer":"TRAUMA","Fraktur":"CHIR / TRAUMA","Luxation":"CHIR / TRAUMA","Quetschung":"TRAUMA","Riss- / Quetsch- / Schnittverletzung":"CHIR / TRAUMA","Platzwunde / Schürfung":"CHIR / TRAUMA","Prellung / Bänderverletzung":"TRAUMA","Bissverletzung":"TRAUMA","Erfrierung":"TRAUMA","Verletzungsart unklar":"UNKLAR"}[type]||"TRAUMA";const text={"Amputation":"Amputationsverletzung","Schussverletzung":"Schussverletzung","Stich- / Pfählungsverletzung":"Stich-/Pfählungsverletzung","Tiefe Schnittwunde":"Tiefe Schnittverletzung","Verbrennung / Verbrühung / Verätzung":"Thermische/chemische Verletzung","Verletzungsmechanismus schwer":"Schwere Verletzung / Trauma","Fraktur":"Frakturverdacht","Luxation":"Luxationsverdacht","Quetschung":"Quetschverletzung","Riss- / Quetsch- / Schnittverletzung":"Riss-/Quetsch-/Schnittverletzung","Platzwunde / Schürfung":"Platzwunde / Schürfung","Prellung / Bänderverletzung":"Prell-/Bänderverletzung","Bissverletzung":"Bissverletzung","Erfrierung":"Erfrierungsverletzung","Verletzungsart unklar":"Unklare Verletzung"}[type]||type;return {type,category,primary:`${text}${loc}`,alternatives:[`${category} – gemäß Abfrage`,"Weitere Verletzungsfolge / Schweregrad gemäß Abfrage"]};}
-function medicalDispatchCategory(){const g=String(answers.med_grund||"");const body=primaryBodyMapType();if(answers.deterioration==="Herz-Kreislauf-Stillstand"||answers.deterioration==="Atmet nicht mehr"||answers.atmung==="Atemstillstand")return "REA";if(body){if(["Amputation","Tiefe Schnittwunde","Riss- / Quetsch- / Schnittverletzung","Platzwunde / Schürfung","Fraktur","Luxation"].includes(body))return "CHIR";if(body==="Verletzungsart unklar")return "UNKLAR";return "TRAUMA";}if(g==="Allergie / Anaphylaxie")return "ALLERG";if(g==="Gefühlsstörung / Lähmung / Sprache / Sehstörung"||g==="Krampfanfall")return "NEURO";if(g==="Vergiftung")return "INTOX";if(g==="Psychische Erkrankung / Suizid")return "PSYCH";if(g==="Geburt / Schwangerschaft")return "GYN";if(g==="Verkehrsunfall")return "VERKEHR";if(g==="Ertrinkungsunfall")return "WASSER";if(g==="Verletzung"||g==="Arbeits- / Betriebs- / Schulunfall"){const m=String(answers.verletzung_v49_mechanismus||"");if(m==="Stromunfall"||m==="Blitzschlag")return "STROM";if(m==="Verkehrsunfall")return "VERKEHR";if(m==="Tierbisse / Tierstiche"&&answers.verletzung_v49_allergie==="Ja")return "ALLERG";return "TRAUMA";}if(["Atemstörung","Bauchschmerzen","Bewusstseinsstörung / Wesensveränderung","Blutungen","Brustschmerzen","Herzrhythmusstörungen","Hitze- / Kälteprobleme","Kollaps / Kreislaufstörung","Kopfschmerzen","Sonstige Schmerzen","Erkrankung / medizinische Hilfeleistung"].includes(g))return "INTERN";return "UNKLAR";}
-function medicalRtwCount(){const exact=Number(answers.med_anzahl_genau);if(Number.isFinite(exact)&&exact>=1)return Math.min(4,Math.round(exact));const p=String(answers.med_personen||"");if(p==="Mehr als 9 / MANV")return 4;if(p==="2–9")return 2;return 1;}
+function medicalDispatchCategory(){
+  if(category==="aufzug"){
+    if(answers.aufzug_med_symptome==="Krampfanfall") return "NEURO";
+    if(answers.aufzug_med_symptome==="Brustschmerzen") return "INTERN";
+    if(answers.aufzug_med_symptome==="Starke Atemnot" || answers.aufzug_med_atmung==="Ja") return "INTERN";
+    if(answers.aufzug_med_bewusstsein==="Ja") return "NEURO";
+    if(answers.aufzug_med_blutung==="Ja") return "TRAUMA";
+    return "UNKLAR";
+  }
+  const g=String(answers.med_grund||"");const body=primaryBodyMapType();if(answers.deterioration==="Herz-Kreislauf-Stillstand"||answers.deterioration==="Atmet nicht mehr"||answers.atmung==="Atemstillstand")return "REA";if(body){if(["Amputation","Tiefe Schnittwunde","Riss- / Quetsch- / Schnittverletzung","Platzwunde / Schürfung","Fraktur","Luxation"].includes(body))return "CHIR";if(body==="Verletzungsart unklar")return "UNKLAR";return "TRAUMA";}if(g==="Allergie / Anaphylaxie")return "ALLERG";if(g==="Gefühlsstörung / Lähmung / Sprache / Sehstörung"||g==="Krampfanfall")return "NEURO";if(g==="Vergiftung")return "INTOX";if(g==="Psychische Erkrankung / Suizid")return "PSYCH";if(g==="Geburt / Schwangerschaft")return "GYN";if(g==="Verkehrsunfall")return "VERKEHR";if(g==="Ertrinkungsunfall")return "WASSER";if(g==="Verletzung"||g==="Arbeits- / Betriebs- / Schulunfall"){const m=String(answers.verletzung_v49_mechanismus||"");if(m==="Stromunfall"||m==="Blitzschlag")return "STROM";if(m==="Verkehrsunfall")return "VERKEHR";if(m==="Tierbisse / Tierstiche"&&answers.verletzung_v49_allergie==="Ja")return "ALLERG";return "TRAUMA";}if(["Atemstörung","Bauchschmerzen","Bewusstseinsstörung / Wesensveränderung","Blutungen","Brustschmerzen","Herzrhythmusstörungen","Hitze- / Kälteprobleme","Kollaps / Kreislaufstörung","Kopfschmerzen","Sonstige Schmerzen","Erkrankung / medizinische Hilfeleistung"].includes(g))return "INTERN";return "UNKLAR";}
+function medicalRtwCount(){
+  if(category==="aufzug"){
+    const p=String(answers.aufzug_personen||"");
+    if(p==="Mehr als 5 Personen") return 4;
+    if(p==="2–5 Personen") return 2;
+    return 1;
+  }
+  const exact=Number(answers.med_anzahl_genau);
+  if(Number.isFinite(exact)&&exact>=1)return Math.min(4,Math.round(exact));
+  const p=String(answers.med_personen||"");
+  if(p==="Mehr als 9 / MANV")return 4;
+  if(p==="2–9")return 2;
+  return 1;
+}
 function renderInjuryMapQuestion(q,area){
   const selected=new Set(Array.isArray(answers[q.id])?answers[q.id]:[]);
   const burn=isBurnMechanism();
@@ -1231,6 +1253,15 @@ function evaluateNotarzt(){
   // maßgebliche Quelle; die Brücken unten übersetzen nur die entsprechenden
   // Feuerwehr-Antworten in die dafür benötigten medizinischen Kriterien.
   const ruleAnswers={...answers};
+  if(category==="aufzug" && answers.aufzug_medizin==="Ja"){
+    if(answers.aufzug_med_bewusstsein==="Ja") reasons.push("Bewusstseinsstörung / fehlende Ansprechbarkeit");
+    if(answers.aufzug_med_atmung==="Ja") reasons.push("Relevante Atemstörung / schwere Atemnot");
+    if(answers.aufzug_med_blutung==="Ja") reasons.push("Starke / nicht kontrollierbare Blutung");
+    if(answers.aufzug_med_symptome==="Krampfanfall" && answers.aufzug_med_krampfstatus==="Ja") reasons.push("Anhaltender / wiederholter Krampfanfall");
+    if(answers.aufzug_med_symptome==="Brustschmerzen") reasons.push("Akuter Brustschmerz");
+    if(answers.aufzug_med_symptome==="Starke Atemnot") reasons.push("Ausgeprägte Atemnot");
+    if(answers.aufzug_med_sofort==="Ja") reasons.push("Unmittelbare medizinische Gefahr");
+  }
   if(category!=="medizin") {
     if(["fw_vergiftung_bewusst","fw_wasser_bewusst","fw_eis_bewusst","fw_tauch_bewusst","fw_notlage_bewusst"].some(id=>answers[id]==="Nein")) ruleAnswers.bewusstsein="Bewusstlos";
     if(["fw_vergiftung_atmung","fw_wasser_atmung","fw_tauch_atmung","fw_notlage_atmung"].some(id=>answers[id]==="Nein")) ruleAnswers.atmung="Keine normale Atmung";
@@ -1320,7 +1351,7 @@ function fallbackStichwort(){
   return null;
 }
 function chooseStichwort(){
-  if(category==="aufzug") return {code:"FW-AUFZUG",name:answers.aufzug_medizin==="Ja"?"Aufzugsnotruf / technische Hilfe + medizinischer Notfall":"Aufzugsnotruf / technische Hilfe",priority:1};
+  if(category==="aufzug") return {id:"TH1",code:"TH1",name:"Technische Hilfeleistung – Befreiung Person Aufzug",priority:999};
   if(category==="grossschaden")return null;
   const list=Object.values(data.einsatzstichworte||{}).filter(s=>s.category===category&&s.enabled!==false&&(s.conditions||[]).every(c=>matches(answers[c.questionId],c.values??c.value)));
   if(category==="medizin" && primaryBodyMapType()){
@@ -1458,8 +1489,10 @@ function dispatchText(resources,reasons,stichwort){
     if(answers.aufzug_tueren) parts.push(`Türen: ${answers.aufzug_tueren}`);
     if(answers.aufzug_gefahr==="Ja") parts.push("Akute Gefahr am Aufzug");
     if(answers.aufzug_medizin==="Ja") {
+      const nef=evaluateNotarzt().length>0, rtw=medicalRtwCount(), medCat=medicalDispatchCategory();
+      parts.push(`Medizinisches Stichwort: ${nef?`N1R${rtw}`:`R${rtw}`} - ${medCat}`);
       parts.push("Zusätzlicher medizinischer Notfall");
-      ["aufzug_med_bewusstsein","aufzug_med_atmung","aufzug_med_blutung","aufzug_med_symptome","aufzug_med_sofort"].forEach(id=>{if(answers[id]&&answers[id]!=="Nein")parts.push(answers[id]);});
+      ["aufzug_med_bewusstsein","aufzug_med_atmung","aufzug_med_blutung","aufzug_med_symptome","aufzug_med_krampfstatus"].forEach(id=>{if(answers[id]&&answers[id]!=="Nein"&&answers[id]!=="Nein / unklar")parts.push(answers[id]);});
     }
   }
   const hz=hazmatSummary(); if(hz) parts.push(`Gefahrgutlage: ${hz}`);
@@ -1485,8 +1518,11 @@ function currentResult(){
   }
   let final=[];
   if(category==="aufzug") {
-    final=["Feuerwehr – Aufzugsnotruf / technische Hilfeleistung"];
-    if(answers.aufzug_medizin==="Ja") final.push("Rettungsdienst – medizinische Abklärung");
+    // Aufzugsnotruf ist ein TH1-Einsatz. Die AAO für TH1 liefert die
+    // Feuerwehrfahrzeuge; bei medizinischem Zusatz wird parallel das
+    // medizinische Stichwort mit RTW/NEF ausgewertet.
+    const th1=data.aao?.TH1;
+    final=Array.isArray(th1?.resources)?th1.resources.slice():["HLF"];
   } else if(category==="brand"||category==="thl"||category==="abc") {
     // Nur tatsächlich zu alarmierende Feuerwehrmittel aus der AAO anzeigen.
     // Allgemeine Platzhalter wie "Feuerwehr" werden bewusst nicht ausgegeben.
@@ -1495,7 +1531,10 @@ function currentResult(){
     final=["Großschadenslage – lageabhängige Einsatzmittel prüfen"];
   }
   const unique=[...new Set(final.filter(Boolean).map(String))];
-  return{reasons,resources:unique,stichwort,aao,alarmierung:alarmierungVorschlag(reasons,unique),dispatchText:dispatchText(unique,reasons,stichwort)};
+  const medicalStichwort=(category==="aufzug" && answers.aufzug_medizin==="Ja")
+    ? (()=>{const nef=reasons.length>0,rtw=medicalRtwCount(),cat=medicalDispatchCategory(),prefix=nef?`N1R${rtw}`:`R${rtw}`;return {code:prefix,name:`${prefix} - ${cat}`};})()
+    : null;
+  return{reasons,resources:unique,stichwort,aao,medicalStichwort,alarmierung:alarmierungVorschlag(reasons,unique),dispatchText:dispatchText(unique,reasons,stichwort)};
 }
 async function recordAbort(reason, otherReason="") {
   const now=new Date();

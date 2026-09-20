@@ -6,6 +6,8 @@ const categories = ['medizin','brand','thl','abc'];
 let catalog = null;
 let editingId = null;
 let notarztRules = {};
+const pageParams=new URLSearchParams(location.search);
+const linkedReportId=pageParams.get('report')||'';
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
 function setStatus(text){$('status').textContent=text;}
@@ -148,6 +150,22 @@ function loadConditionIntoForm(q){
     for(const r of rows)addConditionRow(r);
     ensureAtLeastOneConditionRow();
   }
+}
+
+
+async function loadReportContext(){
+  if(!linkedReportId)return;
+  try{
+    const a=authState();
+    if(!a.admin)return;
+    const all=await read('frageMeldungen');
+    const r=all?.[linkedReportId];
+    if(!r)return;
+    const box=$('reportContext'),body=$('reportContextBody');
+    if(!box||!body)return;
+    box.style.display='block';
+    body.innerHTML=`<div class="report-card status-${esc(r.status||'neu')}"><div><b>${esc(r.questionText||r.questionId||'')}</b></div><div class="report-meta"><span class="report-status ${esc(r.status||'neu')}">${esc(r.status||'neu')}</span><span class="badge">${esc(r.reportType||'Sonstiges')}</span>${r.affectedAnswer?`<span class="badge">Antwort: ${esc(r.affectedAnswer)}</span>`:''}</div><div class="ehsi-detail"><b>Begründung:</b> ${esc(r.reason||'–')}${r.suggestion?`<br><br><b>Änderungsvorschlag:</b> ${esc(r.suggestion)}`:''}</div></div>`;
+  }catch(e){console.warn('QM-Meldung konnte nicht geladen werden',e);}
 }
 
 function edit(id){
@@ -314,6 +332,9 @@ $('save').onclick=async()=>{
     await write('catalog/_meta',{schemaVersion:CATALOG_SCHEMA_VERSION,updatedAt:new Date().toISOString()});
     msg('✓ Frage in Firebase gespeichert.');
     editingId=q.id;
+    if(linkedReportId){
+      try{await write(`frageMeldungen/${linkedReportId}/status`,'erledigt');await write(`frageMeldungen/${linkedReportId}/resolvedAt`,new Date().toISOString());await write(`frageMeldungen/${linkedReportId}/resolvedQuestionId`,q.id);}catch(e){console.warn('QM-Meldung konnte nicht abgeschlossen werden',e);}
+    }
     await load();
   }catch(e){msg('⚠️ '+e.message);}
 };
@@ -395,4 +416,4 @@ $('nefDelete').onclick=async()=>{
     renderNefList();
   }catch(e){$('nefMessage').textContent='⚠️ '+e.message;}
 };
-(async()=>{updateOptionsVisibility();setConditionMode('always');await load();})();
+(async()=>{updateOptionsVisibility();setConditionMode('always');await load();await loadReportContext();const requestedCategory=pageParams.get('category');const requestedEdit=pageParams.get('edit');if(requestedCategory && categories.includes(requestedCategory)){$('category').value=requestedCategory;renderSelect(requestedEdit||'');}if(requestedEdit && requestedCategory && catalog?.[requestedCategory]?.[requestedEdit]){edit(requestedEdit);window.scrollTo({top:0,behavior:'smooth'});} })();

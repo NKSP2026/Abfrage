@@ -1,6 +1,6 @@
 // Einsatzabfrage V20 – dynamischer Entscheidungsbaum mit permanenter Aktionsleiste
 import { startupDefaults } from "./startup-data.js?v=20260920v40";
-import { anonymous, read, authState, pushPublic } from "./firebase-rest.js?v=20260920v45";
+import { anonymous, read, authState, push, pushPublic } from "./firebase-rest.js?v=20260920v45";
 import { KEMLER_MEANINGS, UN_DANGEROUS_GOODS, GHS_SYMBOLS, ADR_LABELS, TRANSPORT_TYPES } from "./hazmat-data.js?v=20260920v2";
 
 const $ = id => document.getElementById(id);
@@ -978,6 +978,9 @@ function nextQuestion(){
       const q=injuryQs.find(x=>x.id===id);
       if(q) return q;
     }
+    // Zugang immer vor der Verdachtsdiagnose abfragen.
+    if(answers.med_zugang===undefined) return medicalFinalQuestions.find(q=>q.id==="med_zugang");
+    if(answers.med_zugang==="Nein" && answers.med_zugang_grund===undefined) return medicalFinalQuestions.find(q=>q.id==="med_zugang_grund");
     const diagnosis=Object.values(data.catalog?.medizin||{}).find(q=>q.id==="verdachtsdiagnose");
     return diagnosis||null;
   }
@@ -988,11 +991,10 @@ function nextQuestion(){
   if(category==="medizin") {
     const nonFinal=qs.filter(q=>!["verdachtsdiagnose","med_zugang","med_zugang_grund"].includes(q.id));
     const branchCount=medicalBranchCount();
-    if(answers.med_zugang===undefined && (!nonFinal.length || branchCount>=10)) {
-      if(answers.verdachtsdiagnose===undefined && diagnosis) return diagnosis;
-      return medicalFinalQuestions.find(q=>q.id==="med_zugang");
-    }
+    // Der Zugangscheck kommt bewusst vor der Verdachtsdiagnose.
+    if(answers.med_zugang===undefined && (!nonFinal.length || branchCount>=10)) return medicalFinalQuestions.find(q=>q.id==="med_zugang");
     if(answers.med_zugang==="Nein" && answers.med_zugang_grund===undefined) return medicalFinalQuestions.find(q=>q.id==="med_zugang_grund");
+    if(answers.med_zugang!==undefined && answers.verdachtsdiagnose===undefined && (!nonFinal.length || branchCount>=10)) return diagnosis||null;
   }
   if(!qs.length)return null;
   const others=qs.filter(q=>q.id!=="verdachtsdiagnose");
@@ -1170,6 +1172,63 @@ function renderInjuryMapQuestion(q,area){
   actions.append(next,clear); box.appendChild(actions); area.appendChild(box);
 }
 function renderBurnMapQuestion(q,area){ renderInjuryMapQuestion(q,area); }
+function openQuestionReport(){
+  const q=nextQuestion();
+  if(!q || q.type==='hazmat') return;
+  const typeOptions=[
+    'Reihenfolge der Frage ist falsch','Frage fehlt','Frage soll gelöscht werden',
+    'Frage soll neu formuliert werden','Antworten sollen geändert werden','Antwort fehlt',
+    'Folgefrage ist falsch','Folgefrage fehlt','Falsche Folgefrage bei einer Antwort',
+    'Einsatzstichwort / Alarmierung passt nicht','Sonstiges'
+  ];
+  const answerOptions=Array.isArray(q.options)?q.options:[];
+  const currentAnswer=answers[q.id];
+  const answerText=Array.isArray(currentAnswer)?currentAnswer.join(', '):(currentAnswer??'');
+  openModal(`<div class="modal-title">⚑ Frage melden</div>
+    <p class="hint">Die Meldung wird mit der exakt angezeigten Frage gespeichert und anschließend in QM2 unter <b>Fragenmeldungen</b> angezeigt.</p>
+    <div class="report-question-preview"><b>${escapeHtml(q.text||'')}</b><div class="hint">Bereich: ${escapeHtml(title())} · Frage-ID: ${escapeHtml(q.id||'')}</div></div>
+    <label>Was soll geändert werden?
+      <input id="reportType" list="reportTypeList" class="modal-textarea" value="" placeholder="Aus Liste auswählen oder eigenen Text eingeben …">
+      <datalist id="reportTypeList">${typeOptions.map(x=>`<option value="${escapeHtml(x)}">`).join('')}</datalist>
+    </label>
+    <label>Betroffene Antwort (optional)
+      <input id="reportAnswer" list="reportAnswerList" class="modal-textarea" value="${escapeHtml(answerText)}" placeholder="Antwort auswählen oder eigene Angabe …">
+      <datalist id="reportAnswerList">${answerOptions.map(x=>`<option value="${escapeHtml(x)}">`).join('')}</datalist>
+    </label>
+    <label>Begründung <span class="required">*</span>
+      <textarea id="reportReason" class="modal-textarea" rows="5" placeholder="Was ist falsch bzw. was sollte geändert werden?"></textarea>
+    </label>
+    <label>Änderungsvorschlag (optional)
+      <textarea id="reportSuggestion" class="modal-textarea" rows="4" placeholder="z. B. neue Formulierung, neue Antwort oder gewünschte Folgefrage …"></textarea>
+    </label>
+    <div class="modal-actions"><button id="sendQuestionReport">📤 Meldung absenden</button><button class="secondary modal-close">Abbrechen</button></div>
+    <p id="reportStatus" class="hint"></p>`);
+  const close=$('modalRoot').querySelector('.modal-close'); if(close) close.onclick=closeModal;
+  $('sendQuestionReport').onclick=async()=>{
+    const reason=String($('reportReason')?.value||'').trim();
+    const type=String($('reportType')?.value||'').trim();
+    if(!reason){$('reportStatus').textContent='Bitte eine Begründung eingeben.';return;}
+    const btn=$('sendQuestionReport');btn.disabled=true;btn.textContent='⏳ Wird gespeichert …';
+    try{
+      const a=authState().token?authState():await anonymous();
+      if(!a?.token) throw new Error('Keine Verbindung zur Meldungsverwaltung möglich.');
+      await push('frageMeldungen',{
+        createdAt:new Date().toISOString(),status:'neu',
+        category:category||'',categoryTitle:title(),mode:mode||'',
+        questionId:q.id||'',questionText:q.text||'',questionType:q.type||'choice',
+        options:Array.isArray(q.options)?q.options:[],
+        order:q.order??null,condition:{whenQuestion:q.whenQuestion||'',whenValue:q.whenValue??'',whenAny:q.whenAny||[],whenAll:q.whenAll||[],whenNot:q.whenNot||[]},
+        reportType:type||'Sonstiges',affectedAnswer:String($('reportAnswer')?.value||'').trim(),reason,
+        suggestion:String($('reportSuggestion')?.value||'').trim(),
+        reportedAnswer:answerText,reportedBy:a.email||'Einsatzbearbeiter',reportedUid:a.uid||''
+      });
+      $('reportStatus').textContent='✓ Meldung gespeichert. Sie wird in QM2 angezeigt.';
+      setTimeout(closeModal,700);
+    }catch(e){btn.disabled=false;btn.textContent='📤 Meldung absenden';$('reportStatus').textContent='⚠️ '+e.message;}
+  };
+}
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+
 function render(){
   if(reaShown)return;
   // Zurück-Button bei jedem Rendern korrekt aktivieren/deaktivieren.
@@ -1185,6 +1244,7 @@ function render(){
   $("progress").textContent=`Frage ${steps+1}`;
   updatePhase();
   $("questionText").textContent=q.text;
+  const reportBtn=$("reportQuestionBtn"); if(reportBtn){reportBtn.disabled=q.type==="hazmat"; reportBtn.onclick=openQuestionReport;}
   const area=$("answerArea");area.innerHTML="";
   if(q.id.startsWith("erkrankung_Fieber_")){
     const note=document.createElement("div");

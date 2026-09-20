@@ -1,7 +1,7 @@
 {
   "rules": {
     ".read": "auth != null",
-    ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2m0QANrTk1'",
+    ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
     "abbruchAbfragen": {
       ".read": true,
       ".write": true,
@@ -17,6 +17,10 @@
         "zeitpunkt",
         "einsatz"
       ]
+    },
+    "frageMeldungen": {
+      ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".write": "auth != null"
     }
   }
 }

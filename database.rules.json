@@ -5,7 +5,18 @@
     "abbruchAbfragen": {
       ".read": true,
       ".write": true,
-      ".indexOn": ["datum", "uhrzeit"]
+      ".indexOn": [
+        "datum",
+        "uhrzeit"
+      ]
+    },
+    "einsatzAufwertungen": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": [
+        "zeitpunkt",
+        "einsatz"
+      ]
     }
   }
 }

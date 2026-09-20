@@ -28,9 +28,8 @@ const medicalFinalQuestions = [
 const yesNoUnclearOptions=["Ja","Nein","Unsicher (kann nicht beurteilt werden)","Unbekannter (kein Kontakt / keine Angabe möglich)"];
 
 const firefighterCommonQuestions = [
-  {id:"fw_common_ort",text:"Wo genau befindet sich die Einsatzstelle?",type:"text",order:9000,placeholder:"Straße, Hausnummer, Objekt, Ort …"},
   {id:"fw_common_personen",text:"Sind Personen betroffen, verletzt oder gefährdet?",type:"choice",order:9001,options:["Ja","Nein","Unklar"]},
-  {id:"fw_common_anzahl",text:"Wie viele Personen sind ungefähr betroffen? (0 wenn keine)",type:"number",order:9002,placeholder:"Anzahl …"},
+  {id:"fw_common_anzahl",text:"Wie viele Personen sind ungefähr betroffen?",type:"number",order:9002,placeholder:"Anzahl …",whenAny:[{questionId:"fw_common_personen",value:"Ja"},{questionId:"fw_common_personen",value:"Unklar"}]},
   {id:"fw_common_gefahr",text:"Besteht eine unmittelbare Gefahr für Personen oder Einsatzkräfte?",type:"choice",order:9003,options:["Ja","Nein","Unklar"]},
   {id:"fw_common_zugang",text:"Ist die Einsatzstelle für Einsatzkräfte sicher erreichbar?",type:"choice",order:9004,options:["Ja","Nein","Unklar"]},
   {id:"fw_common_vorort",text:"Sind bereits andere Einsatzkräfte vor Ort oder informiert?",type:"choice",order:9005,options:["Nein","Rettungsdienst","Polizei","Weitere Feuerwehrkräfte","Mehrere","Unklar"]},
@@ -838,17 +837,7 @@ function hazmatFieldsMarkup(h={}){
 function wireHazmat(box,h,onSave,onClear){
   const selected=new Set(Array.isArray(h.ghs)?h.ghs:[]);
   const selectedAdr=new Set(Array.isArray(h.adrLabels)?h.adrLabels:[]);
-  const ghsRemote={
-    GHS01:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/GHS-pictogram-explos.svg/768px-GHS-pictogram-explos.svg.png',
-    GHS02:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/GHS-pictogram-flamme.svg/768px-GHS-pictogram-flamme.svg.png',
-    GHS03:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/GHS-pictogram-rondflam.svg/768px-GHS-pictogram-rondflam.svg.png',
-    GHS04:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/GHS-pictogram-bottle.svg/768px-GHS-pictogram-bottle.svg.png',
-    GHS05:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/GHS-pictogram-acid.svg/768px-GHS-pictogram-acid.svg.png',
-    GHS06:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/GHS-pictogram-skull.svg/768px-GHS-pictogram-skull.svg.png',
-    GHS07:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/GHS-pictogram-exclam.svg/768px-GHS-pictogram-exclam.svg.png',
-    GHS08:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/GHS-pictogram-silhouette.svg/768px-GHS-pictogram-silhouette.svg.png',
-    GHS09:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/GHS-pictogram-pollu.svg/768px-GHS-pictogram-pollu.svg.png'
-  };
+  const ghsRemote={GHS01:'GHS01.png',GHS02:'GHS02.png',GHS03:'GHS03.png',GHS04:'GHS04.png',GHS05:'GHS05.png',GHS06:'GHS06.png',GHS07:'GHS07.png',GHS08:'GHS08.png',GHS09:'GHS09.png'};
   const gg=box.querySelector('#ghsGrid');
   GHS_SYMBOLS.forEach(([id,name])=>{
     const lab=document.createElement('label'); lab.className='ghs-choice-original';
@@ -1574,9 +1563,6 @@ function currentResult(){
   const reasons=evaluateNotarzt(),stichwort=chooseStichwort(),aao=stichwort?data.aao?.[stichwort.id]||null:null;
   if(stichwort && !stichwort.volltext && aao?.volltext) stichwort={...stichwort,volltext:aao.volltext};
   const hz=hazmatSummary();
-  if(stichwort && hz){
-    stichwort={...stichwort,volltext:[stichwort.volltext||stichwort.name||"Alarmstichwort", `Gefahrgut-Zusatz: ${hz}`].filter(Boolean).join(" – ")};
-  }
   let final=[];
   if(category==="aufzug") {
     // Aufzugsnotruf ist ein TH1-Einsatz. Die AAO für TH1 liefert die
@@ -1657,7 +1643,7 @@ function openAbortReason(onDone){
   modal.querySelector('.modal-close').onclick=closeModal;
 }
 
-function finish(){const r=currentResult();const result={createdAt:new Date().toISOString(),category,mode,categoryTitle:title(),answers:{...answers},reasons:r.reasons,resources:r.resources,stichwort:r.stichwort,aao:r.aao,alarmierung:r.alarmierung,dispatchText:r.dispatchText,rea:reaShown,partialExit:!reaShown&&steps>0,abfrageStatus:phaseText(),questionsAnswered:steps,abfragedauer:durationText()};if(durationTimer)clearInterval(durationTimer);sessionStorage.setItem("einsatzabfrage_result",JSON.stringify(result));location.href="ergebnis.html";}
+function finish(){const r=currentResult();const result={createdAt:new Date().toISOString(),category,mode,categoryTitle:title(),answers:{...answers},reasons:r.reasons,resources:r.resources,stichwort:r.stichwort,aao:r.aao,aaoCatalog:data.aao||{},medicalStichwort:r.medicalStichwort||null,alarmierung:r.alarmierung,dispatchText:r.dispatchText,adjustments:[],rea:reaShown,partialExit:!reaShown&&steps>0,abfrageStatus:phaseText(),questionsAnswered:steps,abfragedauer:durationText()};if(durationTimer)clearInterval(durationTimer);sessionStorage.setItem("einsatzabfrage_result",JSON.stringify(result));location.href="ergebnis.html";}
 
 function openModal(html){$("modalRoot").innerHTML=`<div class="modal-backdrop" id="modalBackdrop"><div class="modal-card">${html}</div></div>`;$("modalBackdrop").onclick=e=>{if(e.target.id==="modalBackdrop")closeModal();};}
 function closeModal(){$("modalRoot").innerHTML="";}

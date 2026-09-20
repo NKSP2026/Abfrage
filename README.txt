@@ -771,7 +771,7 @@ Version 5.10 – QM1 Qualitätsmanagement ausgebaut
 - QM1 und QM2 sind damit getrennt: QM1 = Qualitätsmanagement/Steuerung, QM2 = operativer Eingang und Bearbeitung.
 
 
-VERSION 5.11 – LÖSCHEN OHNE BESTÄTIGUNG (20.09.2026)
+VERSION 5.12 – LÖSCHEN OHNE BESTÄTIGUNG (20.09.2026)
 =====================================================================
 - QM2: Fragemeldungen können durch den Administrator über „🗑 Löschen“ sofort gelöscht werden; keine OK/Abbrechen-Bestätigung mehr.
 - QM2: Abbruch-Abfragen können durch den Administrator über „🗑 Löschen“ sofort gelöscht werden; keine OK/Abbrechen-Bestätigung mehr.
@@ -780,3 +780,6 @@ VERSION 5.11 – LÖSCHEN OHNE BESTÄTIGUNG (20.09.2026)
 - QM1: QM-Einträge können durch den Administrator über „🗑 Löschen“ sofort gelöscht werden; keine OK/Abbrechen-Bestätigung mehr.
 - Die bestehenden Administrator-Berechtigungen bleiben unverändert.
 - Andere bewusst vorhandene Sicherheitsabfragen, z. B. bei Grundvorlagen/Seed-Aktionen, bleiben unverändert.
+
+
+Version 5.12 – Fragemeldungen: Das Absenden einer neuen Fragemeldung bleibt ohne Anmeldung möglich; bestehende Meldungen bleiben ausschließlich durch den Administrator les-/bearbeitbar/löschbar. Die Firebase-Regel für frageMeldungen wurde dafür eindeutig auf "neuer Datensatz oder Admin" gesetzt.

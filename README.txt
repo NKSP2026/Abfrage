@@ -818,3 +818,11 @@ VERSION 5.15 – 21.09.2026
 - Bestehende Firebase-Regeln, Admin-UID und restliche Funktionen unverändert belassen.
 
 - 5.15 nutzt weiterhin den vorhandenen REST-Ansatz ohne zusätzliche CDN-Abhängigkeit.
+
+=== Version 5.16 – FIREBASE SDK-FIRST FÜR FRAGENKATALOG (21.09.2026) ===
+- Die Realtime-Database-Funktionen verwenden jetzt bevorzugt das offizielle Firebase Web SDK.
+- Dadurch werden die Fragen-/Katalog-Schreibvorgänge nicht mehr als browserseitiger REST-PUT ausgeführt und umgehen den bisher beobachteten CORS-Preflight-Fehler.
+- Die exakte Realtime-Database-URL bleibt unverändert: https://abfrage-50be7-default-rtdb.firebaseio.com
+- Administrator-Anmeldung wird über Firebase Authentication des SDKs durchgeführt; bei blockiertem SDK-CDN bleibt ein REST-Fallback vorhanden.
+- Der vollständige lokale Grundkatalog bleibt erhalten und kann über „Grundkatalog in Firebase übernehmen“ gespeichert werden.
+- Bestehende Firebase Security Rules und Administrator-UID wurden nicht verändert.

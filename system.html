@@ -1,5 +1,5 @@
 <!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NABS – System</title><link rel="stylesheet" href="style.css"></head><body class="launcher-body"><header class="launcher-menubar"><div class="menu-left"><span><span class="nabs-logo-mini" aria-label="NABS">N</span></span><span>System</span><span>Systemstatus</span></div><div class="menu-right"><a href="index.html">Start</a></div></header><main class="module-wrap"><section class="module-head"><div><div class="ils-kicker">SYSTEM</div><h1>Systemstatus</h1><p>Technische Informationen und Anmeldung.</p></div></section><div class="quality-panel" id="systemInfo"></div><div class="module-actions"><a class="button secondary" href="qm1.html">‹ Zurück QM1</a><a class="button secondary" href="index.html">Launcher</a></div></main><script type="module">
-import{authState,logout,read}from'./firebase-rest.js?v=20260921v51';
+import{authState,logout,read}from'./firebase-rest.js?v=20260921v60';
 const a=authState();
 const labels={medizin:'🚑 Medizin',feuerwehr:'🔥 Feuerwehr',verkehrsunfall:'🚗 Verkehrsunfall',wasserunfall:'🌊 Wasserunfall',aufzug:'🛗 Aufzug',grossschaden:'🚨 Großschaden',abc:'☣️ Gefahrgut'};
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));

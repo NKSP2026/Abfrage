@@ -1,6 +1,7 @@
 // Einsatzabfrage V20 – dynamischer Entscheidungsbaum mit permanenter Aktionsleiste
 import { startupDefaults } from "./startup-data.js?v=20260920v40";
 import { anonymous, read, authState, pushPublic } from "./firebase-rest.js?v=20260920v45";
+import { KEMLER_MEANINGS, UN_DANGEROUS_GOODS, GHS_SYMBOLS, TRANSPORT_TYPES } from "./hazmat-data.js?v=20260920v1";
 
 const $ = id => document.getElementById(id);
 const mainCategories = [
@@ -744,7 +745,50 @@ function medicalBranchCount(){
   const ids=new Set(Object.keys(data?.catalog?.medizin||{}));
   return Object.keys(answers).filter(id=>ids.has(id) && !["med_wem","med_personen","med_spricht","med_demografie","med_grund","verdachtsdiagnose"].includes(id)).length;
 }
+function hazmatTriggered(){
+  if(answers.gefahrgut_details!==undefined) return false;
+  const positive=(v)=>{
+    const x=String(v??'').toLowerCase();
+    return /^(ja|yes|unklar|unbekannt)/.test(x) || /gefahrgut|gefahrstoff|lkw|tank|auslauf|ausgetreten|betriebsstoff|kraftstoff|öl|oel|chemikal|leakage|kontamination|gasgeruch|chemische|radioaktiv|batterie/.test(x);
+  };
+  if(category==='medizin' && String(answers.med_grund||'').toLowerCase().includes('vergiftung')) return true;
+  for(const [id,v] of Object.entries(answers)){
+    const k=String(id).toLowerCase();
+    if(/abc|gefahrgut|gefahrstoff|austritt|auslauf|betriebsstoff|kraftstoff|oel|öl|lkw|tank|chem|kontamin|vergiftung/.test(k) && positive(v)) return true;
+    if(k.includes('vu_art') && /lkw|gefahrgut|tank/.test(String(v).toLowerCase())) return true;
+    if(k.includes('vu_betrieb') && String(v).toLowerCase().startsWith('ja')) return true;
+    if(k.includes('vu_gefahr') && String(v).toLowerCase().startsWith('ja')) return true;
+  }
+  return false;
+}
+function hazmatSummary(){
+  const h=answers.gefahrgut_details;
+  if(!h || typeof h!=='object') return '';
+  const out=[];
+  if(h.gefahrnummer){ const key=String(h.gefahrnummer).trim().toUpperCase(); const meaning=KEMLER_MEANINGS[key]; out.push(`Gefahrnummer ${key}${meaning?` (${meaning})`:''}`); }
+  if(h.un){ const key=String(h.un).replace(/\D/g,'').padStart(4,'0'); const d=UN_DANGEROUS_GOODS[key]; out.push(`UN ${key}${d?` – ${d.name}`:''}`); if(d?.class)out.push(`Klasse ${d.class}`); }
+  if(Array.isArray(h.ghs)&&h.ghs.length) out.push(`GHS: ${h.ghs.join(', ')}`);
+  if(h.transport) out.push(`Verkehrsmittel: ${h.transport}`);
+  if(h.menge) out.push(`Ausgetreten: ca. ${h.menge} cm³`);
+  if(h.gefahrnummer && /^X/i.test(String(h.gefahrnummer))) out.push('Wassergefährliche Reaktion gemäß X-Kennzeichnung beachten');
+  return out.join(' · ');
+}
+function renderHazmatQuestion(area){
+  const h=answers.gefahrgut_details&&typeof answers.gefahrgut_details==='object'?answers.gefahrgut_details:{};
+  const box=document.createElement('div');box.className='hazmat-box';
+  box.innerHTML=`<div class="hazmat-intro"><b>☣️ Gefahrstoff / Gefahrgut – Zusatzabfrage</b><p class="hint">Nur sichtbare bzw. bekannte Angaben eintragen. Alle Felder sind freiwillig.</p></div><div class="hazmat-grid"><label>🟧 Gefahrnummer / Kemler (obere Zahl)<input id="hazKemler" maxlength="4" value="${h.gefahrnummer||''}" placeholder="z. B. X423 oder 33" autocomplete="off"></label><div class="hazmat-lookup" id="hazKemlerInfo">${h.gefahrnummer&&KEMLER_MEANINGS[String(h.gefahrnummer).trim().toUpperCase()]?KEMLER_MEANINGS[String(h.gefahrnummer).trim().toUpperCase()]: 'Bedeutung erscheint automatisch'}</div><label>🟧 UN-Nummer (untere Zahl)<input id="hazUN" maxlength="4" inputmode="numeric" value="${h.un||''}" placeholder="z. B. 1170 oder 2023" autocomplete="off"></label><div class="hazmat-lookup" id="hazUNInfo">${h.un&&UN_DANGEROUS_GOODS[String(h.un).replace(/\D/g,'').padStart(4,'0')] ? `${UN_DANGEROUS_GOODS[String(h.un).replace(/\D/g,'').padStart(4,'0')].name} · Klasse ${UN_DANGEROUS_GOODS[String(h.un).replace(/\D/g,'').padStart(4,'0')].class}` : 'Stoffbezeichnung erscheint automatisch'}</div></div><div class="hazmat-section"><h3>GHS-Symbole sichtbar</h3><div id="ghsGrid" class="ghs-grid"></div></div><div class="hazmat-grid"><label>🚚 Verkehrsmittel / Behälter<select id="hazTransport"><option value="">Bitte auswählen …</option>${TRANSPORT_TYPES.map(x=>`<option>${x}</option>`).join('')}</select></label><label>💧 Wie viel ist ungefähr ausgelaufen? (cm³)<input id="hazMenge" type="number" min="0" step="1" inputmode="numeric" value="${h.menge||''}" placeholder="z. B. 5000"></label></div><div id="hazTransportHint" class="hazmat-lookup"></div><div class="free-actions"><button id="hazNext" class="next-free">Weiter →</button><button id="hazClear" class="secondary unknown-btn">Keine Angaben / überspringen</button></div></div>`;
+  const g=box.querySelector('#ghsGrid');const selected=new Set(Array.isArray(h.ghs)?h.ghs:[]);
+  GHS_SYMBOLS.forEach(([id,name])=>{const lab=document.createElement('label');lab.className='ghs-choice';lab.innerHTML=`<input type="checkbox" value="${id}"><span><b>${id}</b><br>${name}</span>`;const inp=lab.querySelector('input');inp.checked=selected.has(name);inp.onchange=()=>{inp.checked?selected.add(name):selected.delete(name);};g.appendChild(lab);});
+  const kem=box.querySelector('#hazKemler'),un=box.querySelector('#hazUN'),ki=box.querySelector('#hazKemlerInfo'),ui=box.querySelector('#hazUNInfo'),tr=box.querySelector('#hazTransport');
+  tr.value=h.transport||'';
+  const update=()=>{const k=String(kem.value||'').trim().toUpperCase();ki.textContent=KEMLER_MEANINGS[k]||'Keine hinterlegte Bedeutung – Nummer prüfen.';const u=String(un.value||'').replace(/\D/g,'').slice(0,4);if(u.length){const key=u.padStart(4,'0'),d=UN_DANGEROUS_GOODS[key];ui.textContent=d?`${d.name} · Klasse ${d.class}${d.hin?` · Gefahrnummer ${d.hin}`:''}`:'UN-Nummer nicht im lokalen Kurzbestand – Stoffbezeichnung bitte nicht automatisch annehmen.';}else ui.textContent='Stoffbezeichnung erscheint automatisch';};
+  kem.oninput=update;un.oninput=update;
+  box.querySelector('#hazNext').onclick=()=>{pushHistory();answers.gefahrgut_details={gefahrnummer:String(kem.value||'').trim().toUpperCase(),un:String(un.value||'').replace(/\D/g,'').slice(0,4),ghs:[...selected],transport:String(tr.value||''),menge:String(box.querySelector('#hazMenge').value||'').trim()};steps++;render();};
+  box.querySelector('#hazClear').onclick=()=>{pushHistory();answers.gefahrgut_details={gefahrnummer:'',un:'',ghs:[],transport:'',menge:''};steps++;render();};
+  area.appendChild(box);
+}
 function nextQuestion(){
+  if(hazmatTriggered()) return {id:"gefahrgut_details",text:"Welche Gefahrstoff-/Gefahrgutangaben sind vor Ort erkennbar?",type:"hazmat"};
   // Feuerwehr: nach der Auswahl des Schadensfalls nur noch die kurze,
   // lagebezogene 12–14-Fragen-Abfrage verwenden.
   if(category==="brand" && answers.fw_schadensfall!==undefined){
@@ -1010,7 +1054,9 @@ function render(){
     note.innerHTML="<b>🌡️ Fiebermanagement bei Kindern/Jugendlichen:</b> Die Temperaturhöhe allein ist kein Grund, Fieber zu senken. Entscheidend sind Befinden und Warnzeichen. Bei warmen Händen und Füßen und deutlichem Unwohlsein können körperwarme Wadenwickel erwogen werden; bei kalten Händen/Füßen, Frieren oder Schüttelfrost nicht kühlen.";
     area.appendChild(note);
   }
-  if(q.type==="burnmap") {
+  if(q.type==="hazmat") {
+    renderHazmatQuestion(area);
+  } else if(q.type==="burnmap") {
     renderBurnMapQuestion(q,area);
   } else if(q.type==="injurymap") {
     renderInjuryMapQuestion(q,area);
@@ -1313,6 +1359,8 @@ function importantDispatchFacts(){
     const q=qs.find(x=>x.id===id);if(!q)continue;
     const fact=dispatchAnswerFact(q,v);if(fact)facts.push(fact);
   }
+  const hz=hazmatSummary();
+  if(hz) facts.push(hz);
   return [...new Set(facts)].slice(0,11);
 }
 function dispatchText(resources,reasons,stichwort){
@@ -1336,6 +1384,7 @@ function dispatchText(resources,reasons,stichwort){
   }
   if(category==="thl"){if(mode==="vu")parts.push("Verkehrsunfall");if(mode==="wasser")parts.push("Wasser-/Eisunfall");if(answers.lage)parts.push(answers.lage);if(answers.eingeklemmt==="Ja")parts.push("Person(en) eingeklemmt/eingeschlossen");}
   if(category==="grossschaden"){parts.push(answers.gs_lage||"Großschadenslage");if(answers.gs_orte)parts.push(answers.gs_orte);if(answers.gs_betroffene)parts.push(`ca. ${answers.gs_betroffene} Betroffene`);}
+  const hz=hazmatSummary(); if(hz) parts.push(`Gefahrgutlage: ${hz}`);
   if(answers.abfrage_bemerkung)parts.push(`Zusatz: ${answers.abfrage_bemerkung}`);
   return parts.filter(Boolean).join(" – ").slice(0,520)||"Einsatz – weitere Angaben nicht verfügbar";
 }
@@ -1352,6 +1401,10 @@ function alarmierungVorschlag(reasons,resources){
 function currentResult(){
   const reasons=evaluateNotarzt(),stichwort=chooseStichwort(),aao=stichwort?data.aao?.[stichwort.id]||null:null;
   if(stichwort && !stichwort.volltext && aao?.volltext) stichwort={...stichwort,volltext:aao.volltext};
+  const hz=hazmatSummary();
+  if(stichwort && hz){
+    stichwort={...stichwort,volltext:[stichwort.volltext||stichwort.name||"Alarmstichwort", `Gefahrgut-Zusatz: ${hz}`].filter(Boolean).join(" – ")};
+  }
   let final=[];
   if(category==="brand"||category==="thl"||category==="abc") {
     // Nur tatsächlich zu alarmierende Feuerwehrmittel aus der AAO anzeigen.

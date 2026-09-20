@@ -1,4 +1,4 @@
-/* NABS V68.18 – hochgranulare anatomische Verletzungskarte
+/* NABS V68.22 – hochgranulare anatomische Verletzungskarte
  * Rechtsklick (PC) bzw. Tippen (Touch) öffnet die Verletzungsart.
  * Linksklick am PC markiert NICHT direkt. Hover zeigt den exakten Bereich.
  * Die SVG-Flächen liegen direkt über dem Körperschema und werden im Ergebnis
@@ -289,6 +289,69 @@
   override('back_elbow_l','M1319 267 Q1340 273 1359 267 L1354 298 Q1337 308 1322 298Z');
   override('back_forearm_r','M1167 295 Q1184 304 1200 295 L1155 374 Q1145 391 1131 389 Q1118 384 1118 370 L1160 303Z');
   override('back_forearm_l','M1322 295 Q1337 304 1354 295 L1361 303 L1403 370 Q1403 384 1390 389 Q1376 391 1366 374 L1322 295Z');
+
+  // ---------------- RÜCKSEITE – SOLLPOSITIONEN AUS REFERENZ 87178.jpg ----------------
+  // Die farbig eingezeichneten Flächen der aktuellen Rückseiten-Vorlage werden
+  // 1:1 als Klickflächen übernommen. Referenzfarben werden nicht angezeigt.
+  const rename=(id,label)=>{const r=regions.find(x=>x.id===id); if(r) r.label=label;};
+
+  // Schädel / Wirbelsäule – Konturen direkt aus der 1536x867-Vorlage.
+  override('back_head','M1220 22 L1214 44 L1213 40 L1213 53 L1221 83 L1226 86 L1250 77 L1260 85 L1278 84 L1282 37 L1277 21 L1260 11 L1243 11Z');
+  override('back_cervical','M1254 88 L1243 88 L1235 100 L1238 111 L1234 116 L1237 119 L1235 125 L1247 133 L1260 124 L1260 115 L1254 111 L1259 103Z');
+  override('back_thoracic','M1258 133 L1249 139 L1236 136 L1239 152 L1235 157 L1239 162 L1235 166 L1238 176 L1234 181 L1238 187 L1233 192 L1237 201 L1233 207 L1237 212 L1233 236 L1237 243 L1233 249 L1237 261 L1232 266 L1236 274 L1231 283 L1235 287 L1228 297 L1238 292 L1264 297 L1258 290 L1262 281 L1257 273 L1261 265 L1257 261Z');
+  override('back_lumbar_r','M1237 298 L1227 309 L1234 313 L1226 321 L1234 325 L1227 333 L1234 338 L1231 343 L1226 342 L1228 347 L1235 350 L1264 348 L1267 343 L1262 343 L1260 338 L1266 332 L1259 327 L1265 320 L1259 315 L1265 309 L1253 297Z');
+  override('back_sacrum','M1245 352 L1240 353 L1235 361 L1226 363 L1223 370 L1240 391 L1249 392 L1266 378 L1272 368 L1256 353Z');
+  // back_flank_r wird hier als Steißbein wiederverwendet.
+  override('back_flank_r','M1242 395 L1246 415 L1248 395Z');
+
+  // Schulterblätter – links/rechts aus Sicht des Patienten; Bild links = rechts.
+  override('back_scapula_r','M1158 147 L1156 152 L1169 159 L1163 170 L1164 183 L1170 190 L1182 223 L1194 232 L1206 216 L1215 172 L1211 147 L1203 146 L1195 155Z');
+  override('back_scapula_l','M1339 150 L1305 156 L1290 146 L1283 148 L1282 190 L1288 205 L1287 212 L1295 227 L1305 229 L1315 217 L1330 183 L1331 170 L1325 160Z');
+
+  // Oberarmknochen / Humerus.
+  override('back_upperarm_r','M1161 159 L1149 164 L1147 190 L1127 247 L1115 262 L1130 270 L1135 248 L1161 183 L1159 173 L1164 162Z');
+  override('back_upperarm_l','M1332 160 L1336 172 L1332 184 L1359 256 L1360 269 L1378 263 L1351 206 L1346 188 L1344 162 L1338 164 L1337 160Z');
+
+  // Weiße Ellenbogenflächen aus der Vorlage.
+  override('back_elbow_r','M1112 267 Q1125 270 1139 268 L1139 286 Q1133 296 1121 297 Q1112 292 1110 282Z');
+  override('back_elbow_l','M1361 268 Q1375 270 1388 267 L1390 282 Q1388 292 1379 297 Q1367 296 1361 286Z');
+
+  // Unterarm: Elle (Ulna) – Braun.
+  override('back_forearm_r','M1073 331 L1069 330 L1068 336 L1057 346 L1057 352 L1042 362 L1043 369 L1048 367 L1048 370 L1057 360Z');
+  override('back_forearm_l','M1385 287 L1399 312 L1419 332 L1418 335 L1422 334 L1423 342 L1440 367 L1448 370 L1450 363 L1434 351 L1435 347 L1429 340 L1423 342 L1427 337 L1413 325 L1410 315 L1404 317 L1407 311 L1403 311 L1390 289Z');
+
+  // Zusätzliche separate Flächen: Speiche (Radius) – Pink.
+  add('back_radius_r','Speiche (Radius) rechts', 'M1121 289 L1112 287 L1064 358 L1050 373 L1052 379 L1058 376 L1078 343Z',{corrected:true});
+  add('back_radius_l','Speiche (Radius) links', 'M1374 288 L1372 291 L1438 378 L1442 374 L1381 288Z',{corrected:true});
+
+  // Hüftbein (Os coxae) – Gelb. Die alten Gesäßflächen werden dafür verwendet.
+  override('back_glute_r','M1190 328 L1181 338 L1185 358 L1196 370 L1198 383 L1210 398 L1212 419 L1219 424 L1230 425 L1241 411 L1239 395 L1220 381 L1218 373 L1222 359 L1237 350 L1228 348 L1211 328Z');
+  override('back_glute_l','M1303 328 L1282 329 L1262 349 L1263 355 L1274 361 L1276 375 L1269 385 L1251 395 L1250 411 L1260 424 L1274 424 L1282 417 L1283 400 L1295 386 L1296 374 L1311 345 L1311 337Z');
+
+  rename('back_head','Schädel (Cranium)');
+  rename('back_cervical','Halswirbel (HWS 1–6)');
+  rename('back_thoracic','Brustwirbel (BWS 1–12)');
+  rename('back_lumbar_r','Lendenwirbel (LWS 1–5)');
+  rename('back_sacrum','Kreuzbein');
+  rename('back_flank_r','Steißbein');
+  rename('back_scapula_r','Schulterblatt (Scapula) rechts');
+  rename('back_scapula_l','Schulterblatt (Scapula) links');
+  rename('back_upperarm_r','Oberarmknochen (Humerus) rechts');
+  rename('back_upperarm_l','Oberarmknochen (Humerus) links');
+  rename('back_elbow_r','Ellenbogen rechts');
+  rename('back_elbow_l','Ellenbogen links');
+  rename('back_forearm_r','Elle (Ulna) rechts');
+  rename('back_forearm_l','Elle (Ulna) links');
+  rename('back_glute_r','Hüftbein (Os coxae) rechts');
+  rename('back_glute_l','Hüftbein (Os coxae) links');
+
+  // Alle alten, nicht mehr gewünschten Rückenkörper-Flächen deaktivieren.
+  const BACK_OLD_HIDE = new Set([
+    'back_occiput','back_neck','back_upperback','back_ribs_r','back_ribs_l',
+    'back_lowerback','back_lumbar_l','back_flank_l','back_pelvis',
+    'back_shoulder_r','back_shoulder_l'
+  ]);
+  regions.forEach(r=>{ if(BACK_OLD_HIDE.has(r.id)) r.hidden=true; });
 
   // ---------------- DETAILBEREICHE / REFERENZBILD 83075 ----------------
   // Die große Körpergrafik wird nur für die großen anatomischen Regionen verwendet.

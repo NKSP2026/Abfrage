@@ -237,3 +237,26 @@ Datum: 20.09.2026
 - Keine Referenzfarben werden in der Anwendung angezeigt; orange bleibt ausschließlich die Auswahlfarbe.
 - bodymap.js-Cache in abfrage.html auf v821 erhöht.
 - Es bleibt bei genau einer README.txt.
+
+
+=== V68.22 – RÜCKSEITE OBERKÖRPER SOLLPOSITIONEN EXAKT ===
+Datum: 20.09.2026
+
+- Die Rückseite des Oberkörpers wurde vollständig anhand der neuen Referenz 87178.jpg neu aufgebaut.
+- Rosa = Schädel (Cranium).
+- Dunkelgrün = Halswirbel (HWS 1–6).
+- Rot = Brustwirbel (BWS 1–12).
+- Orange = Lendenwirbel (LWS 1–5).
+- Zyan = Kreuzbein.
+- Blau = Steißbein.
+- Gelb = Hüftbein (Os coxae) links und rechts.
+- Lila = Schulterblatt (Scapula) links und rechts.
+- Dunkelblau = Oberarmknochen (Humerus) links und rechts.
+- Weiß = Ellenbogen links und rechts.
+- Braun = Elle (Ulna) links und rechts.
+- Pink = Speiche (Radius) links und rechts.
+- Die alten Rückseitenflächen für Rippen, Flanken, Gesamt-Rücken, Nacken und Schulter wurden deaktiviert, damit keine alten Klickflächen die neuen Sollpositionen überlagern.
+- Die neuen Flächen liegen direkt im Koordinatensystem der aktuellen 1536x867-Referenzgrafik und erhalten keine alte Rückseiten-Transformation.
+- Die Referenzfarben werden nicht in der Anwendung angezeigt; ausgewählte Bereiche werden weiterhin ausschließlich orange dargestellt.
+- bodymap.js-Cache in abfrage.html auf v822 erhöht.
+- Es bleibt bei genau einer README.txt; diese Änderung wurde hier ergänzt.

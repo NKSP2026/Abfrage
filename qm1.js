@@ -1,4 +1,4 @@
-import { authState, logout, read, write } from './firebase-rest.js?v=20260920v60';
+import { authState, logout, read, write } from './firebase-rest.js?v=20260921v50';
 const $=id=>document.getElementById(id);
 const ADMIN='SrRHH7RgmDRXOCKcHy2mOQANrTk1';
 const TYPES={

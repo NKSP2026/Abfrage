@@ -790,3 +790,20 @@ Version 5.13 – Firebase-Diagnose Fragenverwaltung
 - Firebase-Fehler werden beim Speichern mit HTTP-Status und genauer Fehlermeldung angezeigt statt nur „Failed to fetch“.
 - Netzwerk-/Timeout-Fehler werden getrennt ausgewiesen.
 - Die Firebase-Berechtigungen für catalog wurden nicht gelockert.
+
+=== Version 5.14 – FIREBASE-SPEICHERN / CORS BEHOBEN (21.09.2026) ===
+
+- Fehler beim Speichern von Fragen in Firebase behoben.
+- Ursache war der Browser-CORS-Preflight beim bisherigen REST-Aufruf mit
+  `Content-Type: application/json` bei PUT/POST gegen die Realtime Database.
+- Datenbank-REST-Schreibvorgänge senden den JSON-Body weiterhin, verzichten aber
+  bewusst auf den nicht erforderlichen Content-Type-Header. Dadurch wird der
+  problematische OPTIONS-Preflight vermieden.
+- Die Firebase-Authentifizierung (E-Mail/Passwort und anonym) behält den
+  JSON-Content-Type weiterhin bei.
+- Cache-Versionen der Verweise auf firebase-rest.js wurden erhöht, damit
+  GitHub Pages die korrigierte Datei sicher lädt.
+- In der Fragenverwaltung wurden die bisherigen Sicherheitsabfragen beim
+  Löschen von Fragen und NEF-Regeln entfernt; Löschen erfolgt direkt.
+- Keine Änderung an Firebase-Datenbankregeln oder der Administrator-UID.
+

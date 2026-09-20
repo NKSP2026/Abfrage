@@ -1,6 +1,6 @@
 // Einsatzabfrage V20 – dynamischer Entscheidungsbaum mit permanenter Aktionsleiste
 import { startupDefaults } from "./startup-data.js?v=20260920v40";
-import { anonymous, read, authState, push, pushPublic } from "./firebase-rest.js?v=20260920v55";
+import { anonymous, read, authState, push, pushPublic } from "./firebase-rest.js?v=20260921v50";
 import { KEMLER_MEANINGS, UN_DANGEROUS_GOODS, GHS_SYMBOLS, ADR_LABELS, TRANSPORT_TYPES } from "./hazmat-data.js?v=20260920v2";
 
 const $ = id => document.getElementById(id);

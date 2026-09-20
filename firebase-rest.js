@@ -18,7 +18,12 @@ async function jsonFetch(url, options={}){
   try{
     let r;
     try{
-      r=await fetch(url,{...options,signal:controller.signal,headers:{'Content-Type':'application/json',...(options.headers||{})}});
+      const headers={...(options.headers||{})};
+      // Firebase Realtime Database REST accepts JSON bodies without an explicit
+      // Content-Type header. Omitting it for cross-origin database writes avoids
+      // the browser's CORS preflight (OPTIONS), which was failing on this endpoint.
+      if(options.jsonBody) headers['Content-Type']='application/json';
+      r=await fetch(url,{...options,signal:controller.signal,headers});
     }catch(err){
       if(err?.name==='AbortError') throw new Error(`Firebase-Netzwerkfehler: Zeitüberschreitung nach 15 Sekunden (${new URL(url).hostname})`);
       throw new Error(`Firebase-Netzwerkfehler: ${err?.message||err}`);
@@ -35,7 +40,7 @@ async function jsonFetch(url, options={}){
 
 export async function login(email,password){
   const url=`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${encodeURIComponent(firebaseConfig.apiKey)}`;
-  const d=await jsonFetch(url,{method:'POST',body:JSON.stringify({email,password,returnSecureToken:true})});
+  const d=await jsonFetch(url,{method:'POST',jsonBody:true,body:JSON.stringify({email,password,returnSecureToken:true})});
   if(d.localId!==ADMIN_UID){
     throw new Error('Dieses Konto ist nicht als Administrator hinterlegt.');
   }
@@ -54,7 +59,7 @@ export async function anonymous(){
   if(existing.token) return existing;
   const url=`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${encodeURIComponent(firebaseConfig.apiKey)}`;
   try{
-    const d=await jsonFetch(url,{method:'POST',body:JSON.stringify({returnSecureToken:true})});
+    const d=await jsonFetch(url,{method:'POST',jsonBody:true,body:JSON.stringify({returnSecureToken:true})});
     sessionStorage.setItem(TOKEN_KEY,d.idToken);sessionStorage.setItem(UID_KEY,d.localId);sessionStorage.removeItem(EMAIL_KEY);
     return authState();
   }catch(e){

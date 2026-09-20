@@ -1,5 +1,5 @@
 import { defaults, CATALOG_SCHEMA_VERSION } from './data-bridge.js?v=20260915v24';
-import { authState, login, logout, anonymous, read, write } from './firebase-rest.js?v=20260921v01';
+import { authState, login, logout, anonymous, read, write } from './firebase-rest.js?v=20260921v50';
 import { ADMIN_UID } from './firebase-config.js?v=20260921v01';
 
 const $ = id => document.getElementById(id);
@@ -354,7 +354,6 @@ $('delete').onclick=async()=>{
   try{
     const a=authState();if(!a.admin)throw Error('Bitte zuerst als Administrator anmelden.');
     const id=$('id').value.trim();if(!id)throw Error('Keine Frage ausgewählt.');
-    if(!confirm(`Frage ${id} wirklich löschen?`))return;
     await write(`catalog/${$('category').value}/${id}`,null);
     await write('catalog/_meta',{schemaVersion:CATALOG_SCHEMA_VERSION,updatedAt:new Date().toISOString()});
     msg('✓ Frage gelöscht.');editingId=null;await load();
@@ -419,8 +418,6 @@ $('nefDelete').onclick=async()=>{
   try{
     const a=authState(); if(!a.admin) throw Error('Bitte zuerst als Administrator anmelden.');
     const id=editingNefRuleId; if(!id) throw Error('Bitte zuerst eine bestehende NEF-Regel auswählen.');
-    const selected=$('nefRuleSelect').selectedOptions?.[0]?.textContent||'diese NEF-Regel';
-    if(!confirm(`${selected}\n\nWirklich löschen?`))return;
     await write(`notarzt_rules/${id}`,null);
     editingNefRuleId='';
     notarztRules=await read('notarzt_rules')||{};

@@ -1,4 +1,4 @@
-import { authState, login, logout, anonymous } from './firebase-rest.js?v=20260915v30';
+import { authState, login, logout, anonymous } from './firebase-rest.js?v=20260921v50';
 const $=id=>document.getElementById(id);
 const tiles=[...document.querySelectorAll('.launcher-tile')];
 function setGroup(admin){

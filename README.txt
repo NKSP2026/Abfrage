@@ -385,4 +385,282 @@ Datum: 20.09.2026
 
 
 
+NABS V68.35 – Anpassung Psychischer Erkrankung / Suizid
+
+Änderungen:
+- psyche_02 ersetzt die bisherige Frage „Hat die Person bereits konkrete Mittel/Medikamente bereitgelegt?“.
+- Neue Frage: „Ist bekannt, wie sich die Person selbst verletzen oder Suizid begehen möchte?“
+- Auswahlmöglichkeiten für die Notrufabfrage:
+  Kohlenstoffmonoxidvergiftung (CO)
+  Tabletten / Medikamente
+  Sturz aus Höhe
+  Vergiftung
+  Drogen / Alkohol
+  Schnitt- / Stichverletzung
+  Erhängen / Strangulation
+  Ertrinken
+  Mehrere Methoden / mehrere Angaben
+  Sonstige / unbekannt
+- psyche_09 (Alkohol-/Drogenkonsum) entfernt.
+- psyche_10 (größere Medikamentenmenge) entfernt.
+- startup-data Cache-Version in abfrage.js erhöht, damit die neue Frage nach dem Deployment geladen wird.
+- data.js und startup-data.js wurden synchron angepasst.
+
+Es wurden keine anderen Fragen des Programms verändert.
+
+
 V68.36: Feuerwehr-Abfrage auf einen kurzen, lagebezogenen Entscheidungsbaum mit 12–14 Fragen begrenzt; branch-spezifische Folgefragen statt des bisherigen langen Katalogs.
+
+NABS V68.37 – AAO / Rettungsdienst-Stichwortlogik
+
+Änderungen:
+- Rettungsdienst: RTW-/NEF-Anzahl wird nicht mehr zusätzlich als Ja/Nein oder als separate Fahrzeugliste ausgegeben.
+  Die Fahrzeuganzahl steckt im Stichwort selbst:
+  R1 = 1 RTW, R2 = 2 RTW, R3 = 3 RTW, R4 = 4 RTW,
+  N1R1 = 1 NEF + 1 RTW, N1R2 = 1 NEF + 2 RTW usw.
+- Das NEF wird anhand der hinterlegten Notarztindikationsregeln bewertet.
+- Feuerwehr/THL/ABC: Im Ergebnis werden nur die tatsächlich in der hinterlegten AAO für das gewählte Stichwort eingetragenen Feuerwehrfahrzeuge angezeigt.
+  Allgemeine Einträge wie „Feuerwehr“, „RTW“ oder „NEF“ werden nicht als Feuerwehrfahrzeugliste ausgegeben.
+- Bei Feuerwehr-/THL-Lagen mit betroffenen Personen wird der medizinische Anteil aus den vorhandenen Angaben berücksichtigt; die NEF-Entscheidung nutzt weiterhin die hinterlegten Notarztregeln.
+- Vorhandene Firebase-Daten und database.rules.json wurden nicht verändert.
+- Die Anwendung bleibt für mehrere gleichzeitig arbeitende Nutzer geeignet; es werden keine globalen Antworten im Browser geteilt.
+
+Wichtig:
+Die konkrete Feuerwehr-Fahrzeugauswahl kommt aus dem Firebase-AAO-Katalog (data.aao). Sind für ein Stichwort dort noch keine Fahrzeuge hinterlegt, zeigt die Ergebnis-Seite bewusst keine erfundenen Fahrzeuge an.
+
+NABS V68.38 – AAO / Alarmstichworte / Volltext
+
+Diese Version baut die AAO-Verwaltung deutlich aus.
+
+1. AAO VERWALTUNG (aao.html)
+- B1, B2, B3, G1, G2, G3, TH1, TH2, TH3 und SL wurden als Grundvorlage anhand der bereitgestellten AAO-Seiten hinterlegt.
+- Fahrzeuge können einzeln hinzugefügt oder entfernt werden.
+- Ein kompletter AAO-Eintrag kann gelöscht werden.
+- Kategorie, Stichwort, Bezeichnung und Fahrzeugliste können ohne Programmiercode geändert werden.
+- Zusätzlich gibt es ein Feld „Volltext / Beschreibung“.
+- Die Grundvorlage kann als Administrator bei Bedarf erneut nach Firebase geschrieben werden.
+- Bestehende individuelle Firebase-Einträge bleiben bei der Grundvorlage erhalten; sie werden nur für die genannten Vorlagen aktualisiert.
+
+2. ALARMSTICHWORTE (einsatzstichworte.html)
+- Alarmstichworte können ohne Programmiercode bearbeitet, aktiviert/deaktiviert oder gelöscht werden.
+- Bedingungen können über Frage + Antwort ausgewählt werden.
+- Mehrere Bedingungen können mit ALLE oder MINDESTENS EINE verknüpft werden.
+- Priorität entscheidet bei mehreren passenden Stichworten.
+- Der Volltext kann direkt beim Alarmstichwort gepflegt werden.
+- B1–B3, G1–G3, TH1–TH3 und SL können als deaktivierte Grundvorlagen übernommen werden, damit keine unkonfigurierte Vorlage automatisch alarmiert wird.
+
+3. ERGEBNIS
+- Der Volltext des gewählten Alarmstichworts wird separat als „Volltext zum Alarmstichwort“ angezeigt.
+- Der Volltext wird auch in PDF/Druck übernommen.
+- Bei Rettungsdienst/medizinisch wird das NEF ausdrücklich als JA/NEIN dargestellt.
+- R1/R2/R3/R4 bzw. N1R1/N1R2 usw. bleiben die Codierung der Rettungsmittel; RTW/NEF werden dadurch nicht doppelt als einzelne Feuerwehrmittel angezeigt.
+- Bei Feuerwehr/THL werden nur die tatsächlich in der AAO hinterlegten Feuerwehrfahrzeuge angezeigt.
+
+4. WICHTIG
+Die AAO-Seiten sind eine Vorlage aus den vom Benutzer bereitgestellten Bildern. Wenn sich die örtliche AAO ändert, bitte ausschließlich die Verwaltung anpassen. Die endgültige Disposition und Alarmierung richtet sich weiterhin nach den lokal gültigen Vorgaben und der Entscheidung des zuständigen Disponenten.
+
+Technische Änderungen:
+- core.js: editierbare Default-AAO/-Stichwortvorlagen, Firebase-Löschlogik und ALLE/ODER-Bedingungen.
+- aao.html / aao.js: neue komfortable AAO-Verwaltung.
+- einsatzstichworte.html / stichworte.js: neue Bedingungs- und Volltextverwaltung.
+- abfrage.js / ergebnis.html: Volltext und explizite NEF-Anzeige.
+
+NABS V68.39 – Verletzungskarte / medizinische Stichwortlogik
+
+Änderungen:
+- Verletzungsart aus dem Körperschema wird für die Verdachtsdarstellung und die medizinische Stichwort-Kategorie priorisiert.
+- Amputation ist als Verletzungsart im Verletzungsmuster auswählbar.
+- Amputation wird als CHIR/TRAUMA eingeordnet; Verbrennung/Verbrühung/Verätzung als TRAUMA, nicht automatisch INTERN.
+- Der algorithmische Verdachtsvorschlag darf das markierte Körperschema nicht mehr durch eine andere Verletzungsart überschreiben.
+- Nach der Körperkarte werden nur noch gezielte Kernfragen abgefragt; mechanismusspezifische Fragen bleiben dort, wo sie für die Lage relevant sind.
+- NEF-Logik berücksichtigt die hinterlegten Notarztindikationen sowie starke Blutung, Atemprobleme, fehlende Ansprechbarkeit und starke Schmerzen; isolierte Finger-/Zehenamputationen werden nicht allein deshalb automatisch als große Amputation gewertet.
+- RTW-Anzahl wird im Stichwort über R1/R2/R3/R4 bzw. N1R1/N1R2/N1R3/N1R4 geführt; es werden keine separaten +RTW-Einträge erzeugt.
+- Bei 2–9 Betroffenen kann eine genaue Personenzahl erfasst werden.
+- Feuerwehrmittel bleiben ausschließlich aus der konfigurierten AAO; RTW/NEF werden dort nicht als Feuerwehrmittel ausgegeben.
+
+
+NABS V68.40 – Ergebnis-/Körperkarten-Korrektur
+
+Änderungen gegenüber V68.39:
+
+1. Die Einsatzstichwort-Zeile erscheint im Ergebnis nur noch einmal.
+   - Das Stichwort steht weiterhin prominent unter „Einsatzstichwort“.
+   - Im Bereich „Notarzt / NEF“ wird das Stichwort nicht erneut ausgegeben.
+   - Dort steht nur noch NEF: JA/NEIN und der Hinweis zur hinterlegten NEF-Regel.
+   - Im „Alarmierungsvorschlag“ wird das Rettungsdienst-Stichwort ebenfalls nicht erneut wiederholt.
+   - Stattdessen wird erklärt, dass NEF-/RTW-Anzahl bereits im Einsatzstichwort codiert ist.
+
+2. Körperkarte im Ergebnis exakt an die Abfrage angepasst.
+   - Die verwendete Körperkarte ist 1536 × 868 Pixel.
+   - Die Ergebnis-SVG-Overlay-Fläche hatte bisher versehentlich viewBox 1536 × 759.
+   - Dadurch wurden die in der Abfrage ausgewählten Regionen im Ergebnis vertikal verschoben.
+   - Ergebnis-Overlay und PDF verwenden jetzt ebenfalls viewBox 1536 × 868.
+   - Die exakt in der Abfrage ausgewählte Körperregion wird dadurch an derselben Stelle orange dargestellt.
+
+3. Beispiel:
+   - In der Abfrage ausgewählter „Ringfinger – Amputation“ bleibt im Ergebnis exakt derselbe Ringfinger markiert.
+   - Es wird nicht mehr ein verschobener Bereich unterhalb der Hand angezeigt.
+
+Hinweis:
+Die farbigen Markierungen aus den Referenzbildern sind weiterhin NICHT Bestandteil der Anwendung. Im Ergebnis wird ausschließlich die vom Disponenten tatsächlich ausgewählte Region orange dargestellt.
+
+
+NABS V68.41 – Ergebnisdarstellung / Alarmierungsvorschlag
+
+Änderungen gegenüber V68.40:
+- Das separate Feld „Notarzt / NEF“ wurde aus der Ergebnisansicht entfernt.
+- Das Einsatzstichwort bleibt die zentrale Anzeige, z. B. N1R1 – TRAUMA.
+- Der Alarmierungsvorschlag zeigt die tatsächlich aus dem Stichwort codierten Rettungsmittel einzeln untereinander:
+  - R1 = RTW
+  - R2 = RTW × 2
+  - N1R1 = RTW + NEF
+  - N1R2 = RTW × 2 + NEF
+  - N2R1 = RTW + NEF × 2
+- Falls zusätzlich Feuerwehr benötigt wird, werden die aus der AAO hinterlegten Fahrzeuge ebenfalls darunter angezeigt, z. B. HLF, LF, ELW.
+- Das alte separate „Alarmmittelvorschlag“-Feld entfällt.
+- Die PDF-/Druckansicht verwendet dieselbe Alarmierungsliste.
+- Die Körperkarten-Korrektur aus V68.40 bleibt erhalten.
+
+Die Disposition bleibt ein Vorschlag und muss nach den örtlichen Vorgaben durch den zuständigen Disponenten geprüft werden.
+
+
+NABS V68.42 – Ergebnis-Seite repariert
+
+Korrektur gegenüber V68.41:
+- Fehler in ergebnis.html behoben, der durch fehlerhafte JavaScript-String-Quotierung die komplette Ergebnislogik am Starten gehindert hat.
+- Dadurch waren Einsatzstichwort, Abfragestatus, Abfragedauer, Volltext, Einsatztext, Abfragebemerkung, Körperkarte sowie PDF/Drucken und Neue Abfrage leer bzw. ohne Funktion.
+- Feld „Notarzt / NEF“ vollständig aus der Ergebnisoberfläche entfernt.
+- „Alarmmittelvorschlag“ vollständig entfernt.
+- „Alarmierungsvorschlag“ enthält jetzt gemeinsam:
+  - die im Einsatzstichwort codierten Rettungsmittel (z. B. N1R1 = NEF + RTW, N1R2 = NEF + 2 RTW, R2 = 2 RTW)
+  - zusätzlich die aus der AAO ermittelten Feuerwehrfahrzeuge (z. B. HLF, LF, ELW usw.).
+- Körperkarte bleibt auf 1536 × 868 ausgerichtet, damit die Markierungen exakt zur verwendeten 1536 × 868 Karte passen.
+- PDF/Druck verwendet dieselbe Alarmierungsdarstellung und dieselbe Körperkarten-Geometrie.
+- Alle JavaScript-Dateien wurden mit node --check geprüft.
+
+Hinweis:
+Die Anwendung erstellt einen Dispositionsvorschlag. Die endgültige Disposition und Alarmierung richtet sich nach den örtlichen Vorgaben und der Entscheidung des zuständigen Disponenten.
+
+
+NABS V68.43 – Dynamische medizinische Alarmstichworte
+
+Änderung:
+- Medizinische Einsatzstichworte werden direkt aus den Antworten der Abfrage gebildet.
+- N1R/R-Kennung wird weiterhin aus NEF-Indikation und Patientenzahl bestimmt.
+- Die Kategorie (CHIR, TRAUMA, INTERN, NEURO, INTOX, ALLERG, PSYCH, GYN, STROM, VERKEHR, WASSER, REA, UNKLAR) wird aus der Abfrage abgeleitet.
+- Die Körperkarte hat Vorrang: ausgewählte Verletzungsart und exakte Körperregion/Seite werden in den Volltext übernommen.
+- Wenn keine Körperregion markiert wurde, wird bei Verletzungen „Unklar“ bzw. „Verletzung unklar“ verwendet.
+- Alter und Geschlecht werden – soweit angegeben – in den Volltext übernommen.
+- Kurze relevante Zusatzangaben wie starke Blutung, starke Schmerzen, Atemprobleme oder Bewusstseinsstörung werden ergänzt, wenn sie in der Abfrage positiv ausgewählt wurden.
+- Der Volltext bleibt bewusst kurz und dispositionsgeeignet.
+
+
+NABS V68.44 – AAO-/Einsatztext-Aufschlüsselung
+
+Änderungen:
+- Medizinisches Einsatzstichwort bleibt dynamisch aus Alter, Geschlecht, Körperkarten-Verletzung, Körperregion/Seite und ausgewählten Warnzeichen abgeleitet.
+- Verdachtsdiagnose wird zusätzlich in den medizinischen Volltext und Einsatztext aufgenommen.
+- Bei Feuerwehr/ABC/THL wird der allgemeine AAO-Volltext um eine kurze, aus den tatsächlich beantworteten Fragen abgeleitete Lage ergänzt.
+- Konkrete Stoffe/Medien werden übernommen, soweit abgefragt, z. B. Kraftstoff, Motoröl, Hydrauliköl, Chemikalie, bekannter Gefahrstoff, Batteriespeicher, Photovoltaik, Elektro-/Hybridfahrzeug.
+- Bei bestätigten betroffenen Personen wird der Zusatz „TMR-TH“ vor der konkreten Feuerwehrlage angezeigt. Die zugrunde liegende AAO-Stufe (B1/B2/B3, G1/G2/G3, TH1/TH2/TH3 usw.) bleibt erhalten.
+- Personenanzahl wird, soweit abgefragt, im Volltext/Einsatztext ergänzt.
+- Die bisherige AAO bleibt administrierbar und wird nicht durch die Aufschlüsselung überschrieben.
+
+Hinweis:
+„TMR-TH“ ist hier als vom Nutzer gewünschter Zusatz für eine technische Menschenrettung bei bestätigter Personenbetroffenheit umgesetzt; die örtlich gültige Alarm- und Ausrückeordnung bzw. Leitstellenbezeichnung muss im Produktivbetrieb maßgeblich bleiben.
+
+
+NABS V68.45 – Medizinischer Zugang + REA-Hilfe
+
+Geänderte Dateien:
+- abfrage.html
+- abfrage.js
+- style.css
+
+Änderungen:
+1. Bei jeder medizinischen Abfrage kommt am Ende immer:
+   „Ist die Person frei zugänglich?“
+   Antwortmöglichkeiten: Ja / Nein / Unsicher / Unbekannt.
+2. Nur bei „Nein“ folgt unmittelbar danach:
+   „Warum ist die Person nicht frei zugänglich?“
+   mit u. a. Türöffnung, eingeklemmt/eingeschlossen, verschüttet/eingestürzt,
+   Höhe, Fahrzeug/Aufzug, unzugängliches Gelände und Gefahrenbereich.
+3. Die alten verletzungsspezifischen Zugangfragen werden ausgeblendet,
+   damit die Frage nicht doppelt erscheint.
+4. Zugangsinformationen werden in den medizinischen Einsatztext übernommen.
+5. Neben „AF“ gibt es jetzt den Button „🫀 REA“.
+6. REA-Hilfe als Fenster: REA START, Anzahl der Kompressionen, Zeit seit Start,
+   visueller roter Taktpfeil, 100–120/min und kurzer Ton pro Druck.
+7. Start der REA-Hilfe setzt für die Auswertung Bewusstlosigkeit/Atemstillstand
+   und die REA-Anzeige. Die Anleitung der zuständigen Leitstelle hat Vorrang.
+8. Cache-Busting für abfrage.js auf v845.
+
+Technischer Test:
+- Alle JavaScript-Dateien in /mnt/data/nabs_current wurden mit node --check geprüft.
+
+
+NABS V68.47 – Gefahrgut/ Gefahrstoff UI
+- Kopfbutton „☣ Gefahrgut“ neben AF/REA öffnet die Zusatzabfrage jederzeit.
+- Orangefarbene ADR-Tafel: Gefahrnummer oben, UN-Nummer unten; Bedeutungen rechts.
+- Sichtbare Gefahrzettel/ADR-Symbole direkt anklickbar.
+- Verkehrsmittel/Behälter und Auslaufmenge bleiben erhalten.
+- Angaben werden im Einsatztext geführt.
+- Automatische Gefahrgutabfrage bei passenden Antworten bleibt aktiv.
+- Alle Felder sind freiwillig; Weiter funktioniert auch ohne Angaben.
+
+
+NABS V68.48 – Gefahrgut + Aufzugsnotruf
+
+Änderungen:
+1. Alte Freitextfrage „Welcher Stoff / welches Produkt ist beteiligt?“ im Feuerwehr-ABC-Zweig entfernt.
+   Die Gefahrgutangaben werden jetzt über die orange ADR-Tafel erfasst.
+2. Gefahrgut-Symbole mit Gefahrstoff-/Gift-Piktogrammen wurden auf deutlich sichtbare Textsymbole umgestellt.
+3. Neuer ILS-Button „Aufzugsnotruf“.
+4. Aufzugsnotruf enthält 10 reine Klickfragen.
+5. Bei „medizinischer Notfall: Ja“ erweitert sich die Abfrage um bis zu 5 medizinische Klickfragen (max. 15).
+6. Aufzugsangaben werden im Einsatztext berücksichtigt.
+7. Aufzugsnotruf erzeugt das interne Stichwort FW-AUFZUG und einen technischen Feuerwehrvorschlag; bei medizinischem Zusatznotfall zusätzlich Rettungsdienst.
+
+Hinweis: Der Aufzugsfragenbaum ist eine strukturierte NABS-Abfrage und ersetzt keine örtliche AAO, Alarm-/Einsatzrichtlinie oder Disponentenentscheidung.
+
+
+NABS V68.51 – GHS + ADR Kennzeichnungen / Einsatztext / PDF
+
+Änderungen gegenüber V68.50:
+- Zusätzlich zu den ADR-Gefahrzetteln sind jetzt alle 9 GHS/CLP-Gefahrenpiktogramme separat auswählbar.
+- GHS01 bis GHS09 werden als rot umrandete Gefahrenpiktogramme dargestellt.
+- GHS- und ADR-Auswahl werden getrennt gespeichert, damit beide Angaben im Einsatzverlauf nachvollziehbar bleiben.
+- Die Auswahl wird in der Gefahrgut-Kurzfassung im Ergebnis aufgeführt.
+- Gefahrnummer und UN-Nummer werden im Einsatztext ausdrücklich als Angaben der Warntafel ausgegeben.
+- Verkehrsmittel/Behälter und ungefähre ausgelaufene Menge werden ebenfalls in der Kurzfassung mitgeführt.
+- Die PDF-/Druckansicht enthält die Gefahrgutangaben, GHS-Auswahl und ADR-Gefahrzettel-Auswahl ebenfalls.
+- Die Gefahrgutabfrage bleibt optional; Weiter funktioniert auch ohne Eingaben.
+
+Hinweis:
+Die GHS-Piktogramme in dieser Version wurden aus der vom Nutzer bereitgestellten Referenzabbildung übernommen und als auswählbare Bilddateien eingebunden. Die amtlichen CLP/GHS-Piktogramme bestehen aus rot umrandeten, auf der Spitze stehenden Quadraten mit schwarzem Symbol auf weißem Grund. Die BAuA beschreibt die neun Piktogramme GHS01 bis GHS09 entsprechend.
+
+
+NABS V68.53 – GHS ORIGINAL-PIKTOGRAMME
+
+Änderung gegenüber V68.52:
+- Die bisher aus einem Referenzbild ausgeschnittenen GHS01–GHS09 PNGs wurden entfernt.
+- Die Abfrage verwendet jetzt die originalen standardisierten GHS/CLP-Piktogramme als hochauflösende Bilddateien von Wikimedia Commons/UNECE-Quellen.
+- Es gibt keinen lokalen assets/ghs-Unterordner mehr.
+- Die GHS-Piktogramme werden direkt über ihre jeweiligen Bild-URLs geladen.
+- Die Auswahl bleibt anklickbar und wird weiterhin in Einsatz-Kurzfassung, Einsatztext und PDF/Druck ausgegeben.
+
+GHS01 Explodierende Bombe
+GHS02 Flamme
+GHS03 Flamme über einem Kreis
+GHS04 Gasflasche
+GHS05 Ätzwirkung
+GHS06 Totenkopf mit gekreuzten Knochen
+GHS07 Ausrufezeichen
+GHS08 Gesundheitsgefahr
+GHS09 Umwelt
+
+Quelle/Standard:
+BAuA beschreibt die neun GHS/CLP-Gefahrenpiktogramme als schwarze Symbole auf weißem Grund in rotem Rahmen und kodiert sie GHS01–GHS09.
+Die verwendeten Bilddateien stammen aus der öffentlich dokumentierten GHS-Piktogramm-Sammlung von Wikimedia Commons; die dortigen Dateien verweisen bei den historischen Originalen auf UNECE-Quellen.
+
+

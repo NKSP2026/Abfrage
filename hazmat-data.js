@@ -19,4 +19,27 @@ export const UN_DANGEROUS_GOODS = {
 export const GHS_SYMBOLS=[
  ['GHS01','Explosiv'],['GHS02','Entzündbar'],['GHS03','Brandfördernd'],['GHS04','Gas unter Druck'],['GHS05','Ätzend'],['GHS06','Akut giftig'],['GHS07','Reizend / gesundheitsschädlich'],['GHS08','Gesundheitsgefahr'],['GHS09','Umweltgefährlich']
 ];
+
+export const ADR_LABELS=[
+ ['ADR1','1','Explosive Stoffe / Gegenstände','explosive','💥'],
+ ['ADR1_4','1.4','Explosive Stoffe / Gegenstände, geringe Explosionsgefahr','explosive','💥'],
+ ['ADR1_5','1.5','Sehr empfindliche explosive Stoffe','explosive','💥'],
+ ['ADR1_6','1.6','Extrem unempfindliche explosive Gegenstände','explosive','💥'],
+ ['ADR2_1','2.1','Entzündbare Gase','gas-flammable','🔥'],
+ ['ADR2_2','2.2','Nicht entzündbare, nicht giftige Gase','gas','▬'],
+ ['ADR2_3','2.3','Giftige Gase','gas-toxic','☠'],
+ ['ADR3','3','Entzündbare flüssige Stoffe','flammable','🔥'],
+ ['ADR4_1','4.1','Entzündbare feste Stoffe','solid-flammable','🔥'],
+ ['ADR4_2','4.2','Selbstentzündliche Stoffe','self-heating','🔥'],
+ ['ADR4_3','4.3','Stoffe, die mit Wasser entzündbare Gase bilden','water-reactive','💧'],
+ ['ADR5_1','5.1','Entzündend (oxidierend) wirkende Stoffe','oxidizing','⭕'],
+ ['ADR5_2','5.2','Organische Peroxide','organic-peroxide','🔥'],
+ ['ADR6_1','6.1','Giftige Stoffe','toxic','☠'],
+ ['ADR6_2','6.2','Ansteckungsgefährliche Stoffe','infectious','☣'],
+ ['ADR7','7','Radioaktive Stoffe','radioactive','☢'],
+ ['ADR8','8','Ätzende Stoffe','corrosive','🧪'],
+ ['ADR9','9','Verschiedene gefährliche Stoffe und Gegenstände','misc','▥'],
+ ['ADR9A','9A','Lithium-/Natrium-Ionen-Batterien','battery','▥']
+];
+
 export const TRANSPORT_TYPES=['PKW','LKW','Sattelzug / Tankauflieger','Tankfahrzeug','Gefahrgut-LKW','Bus','Motorrad','Fahrrad','Lieferwagen / Transporter','Bahn / Güterzug','Container / Wechselbrücke','Tankcontainer','Anhänger','Arbeitsmaschine','Sonstiges'];

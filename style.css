@@ -329,3 +329,37 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 
 /* Gefahrgut-/Gefahrstoff-Zusatzabfrage */
 .hazmat-box{background:#161c25;border:1px solid #5b6574;border-radius:16px;padding:18px;margin-top:8px}.hazmat-intro{border-left:5px solid #f59e0b;padding:10px 14px;background:#211b10;border-radius:10px;margin-bottom:15px}.hazmat-intro p{margin:6px 0 0}.hazmat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch}.hazmat-lookup{background:#111722;border:1px solid #455266;border-radius:10px;padding:12px;color:#dbe5f0;min-height:48px;display:flex;align-items:center}.hazmat-section{margin-top:16px}.hazmat-section h3{margin:0 0 10px}.ghs-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.ghs-choice{display:flex;gap:10px;align-items:center;background:#202631;border:1px solid #455266;border-radius:10px;padding:10px;cursor:pointer}.ghs-choice input{width:auto;margin:0}.ghs-choice b{font-size:.92rem}.hazmat-box .free-actions{margin-top:16px}@media(max-width:760px){.hazmat-grid{grid-template-columns:1fr}.ghs-grid{grid-template-columns:1fr 1fr}.hazmat-box{padding:13px}}
+
+/* V68.47 – Gefahrgut direkt als orangefarbene ADR-Tafel */
+.hazmat-header-btn{background:#b45309!important;border-color:#f59e0b!important;color:#fff!important;min-width:108px!important}
+.hazmat-box{background:#10151d;border:1px solid #465160;border-radius:16px;padding:18px;margin-top:8px}
+.hazmat-intro{border-left:5px solid #f59e0b;padding:10px 14px;background:#21170b;border-radius:10px;margin-bottom:15px}
+.hazmat-intro p{margin:6px 0 0}
+.hazmat-plate-wrap{display:grid;grid-template-columns:minmax(300px,.95fr) minmax(300px,1.05fr);gap:14px;align-items:stretch;margin-bottom:16px}
+.adr-orange-plate{background:#f28c00;border:4px solid #111;border-radius:6px;box-shadow:0 5px 16px #0007;display:grid;grid-template-rows:1fr 4px 1fr;min-height:205px;color:#111}
+.adr-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px}
+.adr-cell span{font-size:.72rem;font-weight:900;letter-spacing:.08em;margin-bottom:5px}
+.adr-cell input{width:100%;background:transparent;border:0;outline:0;text-align:center;font-size:clamp(2.2rem,6vw,4rem);font-weight:1000;color:#111;text-transform:uppercase;padding:3px}
+.adr-cell input::placeholder{color:#5b3000;opacity:.65}
+.adr-divider{background:#111}
+.adr-meaning{display:grid;gap:10px}
+.meaning-row{background:#111722;border:1px solid #455266;border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:center;min-height:88px}
+.meaning-row b{color:#fbbf24;margin-bottom:5px}
+.hazmat-section{margin-top:16px}.hazmat-section h3{margin:0 0 5px}
+.adr-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:10px}
+.adr-choice{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;background:#202631;border:2px solid #455266;border-radius:11px;padding:8px 6px;cursor:pointer;min-height:126px;transition:.15s}
+.adr-choice:hover{border-color:#f59e0b;transform:translateY(-1px)}
+.adr-choice:has(input:checked){border-color:#f59e0b;background:#33230c;box-shadow:0 0 0 2px #f59e0b55}
+.adr-choice input{position:absolute;opacity:0;pointer-events:none}
+.adr-diamond{width:64px;height:64px;transform:rotate(45deg);border:3px solid #111;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:#fff}
+.adr-diamond>*{transform:rotate(-45deg)}
+.adr-icon{font-size:1.65rem;line-height:1}
+.adr-diamond b{position:absolute;bottom:2px;right:4px;font-size:.72rem}
+.adr-gas-flammable .adr-diamond,.adr-flammable .adr-diamond,.adr-solid-flammable .adr-diamond,.adr-self-heating .adr-diamond,.adr-organic-peroxide .adr-diamond{background:#ef4444;color:#111}
+.adr-gas .adr-diamond{background:#e5e7eb}.adr-gas-toxic .adr-diamond{background:#fff}.adr-water-reactive .adr-diamond{background:#eab308}.adr-oxidizing .adr-diamond{background:#fde047}.adr-toxic .adr-diamond{background:#fff}.adr-infectious .adr-diamond{background:#fff}.adr-radioactive .adr-diamond{background:#fde047}.adr-corrosive .adr-diamond{background:#fff}.adr-misc .adr-diamond,.adr-battery .adr-diamond{background:#fff}.adr-explosive .adr-diamond{background:#f59e0b}
+.adr-name{font-size:.78rem;text-align:center;line-height:1.15;color:#e5e7eb}
+.hazmat-transport-grid{margin-top:16px}.hazmat-lookup{background:#111722;border:1px solid #455266;border-radius:10px;padding:12px;color:#dbe5f0;min-height:48px;display:flex;align-items:center;margin-top:10px}
+.hazmat-box .free-actions{margin-top:16px}
+@media(max-width:900px){.adr-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:760px){.hazmat-plate-wrap{grid-template-columns:1fr}.adr-orange-plate{min-height:180px}.adr-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hazmat-box{padding:13px}.adr-choice{min-height:115px}.adr-diamond{width:56px;height:56px}}
+@media(max-width:460px){.adr-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

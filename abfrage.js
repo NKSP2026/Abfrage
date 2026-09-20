@@ -1,7 +1,7 @@
 // Einsatzabfrage V20 – dynamischer Entscheidungsbaum mit permanenter Aktionsleiste
 import { startupDefaults } from "./startup-data.js?v=20260920v40";
 import { anonymous, read, authState, pushPublic } from "./firebase-rest.js?v=20260920v45";
-import { KEMLER_MEANINGS, UN_DANGEROUS_GOODS, GHS_SYMBOLS, TRANSPORT_TYPES } from "./hazmat-data.js?v=20260920v1";
+import { KEMLER_MEANINGS, UN_DANGEROUS_GOODS, GHS_SYMBOLS, ADR_LABELS, TRANSPORT_TYPES } from "./hazmat-data.js?v=20260920v1";
 
 const $ = id => document.getElementById(id);
 const mainCategories = [
@@ -767,25 +767,66 @@ function hazmatSummary(){
   const out=[];
   if(h.gefahrnummer){ const key=String(h.gefahrnummer).trim().toUpperCase(); const meaning=KEMLER_MEANINGS[key]; out.push(`Gefahrnummer ${key}${meaning?` (${meaning})`:''}`); }
   if(h.un){ const key=String(h.un).replace(/\D/g,'').padStart(4,'0'); const d=UN_DANGEROUS_GOODS[key]; out.push(`UN ${key}${d?` – ${d.name}`:''}`); if(d?.class)out.push(`Klasse ${d.class}`); }
-  if(Array.isArray(h.ghs)&&h.ghs.length) out.push(`GHS: ${h.ghs.join(', ')}`);
+  if(Array.isArray(h.ghs)&&h.ghs.length) out.push(`GHS: ${h.ghs.join(', ')}`); if(Array.isArray(h.adrLabels)&&h.adrLabels.length) out.push(`Gefahrzettel: ${h.adrLabels.join(', ')}`);
   if(h.transport) out.push(`Verkehrsmittel: ${h.transport}`);
   if(h.menge) out.push(`Ausgetreten: ca. ${h.menge} cm³`);
   if(h.gefahrnummer && /^X/i.test(String(h.gefahrnummer))) out.push('Wassergefährliche Reaktion gemäß X-Kennzeichnung beachten');
   return out.join(' · ');
 }
+function hazmatFieldsMarkup(h={}){
+  const kem=String(h.gefahrnummer||'').replace(/[^0-9X]/gi,'').slice(0,4).toUpperCase();
+  const un=String(h.un||'').replace(/\\D/g,'').slice(0,4);
+  return `<div class="hazmat-plate-wrap">
+    <div class="adr-orange-plate" aria-label="Orangefarbene ADR-Tafel">
+      <div class="adr-cell"><span>GEFAHRNUMMER</span><input id="hazKemler" maxlength="4" value="${kem}" placeholder="X423 / 33" autocomplete="off" inputmode="text"></div>
+      <div class="adr-divider"></div>
+      <div class="adr-cell"><span>UN-NUMMER</span><input id="hazUN" maxlength="4" value="${un}" placeholder="1170" autocomplete="off" inputmode="numeric"></div>
+    </div>
+    <div class="adr-meaning">
+      <div class="meaning-row"><b>Gefahr:</b><span id="hazKemlerInfo">${kem&&KEMLER_MEANINGS[kem]?KEMLER_MEANINGS[kem]:'Bedeutung erscheint automatisch'}</span></div>
+      <div class="meaning-row"><b>Stoff:</b><span id="hazUNInfo">${un&&UN_DANGEROUS_GOODS[un.padStart(4,'0')]?`${UN_DANGEROUS_GOODS[un.padStart(4,'0')].name} · Klasse ${UN_DANGEROUS_GOODS[un.padStart(4,'0')].class}`:'Stoffbezeichnung erscheint automatisch'}</span></div>
+    </div>
+  </div>
+  <div class="hazmat-section adr-symbol-section"><h3>☑ Sichtbare Gefahrzettel / Symbole</h3><p class="hint">Nur tatsächlich sichtbare Kennzeichnungen anklicken. Keine Auswahl ist erforderlich.</p><div id="adrGrid" class="adr-grid"></div></div>
+  <div class="hazmat-grid hazmat-transport-grid">
+    <label>🚚 Verkehrsmittel / Behälter<select id="hazTransport"><option value="">Bitte auswählen …</option>${TRANSPORT_TYPES.map(x=>`<option>${x}</option>`).join('')}</select></label>
+    <label>💧 Wie viel ist ungefähr ausgelaufen? (cm³)<input id="hazMenge" type="number" min="0" step="1" inputmode="numeric" value="${String(h.menge||'')}" placeholder="z. B. 5000"></label>
+  </div>
+  <div id="hazTransportHint" class="hazmat-lookup"></div>`;
+}
+function wireHazmat(box,h,onSave,onClear){
+  const selected=new Set(Array.isArray(h.ghs)?h.ghs:[]);
+  const selectedAdr=new Set(Array.isArray(h.adrLabels)?h.adrLabels:[]);
+  const g=box.querySelector('#adrGrid');
+  ADR_LABELS.forEach(([id,num,name,kind,icon])=>{
+    const lab=document.createElement('label'); lab.className=`adr-choice adr-${kind}`;
+    lab.innerHTML=`<input type="checkbox" value="${name}"><span class="adr-diamond"><span class="adr-icon">${icon}</span><b>${num}</b></span><span class="adr-name">${name}</span>`;
+    const inp=lab.querySelector('input'); inp.checked=selectedAdr.has(name);
+    inp.onchange=()=>inp.checked?selectedAdr.add(name):selectedAdr.delete(name); g.appendChild(lab);
+  });
+  const kem=box.querySelector('#hazKemler'),un=box.querySelector('#hazUN'),ki=box.querySelector('#hazKemlerInfo'),ui=box.querySelector('#hazUNInfo'),tr=box.querySelector('#hazTransport'),menge=box.querySelector('#hazMenge');
+  tr.value=h.transport||'';
+  const update=()=>{const k=String(kem.value||'').trim().toUpperCase();ki.textContent=KEMLER_MEANINGS[k]||'Keine hinterlegte Bedeutung – Nummer prüfen.';const u=String(un.value||'').replace(/\D/g,'').slice(0,4);if(u.length){const key=u.padStart(4,'0'),d=UN_DANGEROUS_GOODS[key];ui.textContent=d?`${d.name} · Klasse ${d.class}${d.hin?` · Gefahrnummer ${d.hin}`:''}`:'UN-Nummer nicht im lokalen Datenbestand – Stoffbezeichnung bitte nicht automatisch annehmen.';}else ui.textContent='Stoffbezeichnung erscheint automatisch';};
+  kem.oninput=update; un.oninput=update;
+  tr.onchange=()=>{box.querySelector('#hazTransportHint').textContent=tr.value?`Transportmittel / Behälter: ${tr.value}`:'';}; tr.dispatchEvent(new Event('change'));
+  const collect=()=>({gefahrnummer:String(kem.value||'').trim().toUpperCase(),un:String(un.value||'').replace(/\D/g,'').slice(0,4),ghs:[...selected],adrLabels:[...selectedAdr],transport:String(tr.value||''),menge:String(menge.value||'').trim()});
+  box.querySelector('#hazNext')?.addEventListener('click',()=>onSave(collect())); box.querySelector('#hazClear')?.addEventListener('click',onClear);
+  return {collect};
+}
 function renderHazmatQuestion(area){
   const h=answers.gefahrgut_details&&typeof answers.gefahrgut_details==='object'?answers.gefahrgut_details:{};
-  const box=document.createElement('div');box.className='hazmat-box';
-  box.innerHTML=`<div class="hazmat-intro"><b>☣️ Gefahrstoff / Gefahrgut – Zusatzabfrage</b><p class="hint">Nur sichtbare bzw. bekannte Angaben eintragen. Alle Felder sind freiwillig.</p></div><div class="hazmat-grid"><label>🟧 Gefahrnummer / Kemler (obere Zahl)<input id="hazKemler" maxlength="4" value="${h.gefahrnummer||''}" placeholder="z. B. X423 oder 33" autocomplete="off"></label><div class="hazmat-lookup" id="hazKemlerInfo">${h.gefahrnummer&&KEMLER_MEANINGS[String(h.gefahrnummer).trim().toUpperCase()]?KEMLER_MEANINGS[String(h.gefahrnummer).trim().toUpperCase()]: 'Bedeutung erscheint automatisch'}</div><label>🟧 UN-Nummer (untere Zahl)<input id="hazUN" maxlength="4" inputmode="numeric" value="${h.un||''}" placeholder="z. B. 1170 oder 2023" autocomplete="off"></label><div class="hazmat-lookup" id="hazUNInfo">${h.un&&UN_DANGEROUS_GOODS[String(h.un).replace(/\D/g,'').padStart(4,'0')] ? `${UN_DANGEROUS_GOODS[String(h.un).replace(/\D/g,'').padStart(4,'0')].name} · Klasse ${UN_DANGEROUS_GOODS[String(h.un).replace(/\D/g,'').padStart(4,'0')].class}` : 'Stoffbezeichnung erscheint automatisch'}</div></div><div class="hazmat-section"><h3>GHS-Symbole sichtbar</h3><div id="ghsGrid" class="ghs-grid"></div></div><div class="hazmat-grid"><label>🚚 Verkehrsmittel / Behälter<select id="hazTransport"><option value="">Bitte auswählen …</option>${TRANSPORT_TYPES.map(x=>`<option>${x}</option>`).join('')}</select></label><label>💧 Wie viel ist ungefähr ausgelaufen? (cm³)<input id="hazMenge" type="number" min="0" step="1" inputmode="numeric" value="${h.menge||''}" placeholder="z. B. 5000"></label></div><div id="hazTransportHint" class="hazmat-lookup"></div><div class="free-actions"><button id="hazNext" class="next-free">Weiter →</button><button id="hazClear" class="secondary unknown-btn">Keine Angaben / überspringen</button></div></div>`;
-  const g=box.querySelector('#ghsGrid');const selected=new Set(Array.isArray(h.ghs)?h.ghs:[]);
-  GHS_SYMBOLS.forEach(([id,name])=>{const lab=document.createElement('label');lab.className='ghs-choice';lab.innerHTML=`<input type="checkbox" value="${id}"><span><b>${id}</b><br>${name}</span>`;const inp=lab.querySelector('input');inp.checked=selected.has(name);inp.onchange=()=>{inp.checked?selected.add(name):selected.delete(name);};g.appendChild(lab);});
-  const kem=box.querySelector('#hazKemler'),un=box.querySelector('#hazUN'),ki=box.querySelector('#hazKemlerInfo'),ui=box.querySelector('#hazUNInfo'),tr=box.querySelector('#hazTransport');
-  tr.value=h.transport||'';
-  const update=()=>{const k=String(kem.value||'').trim().toUpperCase();ki.textContent=KEMLER_MEANINGS[k]||'Keine hinterlegte Bedeutung – Nummer prüfen.';const u=String(un.value||'').replace(/\D/g,'').slice(0,4);if(u.length){const key=u.padStart(4,'0'),d=UN_DANGEROUS_GOODS[key];ui.textContent=d?`${d.name} · Klasse ${d.class}${d.hin?` · Gefahrnummer ${d.hin}`:''}`:'UN-Nummer nicht im lokalen Kurzbestand – Stoffbezeichnung bitte nicht automatisch annehmen.';}else ui.textContent='Stoffbezeichnung erscheint automatisch';};
-  kem.oninput=update;un.oninput=update;
-  box.querySelector('#hazNext').onclick=()=>{pushHistory();answers.gefahrgut_details={gefahrnummer:String(kem.value||'').trim().toUpperCase(),un:String(un.value||'').replace(/\D/g,'').slice(0,4),ghs:[...selected],transport:String(tr.value||''),menge:String(box.querySelector('#hazMenge').value||'').trim()};steps++;render();};
-  box.querySelector('#hazClear').onclick=()=>{pushHistory();answers.gefahrgut_details={gefahrnummer:'',un:'',ghs:[],transport:'',menge:''};steps++;render();};
+  const box=document.createElement('div'); box.className='hazmat-box';
+  box.innerHTML=`<div class="hazmat-intro"><b>☣️ Gefahrstoff / Gefahrgut – Zusatzabfrage</b><p class="hint">Nur sichtbare bzw. bekannte Angaben eintragen. Alle Felder sind freiwillig. „Weiter“ funktioniert auch ohne Angaben.</p></div>${hazmatFieldsMarkup(h)}<div class="free-actions"><button id="hazNext" class="next-free">Weiter →</button><button id="hazClear" class="secondary unknown-btn">Keine Angaben / überspringen</button></div>`;
+  wireHazmat(box,h,v=>{pushHistory();answers.gefahrgut_details=v;steps++;render();},()=>{pushHistory();answers.gefahrgut_details={gefahrnummer:'',un:'',ghs:[],adrLabels:[],transport:'',menge:''};steps++;render();});
   area.appendChild(box);
+}
+function openHazmat(){
+  const h=answers.gefahrgut_details&&typeof answers.gefahrgut_details==='object'?answers.gefahrgut_details:{};
+  openModal(`<div class="modal-title">☣️ Gefahrgut / Gefahrstoff</div><p class="hint">Gefahrnummer, UN-Nummer und sichtbare Gefahrzettel können hier jederzeit ergänzt werden. Die Angaben werden in den Einsatztext übernommen.</p><div id="hazmatModalBody"></div><div class="modal-actions"><button id="hazmatModalSave">Speichern</button><button id="hazmatModalClear" class="secondary">Angaben löschen</button><button id="hazmatModalClose" class="secondary">Schließen</button></div>`);
+  const body=$('hazmatModalBody'); body.innerHTML=hazmatFieldsMarkup(h); const wired=wireHazmat(body,h,()=>{},()=>{});
+  $('hazmatModalSave').onclick=()=>{answers.gefahrgut_details=wired.collect();closeModal();render();};
+  $('hazmatModalClear').onclick=()=>{answers.gefahrgut_details={gefahrnummer:'',un:'',ghs:[],adrLabels:[],transport:'',menge:''};closeModal();render();};
+  $('hazmatModalClose').onclick=closeModal;
 }
 function nextQuestion(){
   if(hazmatTriggered()) return {id:"gefahrgut_details",text:"Welche Gefahrstoff-/Gefahrgutangaben sind vor Ort erkennbar?",type:"hazmat"};
@@ -1487,7 +1528,7 @@ function openAF(){stopBreath();breathSeconds=0;breathCount=0;breathRunning=false
 function startBreath(){stopBreath();breathSeconds=30;breathCount=0;breathRunning=true;$("afSeconds").textContent="30";$("afCount").textContent="0";$("breathTap").disabled=false;$("breathStart").textContent="⏱ Messung läuft …";breathTimer=setInterval(()=>{breathSeconds--;$("afSeconds").textContent=String(Math.max(0,breathSeconds));if(breathSeconds<=0){stopBreath();const af=breathCount*2;$("afResult").innerHTML=`<strong>Ergebnis: ${af}/min</strong><br>${af<8||af>30?"⚠️ deutlich auffällig – Ergebnis im Gesamtkontext bewerten.":af<12||af>20?"ℹ️ außerhalb des üblichen Erwachsenen-Richtbereichs.":"✓ im üblichen Erwachsenen-Richtbereich."}`;answers.atemfrequenz=`${af}/min (30 s: ${breathCount})`;}} ,1000);}
 function stopBreath(){if(breathTimer){clearInterval(breathTimer);breathTimer=null;}breathRunning=false;}
 
-$("deteriorationBtn").onclick=openDeterioration;$("interimBtn").onclick=openInterim;$("remarkBtn").onclick=openRemark;$("exitBtn").onclick=()=>openAbortReason(()=>{location.href="ils.html"});$("afBtn").onclick=openAF;$("reaBtn").onclick=openREAHelper;$("remarkQuick")?.addEventListener("input",e=>answers.abfrage_bemerkung=e.target.value);window.addEventListener("nabs-abort-launcher",()=>openAbortReason(()=>{location.href="ils.html"}));
+$("deteriorationBtn").onclick=openDeterioration;$("interimBtn").onclick=openInterim;$("remarkBtn").onclick=openRemark;$("hazmatBtn")?.addEventListener("click",openHazmat);$("exitBtn").onclick=()=>openAbortReason(()=>{location.href="ils.html"});$("afBtn").onclick=openAF;$("reaBtn").onclick=openREAHelper;$("remarkQuick")?.addEventListener("input",e=>answers.abfrage_bemerkung=e.target.value);window.addEventListener("nabs-abort-launcher",()=>openAbortReason(()=>{location.href="ils.html"}));
 $("previousBtn")?.addEventListener("click",()=>{
   if(!history.length||reaShown)return;
   const last=history.pop();

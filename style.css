@@ -480,8 +480,8 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 .ehsi-source-card-wrap .ehsi-source-card{padding-right:42px}
 .ehsi-source-name{display:flex;flex-direction:column;gap:2px}
 .ehsi-source-name small{color:#8493a7;font-size:.7rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ehsi-source-delete{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:30px;height:30px;border:1px solid #6b3035;border-radius:8px;background:#421b20;color:#ffb4b8;font-weight:800;cursor:pointer}
-.ehsi-source-delete:hover{background:#6b2028;border-color:#ef4444}
+.ehsi-source-delete{position:absolute;right:6px;top:6px;transform:none;width:28px;height:28px;border:1px solid #8b3038;border-radius:8px;background:#7f1d1d;color:#fff;font-weight:900;cursor:pointer;line-height:1;font-size:16px;z-index:3}
+.ehsi-source-delete:hover{background:#b91c1c;border-color:#ef4444;transform:scale(1.05)}
 .ehsi-manager-card{width:min(760px,96vw)}
 .ehsi-source-form{margin-top:16px}
 .ehsi-source-form label{display:block;margin:13px 0;color:#dfe8f2;font-weight:700}

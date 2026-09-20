@@ -1,5 +1,5 @@
 import { EHSI_SECTIONS } from './ehsi-data.js?v=20260920v4';
-import { authState, readPublic, push, write, uploadStorage, deleteStorage } from './firebase-rest.js?v=20260920v50';
+import { authState, readPublic, push, write, uploadStorage, deleteStorage } from './firebase-rest.js?v=20260920v51';
 
 const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, m => ({

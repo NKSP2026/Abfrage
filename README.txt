@@ -729,3 +729,19 @@ V5.7 – EHSI Quellenverwaltung
 - Nur der Administrator kann hinzufügen und löschen; eigene Einträge sind für alle als Quellen sichtbar.
 - Für Firebase Storage muss storage.rules veröffentlicht werden.
 
+
+
+VERSION 5.8 – EHSI QUELLENLÖSCHUNG / QM2 ABBRUCH-WORKFLOW (20.09.2026)
+=====================================================================
+- EHSI: Administrator kann selbst angelegte Quellen/Dokumente in ALLEN EHSI-Bereichen über ein rotes X oben rechts löschen.
+- Fest eingebaute offizielle EHSI-Quellen bleiben geschützt und können nicht über das X gelöscht werden.
+- Das rote X ist ausschließlich für den Administrator sichtbar.
+- QM2 Abbruch-Abfragen erhalten dieselben Statusfilter wie Fragemeldungen: Neu, In Prüfung, Erledigt, Alle.
+- QM2 Abbruch-Abfragen erhalten zusätzlich einen Bereichsfilter für Rettungsdienst/Medizin, Feuerwehr/Brand, THL, ABC/Gefahrgut, Aufzug und Großschaden.
+- QM2 startet auch bei Abbruch-Abfragen immer mit Status „Neu“.
+- „Ablehnen“ wurde bei Abbruch-Abfragen entfernt.
+- Stattdessen kann jede Abbruch-Abfrage vom Administrator dauerhaft mit „🗑 Löschen“ entfernt werden.
+- Bei „In Prüfung“ kann die Prüfung wieder entfernt und der Eintrag auf „Neu“ zurückgesetzt werden.
+- „Erledigt“ fragt nach einem kurzen Erledigungsgrund und speichert diesen mit Datum/Zeit.
+- Die beim Abbruch bereits gespeicherte Abfragekategorie wird in QM2 angezeigt und als Filter verwendet.
+- Firebase-Regeln wurden für die tatsächlich verwendeten Pfade (inkl. verbesserungsvorschlaege und ehsi_sources) abgestimmt; einsatzAufwertungen bleiben für angemeldete Einsatzbearbeiter auf-/abwertbar.

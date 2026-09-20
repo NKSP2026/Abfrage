@@ -1,4 +1,4 @@
-/* NABS V68.15 – hochgranulare anatomische Verletzungskarte
+/* NABS V68.16 – hochgranulare anatomische Verletzungskarte
  * Rechtsklick (PC) bzw. Tippen (Touch) öffnet die Verletzungsart.
  * Linksklick am PC markiert NICHT direkt. Hover zeigt den exakten Bereich.
  * Die SVG-Flächen liegen direkt über dem Körperschema und werden im Ergebnis
@@ -322,6 +322,11 @@
   add('detail_temple_r','Schläfe rechts',poly([[686,112],[678,113],[667,147],[666,168],[675,184],[691,143],[691,124]]),{detail:true});
   add('detail_temple_l','Schläfe links',poly([[858,104],[849,113],[847,133],[849,159],[857,175],[867,140],[867,122],[863,107]]),{detail:true});
 
+  // Ohren – exakt nach der aktuellen Kopf-Referenz.
+  // Patientenseite rechts = im Bild links (mintgrün), Patientenseite links = im Bild rechts (weiß).
+  add('detail_ear_r','Ohr rechts',poly([[652,169],[643,177],[638,192],[640,210],[648,231],[657,246],[666,241],[671,226],[668,207],[662,187]]),{detail:true});
+  add('detail_ear_l','Ohr links',poly([[868,172],[879,180],[887,194],[888,211],[884,229],[875,245],[867,239],[864,224],[866,207],[869,189]]),{detail:true});
+
   add('detail_eye_r','Auge rechts',poly([[696,184],[702,189],[724,191],[736,189],[742,183],[733,178],[713,177]]),{detail:true});
   add('detail_eye_l','Auge links',poly([[796,183],[799,189],[809,192],[833,190],[840,185],[829,178],[806,178]]),{detail:true});
 
@@ -504,6 +509,7 @@
   const KEEP_DETAIL_IDS=new Set([
     'detail_scalp','detail_forehead','detail_temple_r','detail_temple_l',
     'detail_eye_r','detail_eye_l','detail_cheek_r','detail_cheek_l',
+    'detail_ear_r','detail_ear_l',
     'detail_nose','detail_upperjaw','detail_mouth','detail_jaw_r',
     'detail_jaw_l','detail_chin',
     'detail_hand_wrist','detail_hand_palm',

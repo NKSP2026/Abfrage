@@ -1,6 +1,6 @@
 // Einsatzabfrage V20 – dynamischer Entscheidungsbaum mit permanenter Aktionsleiste
 import { startupDefaults } from "./startup-data.js?v=20260915v39";
-import { anonymous, read, authState } from "./firebase-rest.js?v=20260915v39";
+import { anonymous, read, authState, push } from "./firebase-rest.js?v=20260920v40";
 
 const $ = id => document.getElementById(id);
 const mainCategories = [
@@ -1310,6 +1310,54 @@ function currentResult(){
   if(category==="grossschaden"){final=["Großschadenslage – lageabhängige Einsatzmittel prüfen"];if(Array.isArray(answers.gs_gefahren)){if(answers.gs_gefahren.some(x=>x.includes("Feuer")))final.push("Feuerwehr");if(answers.gs_gefahren.some(x=>x.includes("Viele Verletzte")))final.push("Rettungsdienst / MANV-Komponente");if(answers.gs_gefahren.some(x=>x.includes("Gefahrstoffe")))final.push("ABC-/Gefahrgut-Komponente");if(answers.gs_gefahren.some(x=>x.includes("Wasser")))final.push("Wasserrettung / technische Hilfe");}}
   const unique=[...new Set(final)];return{reasons,resources:unique,stichwort,aao,alarmierung:alarmierungVorschlag(reasons,unique),dispatchText:dispatchText(unique,reasons,stichwort)};
 }
+async function recordAbort(reason, otherReason="") {
+  const now=new Date();
+  const a=authState();
+  const username=(a?.email||sessionStorage.getItem("nabs_username")||"Einsatzbearbeiter").trim() || "Einsatzbearbeiter";
+  const record={
+    category:"Abbruch abfragen",
+    grund:String(reason||"").trim(),
+    sonstigerGrund:String(otherReason||"").trim(),
+    benutzername:username,
+    datum:now.toISOString().slice(0,10),
+    uhrzeit:now.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",second:"2-digit"}),
+    createdAt:now.toISOString(),
+    abfrageKategorie:category,
+    modus:mode||"",
+    fragenBeantwortet:Number(steps||0),
+    abfragedauer:durationText(),
+    status:phaseText()
+  };
+  try{
+    const active=authState().token ? authState() : await anonymous();
+    if(!active?.token) throw new Error("Keine Firebase-Anmeldung verfügbar.");
+    await push("abbruchAbfragen",record);
+    return true;
+  }catch(e){
+    console.error("Abbruch konnte nicht gespeichert werden",e);
+    alert("Der Abbruch konnte nicht gespeichert werden. Bitte Netzwerk/Firebase prüfen.\n\n"+e.message);
+    return false;
+  }
+}
+function openAbortReason(onDone){
+  const reasons=["Böswilliger Anruf","Fehlanruf","Verschlechterung","Test","Servicefrage","Sonstiges"];
+  openModal(`<div class="modal-title">⏹ Abfrage abbrechen</div><p class="hint">Bitte zuerst den Grund für den Abbruch auswählen.</p><div class="modal-buttons">${reasons.map((r,i)=>`<button class="abort-choice ${r==='Verschlechterung'?"danger-choice":""}" data-abort-reason="${i}">${r}</button>`).join("")}</div><div id="abortOtherWrap" style="display:none"><label for="abortOther">Grund für „Sonstiges“</label><textarea id="abortOther" class="modal-textarea" placeholder="Bitte Grund eintragen …"></textarea></div><div class="modal-actions"><button class="secondary modal-close">Abbrechen</button></div>`);
+  document.querySelectorAll("[data-abort-reason]").forEach(btn=>btn.onclick=async()=>{
+    const reason=reasons[Number(btn.dataset.abortReason)];
+    if(reason==="Sonstiges"){
+      $("abortOtherWrap").style.display="block";
+      const ta=$("abortOther");
+      ta.focus();
+      if(!$('abortSave')){const actions=document.querySelector("#modalBackdrop .modal-actions");const b=document.createElement("button");b.id="abortSave";b.textContent="Abbruch speichern";actions.insertBefore(b,actions.firstChild);b.onclick=async()=>{const text=String(ta.value||"").trim();if(!text){alert("Bitte bei „Sonstiges“ einen Grund eintragen.");return;}b.disabled=true;b.textContent="Speichert …";const ok=await recordAbort(reason,text);if(ok){if(durationTimer)clearInterval(durationTimer);closeModal();onDone?.();}}; }
+      return;
+    }
+    btn.disabled=true;
+    const ok=await recordAbort(reason,"");
+    if(ok){if(durationTimer)clearInterval(durationTimer);closeModal();onDone?.();}
+    else btn.disabled=false;
+  });
+  $("modalRoot").querySelector(".modal-close").onclick=closeModal;
+}
 function finish(){const r=currentResult();const result={createdAt:new Date().toISOString(),category,mode,categoryTitle:title(),answers:{...answers},reasons:r.reasons,resources:r.resources,stichwort:r.stichwort,aao:r.aao,alarmierung:r.alarmierung,dispatchText:r.dispatchText,rea:reaShown,partialExit:!reaShown&&steps>0,abfrageStatus:phaseText(),questionsAnswered:steps,abfragedauer:durationText()};if(durationTimer)clearInterval(durationTimer);sessionStorage.setItem("einsatzabfrage_result",JSON.stringify(result));location.href="ergebnis.html";}
 
 function openModal(html){$("modalRoot").innerHTML=`<div class="modal-backdrop" id="modalBackdrop"><div class="modal-card">${html}</div></div>`;$("modalBackdrop").onclick=e=>{if(e.target.id==="modalBackdrop")closeModal();};}
@@ -1321,7 +1369,7 @@ function openAF(){stopBreath();breathSeconds=0;breathCount=0;breathRunning=false
 function startBreath(){stopBreath();breathSeconds=30;breathCount=0;breathRunning=true;$("afSeconds").textContent="30";$("afCount").textContent="0";$("breathTap").disabled=false;$("breathStart").textContent="⏱ Messung läuft …";breathTimer=setInterval(()=>{breathSeconds--;$("afSeconds").textContent=String(Math.max(0,breathSeconds));if(breathSeconds<=0){stopBreath();const af=breathCount*2;$("afResult").innerHTML=`<strong>Ergebnis: ${af}/min</strong><br>${af<8||af>30?"⚠️ deutlich auffällig – Ergebnis im Gesamtkontext bewerten.":af<12||af>20?"ℹ️ außerhalb des üblichen Erwachsenen-Richtbereichs.":"✓ im üblichen Erwachsenen-Richtbereich."}`;answers.atemfrequenz=`${af}/min (30 s: ${breathCount})`;}} ,1000);}
 function stopBreath(){if(breathTimer){clearInterval(breathTimer);breathTimer=null;}breathRunning=false;}
 
-$("deteriorationBtn").onclick=openDeterioration;$("interimBtn").onclick=openInterim;$("remarkBtn").onclick=openRemark;$("exitBtn").onclick=finish;$("afBtn").onclick=openAF;$("remarkQuick")?.addEventListener("input",e=>answers.abfrage_bemerkung=e.target.value);
+$("deteriorationBtn").onclick=openDeterioration;$("interimBtn").onclick=openInterim;$("remarkBtn").onclick=openRemark;$("exitBtn").onclick=()=>openAbortReason(()=>{location.href="index.html"});$("afBtn").onclick=openAF;$("remarkQuick")?.addEventListener("input",e=>answers.abfrage_bemerkung=e.target.value);window.addEventListener("nabs-abort-launcher",()=>openAbortReason(()=>{location.href="index.html"}));
 $("previousBtn")?.addEventListener("click",()=>{
   if(!history.length||reaShown)return;
   const last=history.pop();

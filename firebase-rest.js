@@ -60,6 +60,20 @@ export async function read(path){
   return jsonFetch(url,{method:'GET'});
 }
 
+export async function push(path,value){
+  const a=authState();
+  if(!a.token) throw new Error('Nicht bei Firebase angemeldet.');
+  const url=`${firebaseConfig.databaseURL.replace(/\/$/,'')}/${path}.json?auth=${encodeURIComponent(a.token)}`;
+  return jsonFetch(url,{method:'POST',body:JSON.stringify(value)});
+}
+
+export async function writeAuthenticated(path,value){
+  const a=authState();
+  if(!a.token) throw new Error('Nicht bei Firebase angemeldet.');
+  const url=`${firebaseConfig.databaseURL.replace(/\/$/,'')}/${path}.json?auth=${encodeURIComponent(a.token)}`;
+  return jsonFetch(url,{method:'PUT',body:JSON.stringify(value)});
+}
+
 export async function write(path,value){
   const a=authState();
   if(!a.token || !a.admin) throw new Error('Administrator-Anmeldung erforderlich.');

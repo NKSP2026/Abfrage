@@ -301,3 +301,18 @@ V68.27 – 20.09.2026
 - Zusätzlich wurde die rote Referenzbezeichnung korrekt als „Schenkelhals“ geführt; die Klickfläche selbst wurde nicht verändert.
 - Keine Spiegelung oder Verschiebung der Körperflächen.
 - Bestehende README.txt weitergeführt; keine neue README-Datei angelegt.
+
+V68.28 – ABBRUCH-GRUND, QM1-LISTE UND PDF
+Datum: 20.09.2026
+
+- Der Button „Launcher“ innerhalb einer laufenden Abfrage öffnet nicht mehr direkt den Launcher. Zuerst muss ein Abbruchgrund ausgewählt werden.
+- Der Button „Ausstieg“ öffnet ebenfalls die Abbruch-Grundauswahl.
+- Abbruchgründe: Böswilliger Anruf, Fehlanruf, Verschlechterung, Test, Servicefrage und Sonstiges.
+- Bei „Sonstiges“ erscheint ein Pflichtfeld für die konkrete Begründung.
+- Nach Bestätigung wird der Abbruch unter Firebase RTDB „abbruchAbfragen“ gespeichert.
+- Gespeichert werden Datum, Uhrzeit, Benutzerkennung, Abbruchgrund, sonstige Begründung, Abfragekategorie, Modus, Anzahl beantworteter Fragen, Abfragedauer und Abfragestatus.
+- QM1 enthält jetzt die Kategorie „Abbruch abfragen“ mit einer Liste der gespeicherten Abbrüche.
+- QM1 entfernt Einträge automatisch, die älter als zwei Monate sind. Die Bereinigung erfolgt beim Laden/Aktualisieren der Liste.
+- QM1 bietet „PDF / Drucken“. Der Browser-Druckdialog kann die Liste als PDF speichern.
+- Die bestehende README.txt wurde weitergeführt; keine neue README-Datei angelegt.
+- Hinweis zur Benutzerkennung: Eine normale GitHub-Webanwendung kann den Windows-/PC-Benutzernamen aus Sicherheitsgründen nicht automatisch auslesen. Wenn ein Firebase-Benutzer angemeldet ist, wird dessen E-Mail-Adresse als Benutzerkennung gespeichert; bei einer anonymen Einsatzsitzung wird „Einsatzbearbeiter“ gespeichert.

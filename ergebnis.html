@@ -4,14 +4,14 @@
 </style></head>
 <body><header class="top"><div><h1>📟 Einsatz-Ergebnis</h1><div id="status">Auswertung abgeschlossen</div></div><div class="app-user-actions"><a class="button secondary" href="index.html">🏠 Launcher</a><button class="button secondary" id="resultLogout">Abmelden</button><button class="button secondary" id="resultClose">Schließen</button></div></header>
 <main class="container"><section class="card"><h2 id="title"></h2><div id="created" class="hint"></div><div class="status-strip"><span>📋 Abfragestatus: <strong id="qstatus"></strong></span><span>⏱ Abfragedauer: <strong id="duration"></strong></span></div></section>
-<section class="result-grid"><section class="card highlight"><h3>📟 Einsatzstichwort</h3><div id="stichwort"></div></section><section class="card success"><h3>🚨 Alarmierungsvorschlag</h3><div id="alarmierung"></div><p class="hint">Die Abfragebemerkung wird als Zusatzinformation im Einsatztext mitgeführt.</p></section></section>
+<section class="result-grid"><section class="card highlight"><h3>📟 Einsatzstichwort</h3><div id="stichwort"></div></section><section class="card success"><h3>🚨 Alarmierungsvorschlag</h3><div id="alarmierung"></div><p class="hint">Die im Einsatzstichwort codierten Rettungsmittel sowie die aus der AAO ermittelten Feuerwehrfahrzeuge werden hier gemeinsam angezeigt.</p></section></section>
 <section class="card" id="volltextCard"><h3>📖 Volltext zum Alarmstichwort</h3><div id="volltext" class="dispatch"></div></section>
 <section class="card"><h3>📻 Einsatztext</h3><div id="dispatch" class="dispatch"></div></section>
 <section class="card" id="remarkCard"><h3>📝 Abfragebemerkung</h3><div id="remark"></div></section>
 <section class="card"><details><summary>📋 Antworten anzeigen</summary><div id="answers"></div></details></section>
 <div class="nav-row"><button id="pdf">📄 PDF / Drucken</button><button id="new" class="secondary">🏠 Neue Abfrage</button></div>
 <p class="hint">Die Anwendung erstellt einen Dispositionsvorschlag. Die endgültige Disposition und Alarmierung richtet sich nach den örtlichen Vorgaben und der Entscheidung des zuständigen Disponenten.</p></main>
-<script src="bodymap.js?v=20260920v841"></script><script>
+<script src="bodymap.js?v=20260920v840"></script><script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 const result=(()=>{try{return JSON.parse(sessionStorage.getItem("einsatzabfrage_result")||"null")}catch{return null}})();
@@ -71,30 +71,31 @@ if(!result){location.href="index.html";}else{
   const resources=resourcesFallback();
   const medicalStichwort=category==="medizin"?stichwort:fireMedicalStichwort();
   const dispatch=result.dispatchText||`${stichwort?.name||"Einsatz"}${answers.med_grund?" – "+answers.med_grund:""}${answers.problem?" – "+answers.problem:""}${answers.verdachtsdiagnose?" – Verdachtsdiagnose: "+answers.verdachtsdiagnose:""}`;
+  function parseRettungsmittel(code){
+    const c=String(code||"").toUpperCase().replace(/\s+/g,"");
+    const out=[];
+    const n=c.match(/N(\d+)/);
+    const r=c.match(/R(\d+)/);
+    if(n){const count=Number(n[1]);if(count>0)out.push(count===1?"NEF":`NEF × ${count}`);}
+    if(r){const count=Number(r[1]);if(count>0)out.push(count===1?"RTW":`RTW × ${count}`);}
+    if(c.startsWith("K")) out.push("KTW");
+    if(c.includes("RTHP")) out.push("RTHp");
+    if(c.includes("RTHS")) out.push("RTHs");
+    return [...new Set(out)];
+  }
+  const rettungsmittel=parseRettungsmittel(stichwort?.code||"");
+  const feuerwehr=resources;
+  const alarmmittel=[...rettungsmittel,...feuerwehr.map(x=>String(x))];
   $("title").textContent=result.categoryTitle||"Einsatz-Ergebnis";
   $("created").textContent=result.createdAt?new Date(result.createdAt).toLocaleString("de-DE"):"";
   $("qstatus").textContent=`${result.abfrageStatus||"Auswertung"} · ${result.questionsAnswered??Object.keys(answers).length} Angaben${result.partialExit?" · Ausstieg vor vollständiger Abfrage":""}`;
   $("duration").textContent=result.abfragedauer||"00:00";
   $("stichwort").innerHTML=stichwort?`<strong class="big">${esc(stichwort.code||"")}</strong><br>${esc(stichwort.name||"")}`:"Kein eindeutiges Einsatzstichwort hinterlegt.";
-  if(stichwort?.volltext){$("volltext").textContent=stichwort.volltext;}else{$("volltextCard").innerHTML="<h3>📖 Volltext zum Alarmstichwort</h3><div class="hint">Für dieses Stichwort ist noch kein Volltext hinterlegt.</div>";}
-  // Der Einsatzcode enthält bereits die Rettungsmittelanzahl:
-  // R1/R2/R3/R4 = RTW-Anzahl, N1/N2 = NEF-Anzahl.
-  // Deshalb gibt es im Ergebnis kein separates "Notarzt / NEF"-Feld mehr.
-  function medicalResourcesFromCode(code){
-    const c=String(code||"").toUpperCase().replace(/\s+/g,"");
-    const out=[];
-    const n=c.match(/^N(\d+)/);
-    const r=c.match(/R(\d+)/);
-    if(r){const count=Number(r[1]);if(count>0)out.push(`RTW${count>1?` × ${count}`:""}`)}
-    if(n){const count=Number(n[1]);if(count>0)out.push(`NEF${count>1?` × ${count}`:""}`)}
-    return out;
-  }
-  const medicalResources=medicalResourcesFromCode(medicalStichwort?.code||stichwort?.code);
-  const allAlarmResources=[...medicalResources,...resources];
-  $("alarmierung").innerHTML=allAlarmResources.length
-    ? allAlarmResources.map(x=>`<div class="resource-row"><strong>${esc(x)}</strong></div>`).join("")
-    : `<div class="hint">Keine konkreten Alarmmittel aus dem Einsatzstichwort bzw. der AAO hinterlegt.</div>`;
-  $("dispatch").textContent=dispatch||"Einsatz";
+  if(stichwort?.volltext){$("volltext").textContent=stichwort.volltext;}else{$("volltext").textContent="Für dieses Stichwort ist noch kein Volltext hinterlegt.";}
+  $("alarmierung").innerHTML=alarmmittel.length
+    ? alarmmittel.map(x=>`<div class="resource-row"><strong>${x==="NEF"||x.startsWith("NEF")?"⚕️":"🚑"}</strong> ${esc(x)}</div>`).join("")
+    : `<div class="hint">Keine konkreten Rettungs- oder Feuerwehrfahrzeuge aus dem Einsatzstichwort bzw. der AAO abgeleitet.</div>`;
+  $("dispatch").textContent=result.dispatchText||`${stichwort?.name||"Einsatz"}${answers.med_grund?" – "+answers.med_grund:""}${answers.problem?" – "+answers.problem:""}${answers.verdachtsdiagnose?" – Verdachtsdiagnose: "+answers.verdachtsdiagnose:""}`;
   function addResultBodyMap(){
     const ids=Array.isArray(answers.verletzung_v51_koerperkarte)?answers.verletzung_v51_koerperkarte:[];
     if(!ids.length || !(answers.med_grund==="Verletzung"||answers.med_grund==="Arbeits- / Betriebs- / Schulunfall")) return;
@@ -111,6 +112,6 @@ if(!result){location.href="index.html";}else{
   $("new").onclick=()=>location.href="index.html";
   $("resultLogout").onclick=()=>{sessionStorage.removeItem("einsatzabfrage_result");location.href="index.html";};
   $("resultClose").onclick=()=>location.href="index.html";
-  $("pdf").onclick=()=>{const w=window.open("","_blank");if(!w){alert("Bitte Pop-ups für diese Seite erlauben.");return}const mapIds=Array.isArray(answers.verletzung_v51_koerperkarte)?answers.verletzung_v51_koerperkarte:[];const mapDetails=answers.verletzung_v51_koerperdetails||{};const mapPaths=mapIds.map(id=>{const r=injuryMapRegions.find(x=>x.id===id);return r?`<path d="${r.d}" ${r.transform?`transform="${r.transform}"`:""} fill="rgba(255,140,0,.62)" stroke="#ff8c00" stroke-width="4"/>`:""}).join("");const mapHtml=mapIds.length?`<div class="box"><h2>Markierte Körperregionen</h2><p>Orange markiert = in der Abfrage ausgewählt.</p><div style="position:relative;max-width:1080px;margin:auto;background:#444"><img src="koerperkarte_verbrennung.jpg" style="display:block;width:100%;height:auto"><svg viewBox="0 0 1536 868" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">${mapPaths}</svg></div><p><b>Auswahl:</b> ${mapIds.map(id=>`${esc(injuryMapRegions.find(r=>r.id===id)?.label||id)}${mapDetails[id]?` – ${esc(mapDetails[id])}`:""}`).join(" · ")}</p></div>`:"";const isBurn=["Verbrennung / Verbrühung","Verätzungen"].includes(String(answers.verletzung_v49_mechanismus||""));const vk=isBurn?Math.min(100,mapIds.reduce((sum,id)=>sum+(Number(injuryMapRegions.find(r=>r.id===id)?.burnValue)||0),0)):0;w.document.write(`<html><head><title>Einsatzabfrage – Ergebnis</title><style>body{font-family:Arial,sans-serif;padding:24px;line-height:1.45}.box{border:1px solid #aaa;border-radius:8px;padding:12px;margin:12px 0}.alarm{font-weight:700;border:2px solid #900;padding:10px}h2{margin-bottom:8px}</style></head><body><h1>Einsatzabfrage – Ergebnis</h1><div class="box"><b>${esc(result.categoryTitle||"Einsatz")}</b><br>${esc(result.createdAt?new Date(result.createdAt).toLocaleString("de-DE"):"")}<br><b>Abfragedauer:</b> ${esc(result.abfragedauer||"00:00")}</div><div class="box"><h2>Einsatzstichwort</h2>${esc(stichwort?.code||"")} – ${esc(stichwort?.name||"")}</div><div class="box"><h2>Volltext zum Alarmstichwort</h2>${esc(stichwort?.volltext||"Für dieses Stichwort ist kein Volltext hinterlegt.")}</div><div class="box"><h2>Alarmierungsvorschlag</h2>${allAlarmResources.map(x=>"<div>"+esc(x)+"</div>").join("")||"Keine konkreten Alarmmittel hinterlegt."}</div><div class="box"><h2>Einsatztext</h2>${esc(dispatch)}</div>${isBurn&&mapIds.length?`<div class="box"><h2>VKOF – orientierende Schätzung</h2>ca. ${vk.toLocaleString("de-DE",{minimumFractionDigits:1,maximumFractionDigits:1})} %</div>`:""}${mapHtml}<div class="box"><h2>Abfragebemerkung</h2>${esc(remark||"Keine")}</div><script>window.onload=()=>window.print();<\/script></body></html>`);w.document.close();};
+  $("pdf").onclick=()=>{const w=window.open("","_blank");if(!w){alert("Bitte Pop-ups für diese Seite erlauben.");return}const mapIds=Array.isArray(answers.verletzung_v51_koerperkarte)?answers.verletzung_v51_koerperkarte:[];const mapDetails=answers.verletzung_v51_koerperdetails||{};const mapPaths=mapIds.map(id=>{const r=injuryMapRegions.find(x=>x.id===id);return r?`<path d="${r.d}" ${r.transform?`transform="${r.transform}"`:""} fill="rgba(255,140,0,.62)" stroke="#ff8c00" stroke-width="4"/>`:""}).join("");const mapHtml=mapIds.length?`<div class="box"><h2>Markierte Körperregionen</h2><p>Orange markiert = in der Abfrage ausgewählt.</p><div style="position:relative;max-width:1080px;margin:auto;background:#444"><img src="koerperkarte_verbrennung.jpg" style="display:block;width:100%;height:auto"><svg viewBox="0 0 1536 868" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">${mapPaths}</svg></div><p><b>Auswahl:</b> ${mapIds.map(id=>`${esc(injuryMapRegions.find(r=>r.id===id)?.label||id)}${mapDetails[id]?` – ${esc(mapDetails[id])}`:""}`).join(" · ")}</p></div>`:"";const isBurn=["Verbrennung / Verbrühung","Verätzungen"].includes(String(answers.verletzung_v49_mechanismus||""));const vk=isBurn?Math.min(100,mapIds.reduce((sum,id)=>sum+(Number(injuryMapRegions.find(r=>r.id===id)?.burnValue)||0),0)):0;w.document.write(`<html><head><title>Einsatzabfrage – Ergebnis</title><style>body{font-family:Arial,sans-serif;padding:24px;line-height:1.45}.box{border:1px solid #aaa;border-radius:8px;padding:12px;margin:12px 0}.alarm{font-weight:700;border:2px solid #900;padding:10px}h2{margin-bottom:8px}</style></head><body><h1>Einsatzabfrage – Ergebnis</h1><div class="box"><b>${esc(result.categoryTitle||"Einsatz")}</b><br>${esc(result.createdAt?new Date(result.createdAt).toLocaleString("de-DE"):"")}<br><b>Abfragedauer:</b> ${esc(result.abfragedauer||"00:00")}</div><div class="box"><h2>Einsatzstichwort</h2>${esc(stichwort?.code||"")} – ${esc(stichwort?.name||"")}</div><div class="box"><h2>Volltext zum Alarmstichwort</h2>${esc(stichwort?.volltext||"Für dieses Stichwort ist kein Volltext hinterlegt.")}</div><div class="box"><h2>Alarmierungsvorschlag</h2>${alarmmittel.map(x=>"<div>"+esc(x)+"</div>").join("")||"Keine konkreten Rettungs- oder Feuerwehrfahrzeuge abgeleitet."}</div><div class="box"><h2>Einsatztext</h2>${esc(dispatch)}</div>${isBurn&&mapIds.length?`<div class="box"><h2>VKOF – orientierende Schätzung</h2>ca. ${vk.toLocaleString("de-DE",{minimumFractionDigits:1,maximumFractionDigits:1})} %</div>`:""}${mapHtml}<div class="box"><h2>Abfragebemerkung</h2>${esc(remark||"Keine")}</div><script>window.onload=()=>window.print();<\/script></body></html>`);w.document.close();};
 }
 </script></body></html>

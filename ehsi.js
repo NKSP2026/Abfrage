@@ -296,7 +296,6 @@ async function deleteSource(id, sectionId){
   if (!isAdmin()) return;
   const item = (customSources[sectionId] || []).find(x => x.id === id);
   if (!item) return;
-  if (!confirm(`Quelle/Dokument „${item.title || 'Eintrag'}“ wirklich löschen?`)) return;
   try{
     await write(`ehsi_sources/${encodeURIComponent(id)}`, null);
     if (item.storagePath) await deleteStorage(item.storagePath).catch(() => {});

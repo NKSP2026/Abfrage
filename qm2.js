@@ -69,7 +69,6 @@ function renderReports(){
 async function deleteReport(id){
   const a=authState(); if(!a.admin){alert('Bitte zuerst als Administrator anmelden.');return;}
   const r=reports[id]; if(!r)return;
-  if(!confirm(`Fragemeldung „${r.questionText||r.questionId||'ohne Bezeichnung'}“ wirklich löschen?\n\nDer Eintrag wird dauerhaft aus QM2 entfernt.`))return;
   try{await write(`frageMeldungen/${encodeURIComponent(id)}`,null);await load();}catch(e){alert('Fragemeldung konnte nicht gelöscht werden: '+e.message);}
 }
 async function completeReport(id){
@@ -114,7 +113,6 @@ function renderAborts(){
 async function deleteAbort(id){
   const a=authState();if(!a.admin){alert('Bitte zuerst als Administrator anmelden.');return;}
   const r=aborts[id];if(!r)return;
-  if(!confirm(`Abbruch-Abfrage „${r.abbruchgrund||r.grund||'ohne Grund'}“ wirklich löschen?\n\nDer Eintrag wird dauerhaft aus QM2 entfernt.`))return;
   try{await write(`abbruchAbfragen/${encodeURIComponent(id)}`,null);await load();}
   catch(e){alert('Abbruch-Abfrage konnte nicht gelöscht werden: '+e.message);}
 }
@@ -148,7 +146,6 @@ async function deleteSuggestion(id){
   const a=authState();if(!a.admin){alert('Bitte zuerst als Administrator anmelden.');return;}
   const r=suggestions[id]; if(!r)return;
   if(!['erledigt','abgelehnt'].includes(r.status||'')){alert('Ein Vorschlag kann erst nach Erledigung oder Ablehnung gelöscht werden.');return;}
-  if(!confirm(`Verbesserungsvorschlag „${r.title||'ohne Titel'}“ wirklich löschen?\n\nDer Eintrag ist danach nicht mehr in QM2 vorhanden.`))return;
   try{await write(`verbesserungsvorschlaege/${encodeURIComponent(id)}`,null);await load();}catch(e){alert('Vorschlag konnte nicht gelöscht werden: '+e.message);}
 }
 async function setStatus(path,id,status){

@@ -292,3 +292,12 @@ V68.26 – 20.09.2026
 - Betroffen: Schulterblätter, Humerus, Ellenbogen, Ulna, Radius, Hüftbein sowie die neu angelegten Bereiche Oberschenkelkopf/Schenkelbein, Schenkelhals, Femur, Tibia, Fibula, Talus und Calcaneus.
 - Keine Spiegelung oder Verschiebung der Klickflächen.
 - Bestehende README.txt weitergeführt; keine neue README-Datei angelegt.
+
+
+V68.27 – 20.09.2026
+- Unterkörper: Ausschließlich die Beschriftungen „rechts“ und „links“ der paarigen Unterkörperbereiche wurden vertauscht. Die Geometrie/Klickflächen bleiben unverändert.
+- Betroffen vorne: Becken/Hüfte, Leiste, Oberschenkel, Knie, Unterschenkel und Fuß.
+- Betroffen hinten: Hüftbein/Gesäßbereich sowie Oberschenkelkopf, Schenkelhals, Femur, Tibia, Fibula, Talus und Calcaneus.
+- Zusätzlich wurde die rote Referenzbezeichnung korrekt als „Schenkelhals“ geführt; die Klickfläche selbst wurde nicht verändert.
+- Keine Spiegelung oder Verschiebung der Körperflächen.
+- Bestehende README.txt weitergeführt; keine neue README-Datei angelegt.

@@ -367,6 +367,38 @@
     if(ra && rb){ const label=ra.label; ra.label=rb.label; rb.label=label; }
   }
 
+  // V68.27: Auch beim gesamten Unterkörper werden ausschließlich die
+  // Beschriftungen links/rechts getauscht. Die Klickflächen/Geometrien
+  // bleiben unverändert an den bereits exakt eingemessenen Positionen.
+  // Bildseite links erhält damit die bisherige Beschriftung der Bildseite rechts
+  // und umgekehrt.
+  const LOWER_BODY_LABEL_SWAP = [
+    ['front_hip_l','front_hip_r'],
+    ['front_groin_l','front_groin_r'],
+    ['front_thigh_l','front_thigh_r'],
+    ['front_knee_l','front_knee_r'],
+    ['front_lowerleg_l','front_lowerleg_r'],
+    ['front_foot_l','front_foot_r'],
+    ['back_glute_l','back_glute_r'],
+    ['back_femoral_head_l','back_femoral_head_r'],
+    ['back_femoral_neck_l','back_femoral_neck_r'],
+    ['back_femur_l','back_femur_r'],
+    ['back_tibia_l','back_tibia_r'],
+    ['back_fibula_l','back_fibula_r'],
+    ['back_talus_l','back_talus_r'],
+    ['back_calcaneus_l','back_calcaneus_r']
+  ];
+  for (const [a,b] of LOWER_BODY_LABEL_SWAP) {
+    const ra=regions.find(x=>x.id===a), rb=regions.find(x=>x.id===b);
+    if(ra && rb){ const label=ra.label; ra.label=rb.label; rb.label=label; }
+  }
+
+  // V68.27: Die rote Referenzfläche ist der Schenkelhals.
+  const femoralNeckR=regions.find(x=>x.id==='back_femoral_neck_r');
+  const femoralNeckL=regions.find(x=>x.id==='back_femoral_neck_l');
+  if(femoralNeckR) femoralNeckR.label='Schenkelhals rechts';
+  if(femoralNeckL) femoralNeckL.label='Schenkelhals links';
+
   // Alle alten, nicht mehr gewünschten Rückenkörper-Flächen deaktivieren.
   const BACK_OLD_HIDE = new Set([
     'back_occiput','back_neck','back_upperback','back_ribs_r','back_ribs_l',

@@ -216,3 +216,24 @@ Datum: 20.09.2026
 - Kopf, Hand, Fuß-Detail, Vorderkörper und die übrigen bisher freigegebenen Bereiche bleiben unverändert.
 - Der bodymap.js-Cache wurde in abfrage.html auf eine neue Versionsnummer erhöht.
 - Es bleibt bei genau einer README.txt; diese Änderung wurde hier ergänzt.
+
+
+=== V68.21 – UNTERKÖRPER SOLLPOSITIONEN NEU AUFGEBAUT ===
+Datum: 20.09.2026
+
+- Die bisherigen alten Unterkörper-Koordinaten wurden nicht weiterverwendet.
+- Die Unterkörperflächen wurden vollständig anhand der farbigen Referenz 86682.jpg neu aufgebaut.
+- Grün = Becken links/rechts.
+- Rot = Leiste links/rechts.
+- Schwarz = Intimbereich.
+- Orange = Oberschenkel links/rechts.
+- Zyan = Kniescheibe/Knie links/rechts.
+- Blau = Unterschenkel links/rechts.
+- Dunkelgrün = Fußsohle links/rechts.
+- Die neuen Flächen liegen direkt im Koordinatensystem der aktuellen 1536x867-Körperkarte und erhalten keine alte FRONT-Transformation.
+- Das alte einteilige Becken wurde deaktiviert und durch getrennte Beckenflächen links/rechts ersetzt.
+- Die alten Unterteilungen der Ober- und Unterschenkel bleiben deaktiviert.
+- Kopf, Vorderkörper, Hand und Fuß-Detail bleiben erhalten.
+- Keine Referenzfarben werden in der Anwendung angezeigt; orange bleibt ausschließlich die Auswahlfarbe.
+- bodymap.js-Cache in abfrage.html auf v821 erhöht.
+- Es bleibt bei genau einer README.txt.

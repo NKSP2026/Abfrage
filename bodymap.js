@@ -634,6 +634,48 @@
   }
   function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
 
+  // V68.21: NEUE SOLLPOSITIONEN UNTERKÖRPER AUS REFERENZ 86682.jpg
+  // Die Referenzfarben werden nicht dargestellt. Sie dienen ausschließlich
+  // als exakte Geometrievorlage. Alle neuen Unterkörperflächen sind
+  // korrigiert und liegen dadurch direkt im 1536x867-Koordinatensystem
+  // der aktuellen Körperkarte (ohne FRONT_T).
+  add('front_hip_l','Becken links',poly([[208,391],[215,353],[281,352],[284,366],[284,390],[281,393],[215,396]]),{corrected:true,burnValue:1.5});
+  add('front_hip_r','Becken rechts',poly([[292,395],[289,386],[288,366],[295,353],[343,346],[356,353],[362,374],[361,385],[345,390]]),{corrected:true,burnValue:1.5});
+
+  // Rot = Leiste links/rechts
+  override('front_groin_l',poly([[206,419],[210,400],[217,403],[275,407],[280,399],[275,410],[243,410]]));
+  override('front_groin_r',poly([[293,400],[316,402],[322,399],[348,396],[361,391],[365,406],[341,413],[328,408]]));
+
+  // Schwarz = Intimbereich
+  override('front_intimate',poly([[278,403],[295,403],[295,446],[287,449],[278,446]]));
+
+  // Orange = Oberschenkel links/rechts
+  override('front_thigh_l',poly([[274,430],[281,409],[281,446],[281,462],[246,590],[206,588],[202,581],[206,562],[198,492],[202,428],[207,422]]));
+  override('front_thigh_r',poly([[296,409],[339,415],[366,411],[373,486],[365,551],[369,577],[365,588],[349,587],[329,593],[324,589],[317,566],[316,544],[299,494],[290,451]]));
+
+  // Zyan = Kniescheibe/Knie links/rechts
+  override('front_knee_l',poly([[203,597],[205,605],[217,612],[232,611],[238,605],[237,597],[231,593]]));
+  override('front_knee_r',poly([[359,596],[354,593],[333,599],[330,606],[334,612],[351,611],[359,604]]));
+
+  // Blau = Unterschenkel links/rechts
+  override('front_lowerleg_l',poly([[200,606],[194,611],[185,649],[201,762],[196,791],[200,797],[215,794],[231,796],[235,790],[231,745],[248,674],[245,616],[239,611],[214,614]]));
+  override('front_lowerleg_r',poly([[371,609],[344,616],[331,614],[325,629],[324,686],[339,756],[333,782],[338,791],[365,790],[372,785],[366,761],[382,690],[383,663],[378,624]]));
+
+  // Dunkelgrün = Fußsohle links/rechts
+  override('front_foot_l',poly([[237,810],[231,803],[219,806],[209,805],[206,801],[202,805],[194,805],[172,834],[178,840],[190,843],[213,843],[234,824]]));
+  override('front_foot_r',poly([[335,807],[334,821],[354,845],[386,844],[401,836],[397,824],[364,795],[338,803]]));
+
+  // Alle neu aufgebauten Unterkörperflächen müssen im Bildkoordinatensystem
+  // bleiben. Dadurch wird die alte Front-Transformation nicht mehr angewendet.
+  ['front_groin_l','front_groin_r','front_intimate','front_thigh_l','front_thigh_r',
+   'front_knee_l','front_knee_r','front_lowerleg_l','front_lowerleg_r',
+   'front_foot_l','front_foot_r'].forEach(id=>{
+    const r=regions.find(x=>x.id===id);
+    if(r){ r.corrected=true; r.transform=null; }
+  });
+  const oldPelvis=regions.find(x=>x.id==='front_pelvis');
+  if(oldPelvis) oldPelvis.hidden=true;
+
   // V68.15: Auf der Körperkarte bleiben ausschließlich die aktuell
   // freigegebenen Detailbereiche sichtbar. Die alten Flächen auf Vorder-
   // und Rückseite sowie alte Kopf-/Gesichtsflächen werden nicht mehr
@@ -649,9 +691,9 @@
     'detail_elbow_l','detail_elbow_r','detail_forearm_l','detail_forearm_r',
     'detail_ribs_l','detail_ribs_r','detail_sternum',
     'detail_upperabd_l','detail_upperabd_r','detail_lowerabd_l','detail_lowerabd_r',
-    // V68.20: Unterkörper vorne wieder als aktive Klickflächen zulassen.
+    // V68.21: Unterkörper vorne mit den neuen Sollpositionen aus 86682.jpg aktivieren.
     // Diese Bereiche sind die neuen, exakt positionierten Sollflächen aus 86682.jpg.
-    'front_pelvis','front_groin_r','front_groin_l','front_intimate',
+    'front_hip_l','front_hip_r','front_groin_r','front_groin_l','front_intimate',
     'front_thigh_r','front_thigh_l','front_knee_r','front_knee_l',
     'front_lowerleg_r','front_lowerleg_l','front_foot_r','front_foot_l',
     'detail_hand_wrist','detail_hand_palm',

@@ -456,3 +456,11 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
   .ehsi-modal-footer{align-items:flex-start;flex-direction:column}
   .ehsi-modal-footer .button{width:100%;text-align:center}
 }
+
+
+/* NABS Nutzungszähler */
+.usage-grid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));}
+.quality-stat-card{border:1px solid #344052;background:#151b24;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:5px;}
+.quality-stat-card b{font-size:1rem;}
+.quality-stat-card span{font-size:2rem;font-weight:800;line-height:1.1;}
+.quality-stat-card small{opacity:.72;}

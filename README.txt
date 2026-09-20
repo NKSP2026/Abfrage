@@ -699,3 +699,13 @@ Version 5.3 – EHSI-Bereichsfenster
 - Darunter werden die Fachinformationen und Einsatzhilfen des jeweiligen Bereichs angezeigt.
 - Das Bereichsfenster kann über X, „Bereich schließen“, Klick auf den Hintergrund oder die ESC-Taste geschlossen werden.
 - Die vorhandenen EHSI-Inhalte und Quellen bleiben erhalten; die Darstellung wurde ausschließlich übersichtlicher strukturiert.
+
+
+VERSION 5.4 – QM2 / ABFRAGEZÄHLER (20.09.2026)
+- QM1 enthält keine Abbruch-Abfrage-Liste mehr; Abbruch-Abfragen werden zentral in QM2 bearbeitet.
+- Abbruch-Abfragen werden wie Fragenmeldungen mit Status Neu / In Prüfung / Erledigt / Abgelehnt verwaltet.
+- Neue Abbruch-Abfragen bleiben stehen, bis ein Status gesetzt wurde. Bearbeitete Abbruch-Abfragen werden nach zwei Monaten automatisch entfernt.
+- Fragenmeldungen mit Status Neu bleiben auch nach zwei Monaten bestehen. Meldungen mit anderem Status werden nach zwei Monaten automatisch gelöscht.
+- QM2 startet bei jedem Öffnen automatisch mit dem Statusfilter „Neu“.
+- Jeder Start einer ILS-Abfrage wird als Nutzungsereignis protokolliert und im Systembereich als Zähler nach Bereich angezeigt.
+- Firebase-Regeln wurden um geschützte Bereiche für Abbruch-Abfragen und Nutzungsereignisse ergänzt. Die aktualisierte database.rules.json muss bei Verwendung der Firebase-Funktionalität veröffentlicht werden.

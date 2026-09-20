@@ -1,6 +1,6 @@
 // Einsatzabfrage V20 – dynamischer Entscheidungsbaum mit permanenter Aktionsleiste
 import { startupDefaults } from "./startup-data.js?v=20260920v40";
-import { anonymous, read, authState, push, pushPublic } from "./firebase-rest.js?v=20260920v45";
+import { anonymous, read, authState, push } from "./firebase-rest.js?v=20260920v46";
 import { KEMLER_MEANINGS, UN_DANGEROUS_GOODS, GHS_SYMBOLS, ADR_LABELS, TRANSPORT_TYPES } from "./hazmat-data.js?v=20260920v2";
 
 const $ = id => document.getElementById(id);
@@ -1649,22 +1649,36 @@ async function recordAbort(reason, otherReason="") {
   const extra=String(otherReason||"").trim();
   const abbruchgrund=baseReason==='Sonstiges' && extra ? `Sonstiges: ${extra}` : baseReason;
   const record={
+    createdAt:now.toISOString(),
     datum:now.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"}),
     uhrzeit:now.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",second:"2-digit"}),
-    abbruchgrund
+    abbruchgrund,
+    status:"neu",
+    category:category||"",
+    categoryTitle:title(),
+    mode:mode||""
   };
   try{
-    await pushPublic("abbruchAbfragen",record);
+    const a=authState().token?authState():await anonymous();
+    if(!a?.token) throw new Error("Keine Verbindung zur Abbruchverwaltung möglich.");
+    await push("abbruchAbfragen",record);
     return true;
   }catch(e){
     console.error("Abbruch konnte nicht gespeichert werden",e);
     const msg=String(e?.message||e);
-    if(/permission denied/i.test(msg)){
-      alert("Der Abbruch konnte nicht gespeichert werden.\n\nFirebase meldet: Permission denied.\n\nBitte in Firebase Realtime Database unter „abbruchAbfragen“ das Schreiben erlauben (siehe mitgelieferte database.rules.json).");
-    }else{
-      alert("Der Abbruch konnte nicht gespeichert werden.\n\n"+msg);
-    }
+    alert("Der Abbruch konnte nicht gespeichert werden.\n\n"+msg);
     return false;
+  }
+}
+
+async function recordUsage(){
+  try{
+    const a=authState().token?authState():await anonymous();
+    if(!a?.token) return;
+    const key=mode==="fw"?"feuerwehr":mode==="vu"?"verkehrsunfall":mode==="wasser"?"wasserunfall":mode==="aufzug"?"aufzug":mode==="grossschaden"?"grossschaden":category||"sonstiges";
+    await push("nutzungsereignisse",{category:key,categoryTitle:title(),createdAt:new Date().toISOString()});
+  }catch(e){
+    console.warn("Nutzungszähler konnte nicht gespeichert werden.",e);
   }
 }
 function openAbortReason(onDone){
@@ -1735,6 +1749,7 @@ try{
   if(mode==="wasser") answers.thl_art="Wasser / Eis / Ertrinkungsunfall";
   $("categoryTitle").textContent=title();
   $("status").textContent="● Abfrage aktiv · lokale Grunddaten geladen";
+  recordUsage();
   render();
   // Firebase wird nur im Hintergrund versucht. Die Bedienoberfläche bleibt dadurch
   // sofort benutzbar, auch wenn Auth/CDN/Netzwerk gerade nicht erreichbar ist.

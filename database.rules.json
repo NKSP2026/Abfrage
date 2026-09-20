@@ -3,11 +3,21 @@
     ".read": "auth != null",
     ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
     "abbruchAbfragen": {
-      ".read": true,
-      ".write": true,
+      ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".write": "auth != null && ((!data.exists() && newData.exists()) || auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1')",
       ".indexOn": [
+        "createdAt",
         "datum",
-        "uhrzeit"
+        "uhrzeit",
+        "status"
+      ]
+    },
+    "nutzungsereignisse": {
+      ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".write": "auth != null",
+      ".indexOn": [
+        "createdAt",
+        "category"
       ]
     },
     "einsatzAufwertungen": {

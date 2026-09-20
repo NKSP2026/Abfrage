@@ -19,6 +19,11 @@ const medicalInitialQuestions = [
   {id:"med_demografie",text:"Wie alt ist der Patient?",type:"demographics",order:40,fields:{ageLabel:"Alter in Jahren",birthdateLabel:"Geburtsdatum",genderLabel:"Geschlecht",genderOptions:["Männlich","Weiblich","Divers","Unbekannt"]}},
   {id:"med_grund",text:"Sagen Sie mir bitte den genauen Grund Ihres Anrufes!",type:"choice",order:50,options:["Allergie / Anaphylaxie","Atemstörung","Bauchschmerzen","Bewusstseinsstörung / Wesensveränderung","Blutungen","Brustschmerzen","Erkrankung / medizinische Hilfeleistung","Geburt / Schwangerschaft","Gefühlsstörung / Lähmung / Sprache / Sehstörung","Herzrhythmusstörungen","Hitze- / Kälteprobleme","Kollaps / Kreislaufstörung","Kopfschmerzen","Krampfanfall","Psychische Erkrankung / Suizid","Sonstige Schmerzen","Unklares Geschehen","Vergiftung","Verletzung","Arbeits- / Betriebs- / Schulunfall"]}
 ];
+const medicalFinalQuestions = [
+  {id:"med_zugang",text:"Ist die Person frei zugänglich?",type:"choice",order:99990,options:["Ja","Nein","Unsicher (kann nicht beurteilt werden)","Unbekannter (kein Kontakt / keine Angabe möglich)"]},
+  {id:"med_zugang_grund",text:"Warum ist die Person nicht frei zugänglich?",type:"choice",order:99991,options:["Verschlossene Wohnung / Türöffnung erforderlich","Eingeklemmt / eingeschlossen","Verschüttet / eingestürzt","Auf Dach / Balkon / Höhe","In Fahrzeug / Aufzug eingeschlossen","Unzugängliches Gelände / schwer erreichbar","Gefahrenbereich / Einsatzstelle nicht sicher","Sonstiger Zugangshinderungsgrund","Unbekannt"],whenQuestion:"med_zugang",whenValue:"Nein"}
+];
+
 const yesNoUnclearOptions=["Ja","Nein","Unsicher (kann nicht beurteilt werden)","Unbekannter (kein Kontakt / keine Angabe möglich)"];
 
 const firefighterCommonQuestions = [
@@ -685,6 +690,8 @@ function strokeIndicated(){
   return ["schlaganfall","sprachstörung","sprachstoerung","lähmung","laehmung","gelähmt","gelaehmt","halbseitig","einseitig","mundwinkel","gesichtslähmung","gesichtslaehmung","arm schwach","bein schwach","kraftverlust","taubheit","sehstörung","sehstoerung","doppelbilder","gesichtsfeldausfall","neurolog","nicht sprechen","verwaschene sprache","verwaschen sprechen","wortfindungsstörung","wortfindungsstoerung"].some(t=>p.includes(t));
 }
 function visible(q){
+  // Zugang wird bei jeder medizinischen Abfrage als letzter Schritt abgefragt.
+  if(category==="medizin" && ["verletzung_v49_zugang","verletzung_v49_zugang_grund"].includes(q?.id)) return false;
   if(String(q?.id||"").startsWith("stroke_")&&!strokeIndicated()) return false;
   // Die bestehenden V66-Brandfragen bleiben unverändert, erscheinen aber
   // erst, wenn im Feuerwehrbaum tatsächlich "Brand / Rauchentwicklung"
@@ -748,7 +755,11 @@ function nextQuestion(){
   // Verbrennung/Verbrühung/Verätzung ist bereits durch den Mechanismus
   // eindeutig und geht deshalb direkt zur Körperflächenkarte.
   if(category==="medizin" && isInjuryReason()){
-    if(answers.verdachtsdiagnose!==undefined) return null;
+    if(answers.verdachtsdiagnose!==undefined){
+      if(answers.med_zugang===undefined) return medicalFinalQuestions.find(q=>q.id==="med_zugang");
+      if(answers.med_zugang==="Nein" && answers.med_zugang_grund===undefined) return medicalFinalQuestions.find(q=>q.id==="med_zugang_grund");
+      return null;
+    }
 
     const injuryQs=questions().filter(q=>visible(q)&&answers[q.id]===undefined && q.id!=="verdachtsdiagnose");
     const mech=String(answers.verletzung_v49_mechanismus||"");
@@ -813,8 +824,18 @@ function nextQuestion(){
   }
 
   const qs=questions().filter(q=>visible(q)&&answers[q.id]===undefined);
-  if(!qs.length)return null;
   const diagnosis=qs.find(q=>q.id==="verdachtsdiagnose");
+  // Medizinischer Zugang immer ganz am Ende.
+  if(category==="medizin") {
+    const nonFinal=qs.filter(q=>!["verdachtsdiagnose","med_zugang","med_zugang_grund"].includes(q.id));
+    const branchCount=medicalBranchCount();
+    if(answers.med_zugang===undefined && (!nonFinal.length || branchCount>=10)) {
+      if(answers.verdachtsdiagnose===undefined && diagnosis) return diagnosis;
+      return medicalFinalQuestions.find(q=>q.id==="med_zugang");
+    }
+    if(answers.med_zugang==="Nein" && answers.med_zugang_grund===undefined) return medicalFinalQuestions.find(q=>q.id==="med_zugang_grund");
+  }
+  if(!qs.length)return null;
   const others=qs.filter(q=>q.id!=="verdachtsdiagnose");
   if(category==="medizin" && answers.med_grund!==undefined){
     const branchCount=medicalBranchCount();
@@ -1076,6 +1097,12 @@ function render(){
   }
 }
 
+let reaBeatTimer=null, reaStartedAt=0, reaBeats=0, reaAudio=null, reaBeatMs=545;
+function stopREAHelper(){if(reaBeatTimer){clearInterval(reaBeatTimer);reaBeatTimer=null;}if(reaAudio){try{reaAudio.close();}catch(e){}reaAudio=null;}}
+function reaBeep(){try{if(!reaAudio) reaAudio=new (window.AudioContext||window.webkitAudioContext)();const osc=reaAudio.createOscillator(),gain=reaAudio.createGain();osc.frequency.value=880;gain.gain.setValueAtTime(.0001,reaAudio.currentTime);gain.gain.exponentialRampToValueAtTime(.12,reaAudio.currentTime+.01);gain.gain.exponentialRampToValueAtTime(.0001,reaAudio.currentTime+.09);osc.connect(gain);gain.connect(reaAudio.destination);osc.start();osc.stop(reaAudio.currentTime+.1);}catch(e){console.warn("REA-Ton nicht verfügbar",e);}}
+function reaBeat(){reaBeats++;const arrow=$("reaArrow"),count=$("reaCount"),timer=$("reaTime");if(count)count.textContent=String(reaBeats);if(arrow){arrow.classList.remove("rea-pulse");void arrow.offsetWidth;arrow.classList.add("rea-pulse");}reaBeep();if(timer){const sec=Math.floor((Date.now()-reaStartedAt)/1000);timer.textContent=`${String(Math.floor(sec/60)).padStart(2,"0")}:${String(sec%60).padStart(2,"0")}`;}}
+function startREAHelper(){stopREAHelper();reaStartedAt=Date.now();reaBeats=0;reaBeatMs=545;answers.bewusstsein="Bewusstlos";answers.atmung="Atemstillstand";answers.deterioration="rea";reaShown=true;const start=$("reaStart"),stop=$("reaStop");if(start)start.disabled=true;if(stop)stop.disabled=false;if($("reaStatus"))$("reaStatus").textContent="REA läuft – Rhythmus 110/min";reaBeat();reaBeatTimer=setInterval(reaBeat,reaBeatMs);}
+function openREAHelper(){stopREAHelper();reaBeats=0;openModal(`<div class="rea-helper"><div class="modal-title">🫀 REA – Anleitung zur Herzdruckmassage</div><p class="hint">Starten, wenn keine normale Atmung festgestellt wurde. Für Erwachsene empfiehlt die ERC-Leitlinie 2025 <b>100–120 Thoraxkompressionen pro Minute</b>; die Anweisungen der zuständigen Leitstelle haben Vorrang.</p><div class="rea-metrics"><div><span>Anzahl</span><strong id="reaCount">0</strong></div><div><span>Zeit</span><strong id="reaTime">00:00</strong></div></div><div class="rea-arrow-wrap"><div id="reaArrow" class="rea-arrow">⬇️</div><div class="rea-rate">100–120 / min</div></div><div class="rea-status" id="reaStatus">Bereit – noch nicht gestartet</div><div class="modal-actions"><button id="reaStart" class="rea-start">▶ REA START</button><button id="reaStop" class="secondary" disabled>⏹ Stoppen</button><button class="secondary modal-close">Schließen</button></div><p class="hint">Bei jedem Druck ertönt ein kurzer Ton. Die Lautstärke des Geräts beachten.</p></div>`);$("reaStart").onclick=startREAHelper;$("reaStop").onclick=()=>{stopREAHelper();$("reaStatus").textContent="Gestoppt – Anzahl und Zeit bleiben sichtbar.";$("reaStop").disabled=true;$("reaStart").disabled=false;};$("modalRoot").querySelector(".modal-close").onclick=()=>{stopREAHelper();closeModal();};}
 function showREA(){reaShown=true;updatePhase();$("progress").textContent="⚠️ KRITISCHER NOTFALL";$("questionText").textContent="Reanimation sofort beginnen";$("answerArea").innerHTML=`<div class="rea-guide"><h3>🫀 PRÜFEN – RUFEN – DRÜCKEN</h3><p><b>1.</b> Telefon auf Lautsprecher und den Anweisungen der Leitstelle folgen.</p><p><b>2.</b> Reagiert die Person nicht und atmet sie nicht oder nicht normal: sofort handeln.</p><p><b>3.</b> Person auf den Rücken auf eine möglichst feste Unterlage legen.</p><p><b>4.</b> Handballen in die Mitte des Brustkorbs, zweite Hand darüber.</p><p><b>5.</b> Bei Erwachsenen etwa <b>5–6 cm</b> tief und <b>100–120/min</b> drücken und vollständig entlasten.</p><p><b>6.</b> AED holen lassen und den Geräteanweisungen folgen.</p><p class="hint">Die Anleitung der Notrufleitstelle hat Vorrang.</p><button id="reaFinish" type="button">Zur Auswertung</button></div>`;$("reaFinish").onclick=finish;}
 
 function bodyMapHasMajorAmputation(){
@@ -1180,118 +1207,24 @@ function fallbackStichwort(){
   if(category==="thl") return {code:mode==="wasser"?"THL-WASSER":"THL-VU",name:mode==="wasser"?"Wasserunfall / Ertrinkungsunfall":"Verkehrsunfall / Technische Hilfeleistung",priority:1};
   return null;
 }
-function medicalAlarmFulltext(){
-  const d=answers.med_demografie&&typeof answers.med_demografie==="object"?answers.med_demografie:{};
-  const facts=[];
-  if(d.age!==undefined&&String(d.age).trim()!=="") facts.push(`${String(d.age).trim()} J.`);
-  if(d.gender&&d.gender!=="Unbekannt") facts.push(String(d.gender));
-
-  const injuries=selectedBodyInjuries();
-  if(injuries.length){
-    const injuryText=injuries.map(x=>{
-      const where=x.side?`${x.label} ${x.side}`:x.label;
-      return x.type?`${x.type} – ${where}`:where;
-    });
-    facts.push(injuryText.join("; "));
-  } else {
-    const g=String(answers.med_grund||"").trim();
-    facts.push(g&&g!=="Unklares Geschehen"?g:"Unklar");
-    if(g==="Verletzung"||g==="Arbeits- / Betriebs- / Schulunfall") facts.push("Verletzung unklar");
-  }
-
-  const extras=[];
-  const addIf=(condition,text)=>{if(condition&&!extras.includes(text))extras.push(text);};
-  addIf(answers.verletzung_v49_blutung==="Ja"||answers.blutung_03==="Ja"||answers.blutung_25==="Ja","starke Blutung");
-  addIf(answers.verletzung_v49_schmerz==="Ja","starke Schmerzen");
-  addIf(answers.verletzung_v49_atmung==="Ja"||answers.atem_01==="Ja"||answers.atem_05==="Ja","Atemprobleme");
-  addIf(answers.verletzung_v49_bewusstsein==="Nein"||answers.bewusstsein_01==="Ja"&&answers.bewusstsein_02==="Nein","Bewusstseinsstörung");
-  addIf(answers.deterioration==="Herz-Kreislauf-Stillstand"||answers.deterioration==="Atmet nicht mehr"||answers.atmung==="Atemstillstand","Atem-/Kreislaufstillstand");
-  addIf(answers.weitere_verletzungen==="Ja"||answers.verletzung_v49_weitere==="Ja","weitere Verletzungen");
-  facts.push(...extras.slice(0,3));
-  if(answers.verdachtsdiagnose) facts.push(`Verdachtsdiagnose: ${answers.verdachtsdiagnose}`);
-  return facts.filter(Boolean).join(" – ").slice(0,320)||"Unklar";
-}
-
-function dynamicMedicalStichwort(){
-  const nef=evaluateNotarzt().length>0;
-  const rtw=medicalRtwCount();
-  const cat=medicalDispatchCategory();
-  const prefix=nef?`N1R${rtw}`:`R${rtw}`;
-  return {
-    id:`dynamic_med_${prefix}_${cat}`,
-    category:"medizin",
-    enabled:true,
-    code:prefix,
-    name:`${prefix} - ${cat}`,
-    priority:999999,
-    volltext:medicalAlarmFulltext()
-  };
-}
-
-function firePersonAffected(){
-  const yesIds=[
-    "fw_blitz_personen","fw_gewalt_verletzt","fw_natur_personen","fw_terror_verletzt",
-    "fw_abc_betroffen","fw_explo_personen","fw_einsturz_person","fw_notlage_anzahl",
-    "fw_thl_person","fw_thl_eingeschlossen","fw_vu_personen","fw_oel_person",
-    "fw_tier_person","fw_sonst_person","fw_wasser_personen","fw_eis_person",
-    "fw_tauch_person","fw_boot_person","fw_sach_person"
-  ];
-  return yesIds.some(id=>answers[id]==="Ja") || ["fw_blitz_anzahl","fw_gewalt_anzahl","fw_natur_anzahl","fw_terror_anzahl","fw_abc_anzahl","fw_explo_anzahl","fw_einsturz_anzahl","fw_notlage_anzahl","fw_oel_menge"].some(id=>Number(answers[id])>0);
-}
-function firePersonCount(){
-  const ids=["fw_blitz_anzahl","fw_gewalt_anzahl","fw_natur_anzahl","fw_terror_anzahl","fw_abc_anzahl","fw_explo_anzahl","fw_einsturz_anzahl","fw_notlage_anzahl","fw_vu_anzahl_klemm","fw_vergiftung_personen"];
-  let n=0; ids.forEach(id=>{const v=Number(answers[id]);if(Number.isFinite(v)&&v>n)n=v;}); return n|| (firePersonAffected()?1:0);
-}
-function fireSpecificDetail(){
-  const sf=String(answers.fw_schadensfall||"");
-  const parts=[];
-  const add=(x)=>{if(x!==undefined&&x!==null&&String(x).trim()&&String(x)!=="Unklar"&&String(x)!=="Nein")parts.push(String(x).trim());};
-  if(sf==="Brand / Rauchentwicklung"){
-    add(answers.brand_objekt||answers.objekt);
-    if(answers.brand_extra_14==="Ja"||answers.brand_extra2_12==="Ja")add("Batteriespeicher");
-    if(answers.brand_extra2_11==="Ja")add("Photovoltaikanlage");
-    if(answers.brand_extra_16==="Ja")add("mehrere Fahrzeuge");
-  } else if(sf==="Öl-/Kraftstoffaustritt / Umweltschaden"){
-    add(answers.fw_oel_art); if(answers.fw_oel_menge) add(answers.fw_oel_menge); if(answers.fw_oel_gewasser==="Ja")add("Gewässer/Kanal/Erdreich betroffen");
-  } else if(sf==="Gefahrstoffaustritt / ABC"){
-    add(answers.fw_abc_art); if(answers.fw_abc_name) add(answers.fw_abc_name); if(answers.fw_abc_austritt==="Ja")add("Stoff tritt noch aus"); if(answers.fw_abc_symptome==="Ja")add("Expositionsbeschwerden");
-  } else if(sf==="Verkehrsunfall"){
-    add(answers.fw_vu_art); if(answers.fw_vu_betrieb==="Ja")add("Kraftstoff/Öl/Betriebsstoffe ausgetreten"); if(answers.fw_vu_hv==="Ja"||answers.thl_extra2_6==="Ja")add("Elektro-/Hybridfahrzeug"); if(answers.fw_vu_klemm==="Ja")add("eingeklemmte/eingeschlossene Person");
-  } else if(sf==="Technische Hilfeleistung"){
-    add(answers.fw_thl_art); if(answers.fw_thl_eingeschlossen==="Ja")add("Person eingeschlossen/eingeklemmt"); if(answers.fw_thl_hoehe==="Ja")add("Höhe/Tiefe");
-  } else if(sf==="Explosion"){
-    add(answers.fw_explo_art); if(answers.fw_explo_gefahrgut==="Ja")add("Gefahrgut/Gas/Druckbehälter"); if(answers.fw_explo_einsturz==="Ja")add("Einsturz-/Trümmergefahr");
-  } else if(sf==="Einsturz / Gebäudeschaden"){
-    add(answers.fw_einsturz_art); if(answers.fw_einsturz_akut==="Ja")add("akute Einsturzgefahr"); if(answers.fw_einsturz_person==="Ja")add("Person unter Trümmern/eingeschlossen/gefährdet");
-  } else if(sf==="Person in Notlage"){
-    add(answers.fw_notlage_art); if(answers.fw_notlage_hoehe==="Ja")add("Höhe/Tiefe"); if(answers.fw_notlage_atmung==="Nein")add("keine normale Atmung");
-  } else if(sf==="Vergiftung"){
-    add(answers.fw_vergiftung_name); add(answers.fw_vergiftung_weg); if(answers.fw_vergiftung_gas==="Ja")add("Gasverdacht");
-  } else if(sf==="Naturereignis"){
-    add(answers.fw_natur_art); if(answers.fw_natur_baum==="Ja")add("Baum/Gegenstand"); if(answers.fw_natur_strom==="Ja")add("Strom/Energie betroffen");
-  } else if(sf==="Tierrettung"){
-    add(answers.fw_tier_art); add(answers.fw_tier_lage);
-  } else if(sf==="Ertrinkungsunfall"||sf==="Eisrettung"||sf==="Tauchunfall"||sf==="Wasserfahrzeug / -sportler in Not"){
-    add(sf); add(answers.fw_wasser_ort);
-  } else if(sf==="Sonstige Feuerwehrlage (FREITEXT)") add(answers.fw_sonst_text);
-  return [...new Set(parts)].slice(0,4);
-}
-function enrichFireStichwort(base){
-  if(!base || !(category==="brand"||category==="thl"||category==="abc")) return base;
-  const detail=fireSpecificDetail(); const n=firePersonCount();
-  const prefix=n>0?"TMR-TH · ":"";
-  const detailText=detail.length?detail.join(" · "):"Lage nicht näher spezifiziert";
-  const full=(base.volltext||"").trim();
-  const dynamic=`Ermittelte Lage: ${detailText}${n>0?` · ${n} betroffene Person${n===1?"":"en"}`:""}${answers.verdachtsdiagnose?` · Verdachtsdiagnose: ${answers.verdachtsdiagnose}`:""}`;
-  return {...base,name:`${prefix}${base.code||base.id} – ${detailText}`,volltext:full?`${full} ${dynamic}`:dynamic,fireDetail:detailText,firePersonCount:n};
-}
 function chooseStichwort(){
   if(category==="grossschaden")return null;
-  if(category==="medizin") return dynamicMedicalStichwort();
   const list=Object.values(data.einsatzstichworte||{}).filter(s=>s.category===category&&s.enabled!==false&&(s.conditions||[]).every(c=>matches(answers[c.questionId],c.values??c.value)));
+  if(category==="medizin" && primaryBodyMapType()){
+    const desired=medicalDispatchCategory();
+    const nef=evaluateNotarzt().length>0;
+    const rtw=medicalRtwCount();
+    const prefix=nef?`N1R${rtw}`:`R${rtw}`;
+    const exact=list.filter(s=>String(s.code||"").toUpperCase()===prefix && String(s.name||"").toUpperCase().includes(desired));
+    const sameCode=list.filter(s=>String(s.code||"").toUpperCase()===prefix && String(s.name||"").toUpperCase().includes(desired));
+    if(exact.length)return exact.sort((a,b)=>(b.priority||0)-(a.priority||0))[0];
+    if(sameCode.length)return sameCode.sort((a,b)=>(b.priority||0)-(a.priority||0))[0];
+    const byCat=list.filter(s=>String(s.name||"").toUpperCase().includes(desired));
+    if(byCat.length)return byCat.sort((a,b)=>(b.priority||0)-(a.priority||0))[0];
+    return fallbackStichwort();
+  }
   const specific=list.filter(s=>!['MED_ALL','MED_ALLGEMEIN','THL_ALLGEMEIN','ABC_ALLGEMEIN'].includes(s.id));
-  const base=(specific.length?specific:list).sort((a,b)=>(b.priority||0)-(a.priority||0))[0]||fallbackStichwort();
-  return enrichFireStichwort(base);
+  return(specific.length?specific:list).sort((a,b)=>(b.priority||0)-(a.priority||0))[0]||fallbackStichwort();
 }
 function dispatchAnswerFact(q,v){
   const text=String(q?.text||"").toLowerCase(), val=Array.isArray(v)?v.join(", "):String(v??"");
@@ -1371,10 +1304,12 @@ function importantDispatchFacts(){
     facts.push(`Betroffene Körperoberfläche: ca. ${vk.toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})} % VKOF`);
   }
   if(answers.atemfrequenz)facts.push(`AF ${answers.atemfrequenz}`);
+  if(answers.med_zugang) facts.push(answers.med_zugang==="Ja"?"Patient frei zugänglich":answers.med_zugang==="Nein"?"Patient nicht frei zugänglich":"Zugang: "+answers.med_zugang);
+  if(answers.med_zugang==="Nein" && answers.med_zugang_grund) facts.push(`Zugang erschwert: ${answers.med_zugang_grund}`);
   const qs=questions();
   for(const [id,v] of Object.entries(answers)){
     if(facts.length>=11)break;
-    if(["med_wem","med_personen","med_anzahl_genau","med_spricht","med_demografie","med_grund","erkrankung_typ","erkrankung_dm_01","erkrankung_dm_04","erkrankung_dm_05","erkrankung_bd_02","verdachtsdiagnose","abfrage_bemerkung","atemfrequenz","deterioration"].includes(id))continue;
+    if(["med_wem","med_personen","med_anzahl_genau","med_spricht","med_demografie","med_grund","erkrankung_typ","erkrankung_dm_01","erkrankung_dm_04","erkrankung_dm_05","erkrankung_bd_02","verdachtsdiagnose","abfrage_bemerkung","atemfrequenz","deterioration","med_zugang","med_zugang_grund"].includes(id))continue;
     const q=qs.find(x=>x.id===id);if(!q)continue;
     const fact=dispatchAnswerFact(q,v);if(fact)facts.push(fact);
   }
@@ -1384,14 +1319,6 @@ function dispatchText(resources,reasons,stichwort){
   const parts=[];
   if(stichwort?.name)parts.push(stichwort.name);
   if(category==="medizin") parts.push(...importantDispatchFacts());
-  if(category==="brand"||category==="abc"||category==="thl"){
-    if(category!=="medizin"){
-      const detail=fireSpecificDetail();
-      if(detail.length) parts.push(`Lage: ${detail.join(" · ")}`);
-      const pn=firePersonCount(); if(pn>0) parts.push(`Betroffene Personen: ${pn}`);
-      if(answers.verdachtsdiagnose) parts.push(`Verdachtsdiagnose: ${answers.verdachtsdiagnose}`);
-    }
-  }
   if(category==="brand"){
     if(answers.fw_schadensfall) parts.push(answers.fw_schadensfall);
     if(answers.objekt) parts.push(answers.objekt);
@@ -1507,7 +1434,7 @@ function openAF(){stopBreath();breathSeconds=0;breathCount=0;breathRunning=false
 function startBreath(){stopBreath();breathSeconds=30;breathCount=0;breathRunning=true;$("afSeconds").textContent="30";$("afCount").textContent="0";$("breathTap").disabled=false;$("breathStart").textContent="⏱ Messung läuft …";breathTimer=setInterval(()=>{breathSeconds--;$("afSeconds").textContent=String(Math.max(0,breathSeconds));if(breathSeconds<=0){stopBreath();const af=breathCount*2;$("afResult").innerHTML=`<strong>Ergebnis: ${af}/min</strong><br>${af<8||af>30?"⚠️ deutlich auffällig – Ergebnis im Gesamtkontext bewerten.":af<12||af>20?"ℹ️ außerhalb des üblichen Erwachsenen-Richtbereichs.":"✓ im üblichen Erwachsenen-Richtbereich."}`;answers.atemfrequenz=`${af}/min (30 s: ${breathCount})`;}} ,1000);}
 function stopBreath(){if(breathTimer){clearInterval(breathTimer);breathTimer=null;}breathRunning=false;}
 
-$("deteriorationBtn").onclick=openDeterioration;$("interimBtn").onclick=openInterim;$("remarkBtn").onclick=openRemark;$("exitBtn").onclick=()=>openAbortReason(()=>{location.href="ils.html"});$("afBtn").onclick=openAF;$("remarkQuick")?.addEventListener("input",e=>answers.abfrage_bemerkung=e.target.value);window.addEventListener("nabs-abort-launcher",()=>openAbortReason(()=>{location.href="ils.html"}));
+$("deteriorationBtn").onclick=openDeterioration;$("interimBtn").onclick=openInterim;$("remarkBtn").onclick=openRemark;$("exitBtn").onclick=()=>openAbortReason(()=>{location.href="ils.html"});$("afBtn").onclick=openAF;$("reaBtn").onclick=openREAHelper;$("remarkQuick")?.addEventListener("input",e=>answers.abfrage_bemerkung=e.target.value);window.addEventListener("nabs-abort-launcher",()=>openAbortReason(()=>{location.href="ils.html"}));
 $("previousBtn")?.addEventListener("click",()=>{
   if(!history.length||reaShown)return;
   const last=history.pop();

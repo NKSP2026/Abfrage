@@ -1,3 +1,15 @@
+Version 5.2 – Änderungsprotokoll
+================================
+
+- Versionsnummer des NABS-Pakets auf 5.2 angehoben.
+- Einsatzart-Auswahl in der ILS auf zwei Reihen mit jeweils drei Kacheln angepasst:
+  Oben: Rettungsdienst, Feuerwehr, Aufzugsnotruf.
+  Unten: Verkehrsunfall, Wasserunfall, Großschaden.
+- Künftige ausgelieferte ZIP-Pakete werden fortlaufend als Version_5.3_NABS.zip,
+  Version_5.4_NABS.zip usw. benannt.
+- Änderungen jeder neuen Version werden jeweils in dieser README.txt dokumentiert.
+
+
 NABS V62 – Körperkarte korrigiert
 
 Die Hotspots wurden für das vorhandene 1536x1251-Körperschema komplett neu auf die tatsächlichen Vorder- und Rückseitenpositionen gelegt.
@@ -664,3 +676,16 @@ BAuA beschreibt die neun GHS/CLP-Gefahrenpiktogramme als schwarze Symbole auf we
 Die verwendeten Bilddateien stammen aus der öffentlich dokumentierten GHS-Piktogramm-Sammlung von Wikimedia Commons; die dortigen Dateien verweisen bei den historischen Originalen auf UNECE-Quellen.
 
 
+
+Version 5.3 – EHSI neu strukturiert und regionale Quellen erweitert
+===================================================================
+- EHSI von einer langen Kartenliste auf auswählbare Bereiche umgebaut.
+- Bereiche als Buttons: Rettungsdienst, Feuerwehr, Gefahrgut, Leitstelle / Region.
+- Zusätzlicher Bereich: Tiere / Natur & Zuständigkeiten.
+- Die Inhalte werden erst nach Auswahl des jeweiligen Bereichs angezeigt.
+- Rettungsdienst mit aktuellen Quellen/Links ergänzt: BÄK NAIK 2023, RettZV Südwestsachsen, SächsLRettDPVO, SächsPsychKHG, SächsSchKGAG, GRC Reanimationsleitlinien 2025 und GRC-Materialien.
+- Feuerwehr mit SächsBRKG, AAO, Fahrzeug-/Stichwortübersicht, Gefahrgut, Wasserrettung und Aufzug erweitert.
+- Gefahrgut mit aktuellen BAM-/UNECE-Quellen und klarer Trennung zwischen ADR und GHS ergänzt.
+- Leitstelle / Region mit aktuellen regionalen Quellen für RettZV Südwestsachsen, Landkreis Zwickau, Feuerwehr Zwickau und REVOSax ergänzt.
+- Neuer Bereich Tiere/Natur mit Zuständigkeiten für Hornissen/Artenschutz, Jagdbehörde, Veterinäramt, Tierschutz und Wild-/ASP-Lagen für den Landkreis Zwickau einschließlich Zwickau/Mosel.
+- Quellen sind als direkte Dokument-/Weblinks hinterlegt und sollen bei Änderungen über die jeweils aktuelle Behörden-/Fachquelle geprüft werden.

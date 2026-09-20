@@ -5210,26 +5210,29 @@ export const defaults={
         "whenValue": "Psychische Erkrankung / Suizid"
       },
       "psyche_02": {
-        "id": "psyche_02",
-        "text": "Ist bekannt, wie sich die Person selbst verletzen oder Suizid begehen möchte?",
-        "type": "choice",
-        "order": 9522,
-        "options": [
-          "Kohlenstoffmonoxidvergiftung (CO)",
-          "Tabletten / Medikamente",
-          "Sturz aus Höhe",
-          "Vergiftung",
-          "Drogen / Alkohol",
-          "Schnitt- / Stichverletzung",
-          "Erhängen / Strangulation",
-          "Ertrinken",
-          "Mehrere Methoden / mehrere Angaben",
-          "Sonstige / unbekannt"
-        ],
-        "whenQuestion": "med_grund",
-        "whenValue": "Psychische Erkrankung / Suizid"
-      },
-      "psyche_03": {
+    "id": "psyche_02",
+    "text": "Wissen Sie, wie sich die Person selbst verletzen oder Suizid begehen möchte?",
+    "type": "choice",
+    "order": 9522,
+    "options": [
+      "Kohlenstoffmonoxidvergiftung (CO)",
+      "Tabletten / Medikamente",
+      "Aus Höhe springen",
+      "Vergiftung",
+      "Drogen / Alkohol",
+      "Pulsadereröffnung / Arterienverletzung",
+      "Erhängen / Strangulation",
+      "Ertrinken",
+      "Erschießen",
+      "Selbstverbrennung",
+      "Säure / Laugen",
+      "Mehrere Methoden / mehrere Angaben",
+      "Sonstige / unbekannt"
+    ],
+    "whenQuestion": "med_grund",
+    "whenValue": "Psychische Erkrankung / Suizid"
+  },
+  "psyche_03": {
         "id": "psyche_03",
         "text": "Ist die Person aktuell allein?",
         "type": "choice",

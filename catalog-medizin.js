@@ -5209,14 +5209,23 @@ export const catalog={
   },
   "psyche_02": {
     "id": "psyche_02",
-    "text": "Hat die Person bereits konkrete Mittel/Medikamente bereitgelegt?",
+    "text": "Wissen Sie, wie sich die Person selbst verletzen oder Suizid begehen möchte?",
     "type": "choice",
     "order": 9522,
     "options": [
-      "Ja",
-      "Nein",
-      "Unsicher (kann nicht beurteilt werden)",
-      "Unbekannter (kein Kontakt / keine Angabe möglich)"
+      "Kohlenstoffmonoxidvergiftung (CO)",
+      "Tabletten / Medikamente",
+      "Aus Höhe springen",
+      "Vergiftung",
+      "Drogen / Alkohol",
+      "Pulsadereröffnung / Arterienverletzung",
+      "Erhängen / Strangulation",
+      "Ertrinken",
+      "Erschießen",
+      "Selbstverbrennung",
+      "Säure / Laugen",
+      "Mehrere Methoden / mehrere Angaben",
+      "Sonstige / unbekannt"
     ],
     "whenQuestion": "med_grund",
     "whenValue": "Psychische Erkrankung / Suizid"
@@ -5305,34 +5314,7 @@ export const catalog={
     "whenQuestion": "med_grund",
     "whenValue": "Psychische Erkrankung / Suizid"
   },
-  "psyche_09": {
-    "id": "psyche_09",
-    "text": "Besteht Alkohol-/Drogenkonsum?",
-    "type": "choice",
-    "order": 9529,
-    "options": [
-      "Ja",
-      "Nein",
-      "Unsicher (kann nicht beurteilt werden)",
-      "Unbekannter (kein Kontakt / keine Angabe möglich)"
-    ],
-    "whenQuestion": "med_grund",
-    "whenValue": "Psychische Erkrankung / Suizid"
-  },
-  "psyche_10": {
-    "id": "psyche_10",
-    "text": "Wurde eine größere Medikamentenmenge eingenommen?",
-    "type": "choice",
-    "order": 9530,
-    "options": [
-      "Ja",
-      "Nein",
-      "Unsicher (kann nicht beurteilt werden)",
-      "Unbekannter (kein Kontakt / keine Angabe möglich)"
-    ],
-    "whenQuestion": "med_grund",
-    "whenValue": "Psychische Erkrankung / Suizid"
-  },
+
   "psyche_11": {
     "id": "psyche_11",
     "text": "Bestehen körperliche Beschwerden zusätzlich?",

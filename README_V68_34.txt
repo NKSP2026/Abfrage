@@ -1,4 +1,4 @@
-NABS V68.34 – Anpassung Psychischer Erkrankung / Suizid
+NABS V68.35 – Anpassung Psychischer Erkrankung / Suizid
 
 Änderungen:
 - psyche_02 ersetzt die bisherige Frage „Hat die Person bereits konkrete Mittel/Medikamente bereitgelegt?“.

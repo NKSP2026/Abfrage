@@ -1180,24 +1180,118 @@ function fallbackStichwort(){
   if(category==="thl") return {code:mode==="wasser"?"THL-WASSER":"THL-VU",name:mode==="wasser"?"Wasserunfall / Ertrinkungsunfall":"Verkehrsunfall / Technische Hilfeleistung",priority:1};
   return null;
 }
+function medicalAlarmFulltext(){
+  const d=answers.med_demografie&&typeof answers.med_demografie==="object"?answers.med_demografie:{};
+  const facts=[];
+  if(d.age!==undefined&&String(d.age).trim()!=="") facts.push(`${String(d.age).trim()} J.`);
+  if(d.gender&&d.gender!=="Unbekannt") facts.push(String(d.gender));
+
+  const injuries=selectedBodyInjuries();
+  if(injuries.length){
+    const injuryText=injuries.map(x=>{
+      const where=x.side?`${x.label} ${x.side}`:x.label;
+      return x.type?`${x.type} – ${where}`:where;
+    });
+    facts.push(injuryText.join("; "));
+  } else {
+    const g=String(answers.med_grund||"").trim();
+    facts.push(g&&g!=="Unklares Geschehen"?g:"Unklar");
+    if(g==="Verletzung"||g==="Arbeits- / Betriebs- / Schulunfall") facts.push("Verletzung unklar");
+  }
+
+  const extras=[];
+  const addIf=(condition,text)=>{if(condition&&!extras.includes(text))extras.push(text);};
+  addIf(answers.verletzung_v49_blutung==="Ja"||answers.blutung_03==="Ja"||answers.blutung_25==="Ja","starke Blutung");
+  addIf(answers.verletzung_v49_schmerz==="Ja","starke Schmerzen");
+  addIf(answers.verletzung_v49_atmung==="Ja"||answers.atem_01==="Ja"||answers.atem_05==="Ja","Atemprobleme");
+  addIf(answers.verletzung_v49_bewusstsein==="Nein"||answers.bewusstsein_01==="Ja"&&answers.bewusstsein_02==="Nein","Bewusstseinsstörung");
+  addIf(answers.deterioration==="Herz-Kreislauf-Stillstand"||answers.deterioration==="Atmet nicht mehr"||answers.atmung==="Atemstillstand","Atem-/Kreislaufstillstand");
+  addIf(answers.weitere_verletzungen==="Ja"||answers.verletzung_v49_weitere==="Ja","weitere Verletzungen");
+  facts.push(...extras.slice(0,3));
+  if(answers.verdachtsdiagnose) facts.push(`Verdachtsdiagnose: ${answers.verdachtsdiagnose}`);
+  return facts.filter(Boolean).join(" – ").slice(0,320)||"Unklar";
+}
+
+function dynamicMedicalStichwort(){
+  const nef=evaluateNotarzt().length>0;
+  const rtw=medicalRtwCount();
+  const cat=medicalDispatchCategory();
+  const prefix=nef?`N1R${rtw}`:`R${rtw}`;
+  return {
+    id:`dynamic_med_${prefix}_${cat}`,
+    category:"medizin",
+    enabled:true,
+    code:prefix,
+    name:`${prefix} - ${cat}`,
+    priority:999999,
+    volltext:medicalAlarmFulltext()
+  };
+}
+
+function firePersonAffected(){
+  const yesIds=[
+    "fw_blitz_personen","fw_gewalt_verletzt","fw_natur_personen","fw_terror_verletzt",
+    "fw_abc_betroffen","fw_explo_personen","fw_einsturz_person","fw_notlage_anzahl",
+    "fw_thl_person","fw_thl_eingeschlossen","fw_vu_personen","fw_oel_person",
+    "fw_tier_person","fw_sonst_person","fw_wasser_personen","fw_eis_person",
+    "fw_tauch_person","fw_boot_person","fw_sach_person"
+  ];
+  return yesIds.some(id=>answers[id]==="Ja") || ["fw_blitz_anzahl","fw_gewalt_anzahl","fw_natur_anzahl","fw_terror_anzahl","fw_abc_anzahl","fw_explo_anzahl","fw_einsturz_anzahl","fw_notlage_anzahl","fw_oel_menge"].some(id=>Number(answers[id])>0);
+}
+function firePersonCount(){
+  const ids=["fw_blitz_anzahl","fw_gewalt_anzahl","fw_natur_anzahl","fw_terror_anzahl","fw_abc_anzahl","fw_explo_anzahl","fw_einsturz_anzahl","fw_notlage_anzahl","fw_vu_anzahl_klemm","fw_vergiftung_personen"];
+  let n=0; ids.forEach(id=>{const v=Number(answers[id]);if(Number.isFinite(v)&&v>n)n=v;}); return n|| (firePersonAffected()?1:0);
+}
+function fireSpecificDetail(){
+  const sf=String(answers.fw_schadensfall||"");
+  const parts=[];
+  const add=(x)=>{if(x!==undefined&&x!==null&&String(x).trim()&&String(x)!=="Unklar"&&String(x)!=="Nein")parts.push(String(x).trim());};
+  if(sf==="Brand / Rauchentwicklung"){
+    add(answers.brand_objekt||answers.objekt);
+    if(answers.brand_extra_14==="Ja"||answers.brand_extra2_12==="Ja")add("Batteriespeicher");
+    if(answers.brand_extra2_11==="Ja")add("Photovoltaikanlage");
+    if(answers.brand_extra_16==="Ja")add("mehrere Fahrzeuge");
+  } else if(sf==="Öl-/Kraftstoffaustritt / Umweltschaden"){
+    add(answers.fw_oel_art); if(answers.fw_oel_menge) add(answers.fw_oel_menge); if(answers.fw_oel_gewasser==="Ja")add("Gewässer/Kanal/Erdreich betroffen");
+  } else if(sf==="Gefahrstoffaustritt / ABC"){
+    add(answers.fw_abc_art); if(answers.fw_abc_name) add(answers.fw_abc_name); if(answers.fw_abc_austritt==="Ja")add("Stoff tritt noch aus"); if(answers.fw_abc_symptome==="Ja")add("Expositionsbeschwerden");
+  } else if(sf==="Verkehrsunfall"){
+    add(answers.fw_vu_art); if(answers.fw_vu_betrieb==="Ja")add("Kraftstoff/Öl/Betriebsstoffe ausgetreten"); if(answers.fw_vu_hv==="Ja"||answers.thl_extra2_6==="Ja")add("Elektro-/Hybridfahrzeug"); if(answers.fw_vu_klemm==="Ja")add("eingeklemmte/eingeschlossene Person");
+  } else if(sf==="Technische Hilfeleistung"){
+    add(answers.fw_thl_art); if(answers.fw_thl_eingeschlossen==="Ja")add("Person eingeschlossen/eingeklemmt"); if(answers.fw_thl_hoehe==="Ja")add("Höhe/Tiefe");
+  } else if(sf==="Explosion"){
+    add(answers.fw_explo_art); if(answers.fw_explo_gefahrgut==="Ja")add("Gefahrgut/Gas/Druckbehälter"); if(answers.fw_explo_einsturz==="Ja")add("Einsturz-/Trümmergefahr");
+  } else if(sf==="Einsturz / Gebäudeschaden"){
+    add(answers.fw_einsturz_art); if(answers.fw_einsturz_akut==="Ja")add("akute Einsturzgefahr"); if(answers.fw_einsturz_person==="Ja")add("Person unter Trümmern/eingeschlossen/gefährdet");
+  } else if(sf==="Person in Notlage"){
+    add(answers.fw_notlage_art); if(answers.fw_notlage_hoehe==="Ja")add("Höhe/Tiefe"); if(answers.fw_notlage_atmung==="Nein")add("keine normale Atmung");
+  } else if(sf==="Vergiftung"){
+    add(answers.fw_vergiftung_name); add(answers.fw_vergiftung_weg); if(answers.fw_vergiftung_gas==="Ja")add("Gasverdacht");
+  } else if(sf==="Naturereignis"){
+    add(answers.fw_natur_art); if(answers.fw_natur_baum==="Ja")add("Baum/Gegenstand"); if(answers.fw_natur_strom==="Ja")add("Strom/Energie betroffen");
+  } else if(sf==="Tierrettung"){
+    add(answers.fw_tier_art); add(answers.fw_tier_lage);
+  } else if(sf==="Ertrinkungsunfall"||sf==="Eisrettung"||sf==="Tauchunfall"||sf==="Wasserfahrzeug / -sportler in Not"){
+    add(sf); add(answers.fw_wasser_ort);
+  } else if(sf==="Sonstige Feuerwehrlage (FREITEXT)") add(answers.fw_sonst_text);
+  return [...new Set(parts)].slice(0,4);
+}
+function enrichFireStichwort(base){
+  if(!base || !(category==="brand"||category==="thl"||category==="abc")) return base;
+  const detail=fireSpecificDetail(); const n=firePersonCount();
+  const prefix=n>0?"TMR-TH · ":"";
+  const detailText=detail.length?detail.join(" · "):"Lage nicht näher spezifiziert";
+  const full=(base.volltext||"").trim();
+  const dynamic=`Ermittelte Lage: ${detailText}${n>0?` · ${n} betroffene Person${n===1?"":"en"}`:""}${answers.verdachtsdiagnose?` · Verdachtsdiagnose: ${answers.verdachtsdiagnose}`:""}`;
+  return {...base,name:`${prefix}${base.code||base.id} – ${detailText}`,volltext:full?`${full} ${dynamic}`:dynamic,fireDetail:detailText,firePersonCount:n};
+}
 function chooseStichwort(){
   if(category==="grossschaden")return null;
+  if(category==="medizin") return dynamicMedicalStichwort();
   const list=Object.values(data.einsatzstichworte||{}).filter(s=>s.category===category&&s.enabled!==false&&(s.conditions||[]).every(c=>matches(answers[c.questionId],c.values??c.value)));
-  if(category==="medizin" && primaryBodyMapType()){
-    const desired=medicalDispatchCategory();
-    const nef=evaluateNotarzt().length>0;
-    const rtw=medicalRtwCount();
-    const prefix=nef?`N1R${rtw}`:`R${rtw}`;
-    const exact=list.filter(s=>String(s.code||"").toUpperCase()===prefix && String(s.name||"").toUpperCase().includes(desired));
-    const sameCode=list.filter(s=>String(s.code||"").toUpperCase()===prefix && String(s.name||"").toUpperCase().includes(desired));
-    if(exact.length)return exact.sort((a,b)=>(b.priority||0)-(a.priority||0))[0];
-    if(sameCode.length)return sameCode.sort((a,b)=>(b.priority||0)-(a.priority||0))[0];
-    const byCat=list.filter(s=>String(s.name||"").toUpperCase().includes(desired));
-    if(byCat.length)return byCat.sort((a,b)=>(b.priority||0)-(a.priority||0))[0];
-    return fallbackStichwort();
-  }
   const specific=list.filter(s=>!['MED_ALL','MED_ALLGEMEIN','THL_ALLGEMEIN','ABC_ALLGEMEIN'].includes(s.id));
-  return(specific.length?specific:list).sort((a,b)=>(b.priority||0)-(a.priority||0))[0]||fallbackStichwort();
+  const base=(specific.length?specific:list).sort((a,b)=>(b.priority||0)-(a.priority||0))[0]||fallbackStichwort();
+  return enrichFireStichwort(base);
 }
 function dispatchAnswerFact(q,v){
   const text=String(q?.text||"").toLowerCase(), val=Array.isArray(v)?v.join(", "):String(v??"");
@@ -1290,6 +1384,14 @@ function dispatchText(resources,reasons,stichwort){
   const parts=[];
   if(stichwort?.name)parts.push(stichwort.name);
   if(category==="medizin") parts.push(...importantDispatchFacts());
+  if(category==="brand"||category==="abc"||category==="thl"){
+    if(category!=="medizin"){
+      const detail=fireSpecificDetail();
+      if(detail.length) parts.push(`Lage: ${detail.join(" · ")}`);
+      const pn=firePersonCount(); if(pn>0) parts.push(`Betroffene Personen: ${pn}`);
+      if(answers.verdachtsdiagnose) parts.push(`Verdachtsdiagnose: ${answers.verdachtsdiagnose}`);
+    }
+  }
   if(category==="brand"){
     if(answers.fw_schadensfall) parts.push(answers.fw_schadensfall);
     if(answers.objekt) parts.push(answers.objekt);

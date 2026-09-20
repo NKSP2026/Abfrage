@@ -837,7 +837,7 @@ function hazmatFieldsMarkup(h={}){
 function wireHazmat(box,h,onSave,onClear){
   const selected=new Set(Array.isArray(h.ghs)?h.ghs:[]);
   const selectedAdr=new Set(Array.isArray(h.adrLabels)?h.adrLabels:[]);
-  const ghsRemote={GHS01:'GHS01.png',GHS02:'GHS02.png',GHS03:'GHS03.png',GHS04:'GHS04.png',GHS05:'GHS05.png',GHS06:'GHS06.png',GHS07:'GHS07.png',GHS08:'GHS08.png',GHS09:'GHS09.png'};
+  const ghsRemote={GHS01:'https://raw.githubusercontent.com/senaite/senaite.core/2.x/src/senaite/core/browser/static/images/ghs/GHS01.svg',GHS02:'https://raw.githubusercontent.com/senaite/senaite.core/2.x/src/senaite/core/browser/static/images/ghs/GHS02.svg',GHS03:'https://raw.githubusercontent.com/senaite/senaite.core/2.x/src/senaite/core/browser/static/images/ghs/GHS03.svg',GHS04:'https://raw.githubusercontent.com/senaite/senaite.core/2.x/src/senaite/core/browser/static/images/ghs/GHS04.svg',GHS05:'https://raw.githubusercontent.com/senaite/senaite.core/2.x/src/senaite/core/browser/static/images/ghs/GHS05.svg',GHS06:'https://raw.githubusercontent.com/senaite/senaite.core/2.x/src/senaite/core/browser/static/images/ghs/GHS06.svg',GHS07:'https://raw.githubusercontent.com/senaite/senaite.core/2.x/src/senaite/core/browser/static/images/ghs/GHS07.svg',GHS08:'https://raw.githubusercontent.com/senaite/senaite.core/2.x/src/senaite/core/browser/static/images/ghs/GHS08.svg',GHS09:'https://raw.githubusercontent.com/senaite/senaite.core/2.x/src/senaite/core/browser/static/images/ghs/GHS09.svg'};
   const gg=box.querySelector('#ghsGrid');
   GHS_SYMBOLS.forEach(([id,name])=>{
     const lab=document.createElement('label'); lab.className='ghs-choice-original';

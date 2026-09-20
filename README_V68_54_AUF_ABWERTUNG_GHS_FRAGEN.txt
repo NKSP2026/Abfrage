@@ -34,3 +34,10 @@ NABS V68.54 – Auf-/Abwertung, GHS lokal, Fragenlogik korrigiert
 Technischer Hinweis
 -------------------
 Die manuelle Änderung ist eine dokumentierte Dispositions-/Benutzeränderung und ersetzt nicht die Entscheidung des zuständigen Disponenten bzw. örtliche AAO-Vorgaben.
+
+
+V68.55 – GHS-Anzeige korrigiert
+- Die zuvor verwendeten zugeschnittenen PNGs wurden vollständig entfernt.
+- GHS01–GHS09 werden als originale standardisierte SVG-Piktogramme geladen.
+- Kein GHS-Unterordner und keine zugeschnittenen Bilddateien im Projekt.
+- PDF-Druck verwendet dieselben Original-SVG-Quellen.

@@ -356,10 +356,18 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 .adr-icon{font-size:1.65rem;line-height:1}
 .adr-diamond b{position:absolute;bottom:2px;right:4px;font-size:.72rem}
 .adr-gas-flammable .adr-diamond,.adr-flammable .adr-diamond,.adr-solid-flammable .adr-diamond,.adr-self-heating .adr-diamond,.adr-organic-peroxide .adr-diamond{background:#ef4444;color:#111}
-.adr-gas .adr-diamond{background:#e5e7eb}.adr-gas-toxic .adr-diamond{background:#fff}.adr-water-reactive .adr-diamond{background:#eab308}.adr-oxidizing .adr-diamond{background:#fde047}.adr-toxic .adr-diamond{background:#fff}.adr-infectious .adr-diamond{background:#fff}.adr-radioactive .adr-diamond{background:#fde047}.adr-corrosive .adr-diamond{background:#fff}.adr-misc .adr-diamond,.adr-battery .adr-diamond{background:#fff}.adr-explosive .adr-diamond{background:#f59e0b}
+.adr-gas .adr-diamond{background:#e5e7eb}.adr-gas-toxic .adr-diamond{background:#fff;color:#111}.adr-gas-toxic .adr-icon{filter:none;opacity:1}.adr-water-reactive .adr-diamond{background:#eab308}.adr-oxidizing .adr-diamond{background:#fde047}.adr-toxic .adr-diamond{background:#fff;color:#111}.adr-toxic .adr-icon{filter:none;opacity:1}.adr-infectious .adr-diamond{background:#fff;color:#111}.adr-infectious .adr-icon{filter:none;opacity:1}.adr-radioactive .adr-diamond{background:#fde047}.adr-corrosive .adr-diamond{background:#fff}.adr-misc .adr-diamond,.adr-battery .adr-diamond{background:#fff}.adr-explosive .adr-diamond{background:#f59e0b}
 .adr-name{font-size:.78rem;text-align:center;line-height:1.15;color:#e5e7eb}
 .hazmat-transport-grid{margin-top:16px}.hazmat-lookup{background:#111722;border:1px solid #455266;border-radius:10px;padding:12px;color:#dbe5f0;min-height:48px;display:flex;align-items:center;margin-top:10px}
 .hazmat-box .free-actions{margin-top:16px}
 @media(max-width:900px){.adr-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:760px){.hazmat-plate-wrap{grid-template-columns:1fr}.adr-orange-plate{min-height:180px}.adr-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hazmat-box{padding:13px}.adr-choice{min-height:115px}.adr-diamond{width:56px;height:56px}}
 @media(max-width:460px){.adr-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* V68.48 – Aufzugsnotruf */
+.ils-tile.elevator{background:#0b7285}
+.ils-tile.elevator:hover{filter:brightness(1.08)}
+.aufzug-note{background:#10252b;border:1px solid #26798a;border-radius:12px;padding:12px 14px;margin-bottom:14px;color:#d9f3f8}
+.aufzug-medical{border-left:5px solid #ef4444;background:#281619}
+@media(max-width:900px){.ils-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.ils-grid{grid-template-columns:1fr}.ils-tile{min-height:150px}}

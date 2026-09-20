@@ -597,6 +597,24 @@ function normalizeChoiceOptions(q){
   if(isPlainYesNo || (hasUnclear && hasUnknown && vals.length<=4)) q={...q,options:[...yesNoUnclearOptions]};
   return q;
 }
+const elevatorQuestions = [
+  {id:"aufzug_ort",text:"Ist der genaue Standort des Aufzugs bekannt?",type:"choice",options:["Ja – Adresse/Objekt bekannt","Teilweise bekannt","Nein / unklar"]},
+  {id:"aufzug_personen",text:"Wie viele Personen befinden sich im Aufzug?",type:"choice",options:["1 Person","2–5 Personen","Mehr als 5 Personen","Unklar"]},
+  {id:"aufzug_eingeschlossen",text:"Sind die Personen im Aufzug eingeschlossen?",type:"choice",options:["Ja","Nein","Unklar"]},
+  {id:"aufzug_position",text:"Wo befindet sich die Aufzugskabine?",type:"choice",options:["Zwischen zwei Etagen","Auf einer Etage – Türen geschlossen","Unklar"]},
+  {id:"aufzug_tueren",text:"Wie ist der Zustand der Aufzugstüren?",type:"choice",options:["Geschlossen","Teilweise geöffnet","Offen","Unklar"]},
+  {id:"aufzug_bewegung",text:"Bewegt sich der Aufzug unkontrolliert oder besteht Absturz-/Quetschgefahr?",type:"choice",options:["Ja","Nein","Unklar"]},
+  {id:"aufzug_gefahr",text:"Gibt es Rauch, Feuer, Wasser oder eine andere akute Gefahr?",type:"choice",options:["Ja","Nein","Unklar"]},
+  {id:"aufzug_kommunikation",text:"Ist die Kommunikation mit den eingeschlossenen Personen möglich?",type:"choice",options:["Ja","Nein","Nur eingeschränkt"]},
+  {id:"aufzug_gefaehrdet",text:"Sind Personen akut gefährdet oder in Panik?",type:"choice",options:["Ja","Nein","Unklar"]},
+  {id:"aufzug_medizin",text:"Liegt zusätzlich ein medizinischer Notfall vor?",type:"choice",options:["Ja","Nein","Unklar"]},
+  {id:"aufzug_med_bewusstsein",text:"Ist eine betroffene Person bewusstlos oder nicht ansprechbar?",type:"choice",options:["Ja","Nein","Unklar"],whenQuestion:"aufzug_medizin",whenValue:"Ja"},
+  {id:"aufzug_med_atmung",text:"Atmet eine betroffene Person nicht normal?",type:"choice",options:["Ja","Nein","Unklar"],whenQuestion:"aufzug_medizin",whenValue:"Ja"},
+  {id:"aufzug_med_blutung",text:"Besteht eine starke oder nicht stillbare Blutung?",type:"choice",options:["Ja","Nein","Unklar"],whenQuestion:"aufzug_medizin",whenValue:"Ja"},
+  {id:"aufzug_med_symptome",text:"Welche akuten Beschwerden liegen vor?",type:"choice",options:["Starke Atemnot","Brustschmerzen","Krampfanfall","Starke Schmerzen","Keine dieser Beschwerden / unklar"],whenQuestion:"aufzug_medizin",whenValue:"Ja"},
+  {id:"aufzug_med_sofort",text:"Wird sofort medizinische Hilfe benötigt?",type:"choice",options:["Ja","Nein","Unklar"],whenQuestion:"aufzug_medizin",whenValue:"Ja"}
+];
+
 const grossQuestions = [
   {id:"gs_lage",text:"Was ist die Großschadenslage?",type:"choice",order:10,options:["Viele Betroffene / MANV","Großbrand / Flächenlage","Unwetter / Naturereignis","Einsturz / Gebäudeschaden","Sonstige Großschadenslage"]},
   {id:"gs_orte",text:"Wo befindet sich die Lage?",type:"text",order:20,placeholder:"Ort / Straße / Objekt …"},
@@ -620,7 +638,7 @@ function mergeDeep(base,incoming){
 }
 
 async function loadLocalCategoryInBackground(){
-  if(!category || category==="grossschaden") return false;
+  if(!category || category==="grossschaden" || category==="aufzug") return false;
   try{
     const mod=await import(`./catalog-${category}.js?v=20260917fw1`);
     data.catalog[category]=mod.catalog||{};
@@ -668,6 +686,7 @@ function title(){
   if(mode==="vu") return "🚗 Verkehrsunfall";
   if(mode==="wasser") return "🌊 Wasserunfall";
   if(mode==="grossschaden") return "🚨 Großschaden";
+  if(mode==="aufzug") return "🛗 Aufzugsnotruf";
   return mainCategories.find(x=>x[0]===category)?.[1] || category;
 }
 function matches(actual,expected){
@@ -713,6 +732,7 @@ function visible(q){
 }
 function isInjuryReason(){ return answers.med_grund==="Verletzung" || answers.med_grund==="Arbeits- / Betriebs- / Schulunfall"; }
 function questions(){
+  if(category==="aufzug") return elevatorQuestions;
   if(category==="grossschaden") return grossQuestions;
   if(category==="brand") return firefighterQuestions().map(normalizeChoiceOptions);
   let qs=Object.values(data.catalog?.[category]||{}).filter(q=>q?.id&&q?.text).map(normalizeChoiceOptions);
@@ -829,6 +849,10 @@ function openHazmat(){
   $('hazmatModalClose').onclick=closeModal;
 }
 function nextQuestion(){
+  if(category==="aufzug") {
+    const qs=elevatorQuestions.filter(q=>visible(q)&&answers[q.id]===undefined);
+    return qs[0]||null;
+  }
   if(hazmatTriggered()) return {id:"gefahrgut_details",text:"Welche Gefahrstoff-/Gefahrgutangaben sind vor Ort erkennbar?",type:"hazmat"};
   // Feuerwehr: nach der Auswahl des Schadensfalls nur noch die kurze,
   // lagebezogene 12–14-Fragen-Abfrage verwenden.
@@ -1005,6 +1029,7 @@ function phaseText(){
   if(category==="medizin" && answers.med_grund===undefined) return "Medizinische Ersteinschätzung";
   if(category==="medizin" && medicalBranchCount()>=10) return "Risikoanalyse / Ergebnis";
   if(category==="medizin" && (answers.med_spricht!==undefined || answers.med_demografie!==undefined)) return "Strukturierte medizinische Abfrage";
+  if(category==="aufzug") return answers.aufzug_medizin==="Ja" ? "Aufzugsnotruf · medizinische Zusatzabfrage" : "Aufzugsnotruf · technische Abfrage";
   if(steps>=10) return "Risikoanalyse / Abschluss";
   return "Strukturierte Notrufabfrage";
 }
@@ -1295,6 +1320,7 @@ function fallbackStichwort(){
   return null;
 }
 function chooseStichwort(){
+  if(category==="aufzug") return {code:"FW-AUFZUG",name:answers.aufzug_medizin==="Ja"?"Aufzugsnotruf / technische Hilfe + medizinischer Notfall":"Aufzugsnotruf / technische Hilfe",priority:1};
   if(category==="grossschaden")return null;
   const list=Object.values(data.einsatzstichworte||{}).filter(s=>s.category===category&&s.enabled!==false&&(s.conditions||[]).every(c=>matches(answers[c.questionId],c.values??c.value)));
   if(category==="medizin" && primaryBodyMapType()){
@@ -1425,6 +1451,17 @@ function dispatchText(resources,reasons,stichwort){
   }
   if(category==="thl"){if(mode==="vu")parts.push("Verkehrsunfall");if(mode==="wasser")parts.push("Wasser-/Eisunfall");if(answers.lage)parts.push(answers.lage);if(answers.eingeklemmt==="Ja")parts.push("Person(en) eingeklemmt/eingeschlossen");}
   if(category==="grossschaden"){parts.push(answers.gs_lage||"Großschadenslage");if(answers.gs_orte)parts.push(answers.gs_orte);if(answers.gs_betroffene)parts.push(`ca. ${answers.gs_betroffene} Betroffene`);}
+  if(category==="aufzug"){
+    parts.push("Aufzugsnotruf / eingeschlossene Person(en)");
+    if(answers.aufzug_personen) parts.push(answers.aufzug_personen);
+    if(answers.aufzug_position) parts.push(answers.aufzug_position);
+    if(answers.aufzug_tueren) parts.push(`Türen: ${answers.aufzug_tueren}`);
+    if(answers.aufzug_gefahr==="Ja") parts.push("Akute Gefahr am Aufzug");
+    if(answers.aufzug_medizin==="Ja") {
+      parts.push("Zusätzlicher medizinischer Notfall");
+      ["aufzug_med_bewusstsein","aufzug_med_atmung","aufzug_med_blutung","aufzug_med_symptome","aufzug_med_sofort"].forEach(id=>{if(answers[id]&&answers[id]!=="Nein")parts.push(answers[id]);});
+    }
+  }
   const hz=hazmatSummary(); if(hz) parts.push(`Gefahrgutlage: ${hz}`);
   if(answers.abfrage_bemerkung)parts.push(`Zusatz: ${answers.abfrage_bemerkung}`);
   return parts.filter(Boolean).join(" – ").slice(0,520)||"Einsatz – weitere Angaben nicht verfügbar";
@@ -1447,7 +1484,10 @@ function currentResult(){
     stichwort={...stichwort,volltext:[stichwort.volltext||stichwort.name||"Alarmstichwort", `Gefahrgut-Zusatz: ${hz}`].filter(Boolean).join(" – ")};
   }
   let final=[];
-  if(category==="brand"||category==="thl"||category==="abc") {
+  if(category==="aufzug") {
+    final=["Feuerwehr – Aufzugsnotruf / technische Hilfeleistung"];
+    if(answers.aufzug_medizin==="Ja") final.push("Rettungsdienst – medizinische Abklärung");
+  } else if(category==="brand"||category==="thl"||category==="abc") {
     // Nur tatsächlich zu alarmierende Feuerwehrmittel aus der AAO anzeigen.
     // Allgemeine Platzhalter wie "Feuerwehr" werden bewusst nicht ausgegeben.
     final=Array.isArray(aao?.resources)?aao.resources.filter(x=>!/^RTW$|^NEF$|Rettungsdienst|Notarzt/i.test(String(x).trim())):[];
@@ -1543,7 +1583,7 @@ try{
   const p=new URLSearchParams(location.search);
   category=p.get("category");
   mode=p.get("mode");
-  if(!["medizin","brand","thl","grossschaden"].includes(category)) throw new Error("Ungültige Kategorie");
+  if(!["medizin","brand","thl","grossschaden","aufzug"].includes(category)) throw new Error("Ungültige Kategorie");
   startTime=Date.now();
   if(mode==="vu") answers.thl_art="Verkehrsunfall";
   if(mode==="wasser") answers.thl_art="Wasser / Eis / Ertrinkungsunfall";

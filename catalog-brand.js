@@ -737,7 +737,6 @@ Object.assign(catalog,{
 
   fw_abc_art: fw("fw_abc_art","Welche Art Gefahrstoff-/ABC-Lage liegt vor?",["Gas / Gasgeruch","Chemikalienaustritt","Unbekannter Stoff","Gefahrgutunfall","Biologische Gefahr","Radioaktive Gefahr","Sonstige"],1750,"Gefahrstoffaustritt / ABC"),
   fw_abc_stoff: fw("fw_abc_stoff","Ist der Stoff bekannt?",["Ja","Nein","Unklar"],1760,"Gefahrstoffaustritt / ABC"),
-  fw_abc_name: fw("fw_abc_name","Welcher Stoff / welches Produkt ist beteiligt?",[],1770,"Gefahrstoffaustritt / ABC",{type:"text",whenAll:[{questionId:"fw_abc_stoff",value:"Ja"}]}),
   fw_abc_austritt: fw("fw_abc_austritt","Ist der Stoff noch am Austreten?",["Ja","Nein","Unklar"],1780,"Gefahrstoffaustritt / ABC"),
   fw_abc_betroffen: fw("fw_abc_betroffen","Sind Personen betroffen oder exponiert?",["Ja","Nein","Unklar"],1790,"Gefahrstoffaustritt / ABC"),
   fw_abc_anzahl: fw("fw_abc_anzahl","Wie viele Personen sind betroffen?",[],1800,"Gefahrstoffaustritt / ABC",{type:"number",whenAll:[{questionId:"fw_abc_betroffen",value:"Ja"}]}),

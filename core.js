@@ -1,7 +1,32 @@
 import { firebaseConfig, ADMIN_UID } from "./firebase-config.js?v=20260914v16";
 import { defaults } from "./data.js?v=20260915v27";
-const defaultAAO = {};
-const defaultStichworte = {};
+const defaultAAO = {
+  B1:{id:"B1",stichwort:"B1",name:"Brand – klein",category:"brand",resources:["KLF"]},
+  B2:{id:"B2",stichwort:"B2",name:"Brand – mittel",category:"brand",resources:["ELW","KLF","HLF","GW-L","WLF-2","WLF-1"]},
+  B3:{id:"B3",stichwort:"B3",name:"Brand – groß",category:"brand",resources:["ELW","KLF","HLF","GW-L","WLF-2","WLF-1"]},
+  G1:{id:"G1",stichwort:"G1",name:"Gefahrguteinsatz – klein",category:"abc",resources:["HLF"]},
+  G2:{id:"G2",stichwort:"G2",name:"Gefahrguteinsatz – mittel",category:"abc",resources:["ELW","KLF","HLF","GW-L","WLF-2","WLF-1"]},
+  G3:{id:"G3",stichwort:"G3",name:"Gefahrguteinsatz – groß",category:"abc",resources:["ELW","KLF","HLF","GW-L","WLF-2","WLF-1"]},
+  TH1:{id:"TH1",stichwort:"TH1",name:"Technische Hilfeleistung – klein",category:"thl",resources:["HLF"]},
+  TH2:{id:"TH2",stichwort:"TH2",name:"Technische Hilfeleistung – mittel",category:"thl",resources:["ELW","KLF","HLF","GW-L","WLF-2","WLF-1"]},
+  TH3:{id:"TH3",stichwort:"TH3",name:"Technische Hilfeleistung – groß",category:"thl",resources:["ELW","KLF","HLF","GW-L","WLF-2","WLF-1"]},
+  SL:{id:"SL",stichwort:"SL",name:"Sonderlage",category:"grossschaden",resources:["ELW","KLF","HLF","GW-L","WLF-1","WLF-2"]}
+};
+
+const defaultStichworte = {
+  B1:{id:"B1",enabled:false,code:"B1",name:"Brand klein",category:"brand",priority:300,conditionMode:"all",conditions:[],volltext:"Auslösung BMA (Linienmelder, Rauchmelder, RAS-System, Lüftungskanalmelder Abluft, etc.) – Auslösung von einem Element; Auslösung NRA (Auslösung von einem Element); Kleinstbrand; Mülleimer im Innen- und Außenbereich von Gebäuden; Voralarm Gaslöschanlagen; Voralarm Ex-Meldeanlagen; Gelöschte Feuer oder ähnliche Meldebilder."},
+  B2:{id:"B2",enabled:false,code:"B2",name:"Brand mittel",category:"brand",priority:200,conditionMode:"all",conditions:[],volltext:"Auslösung BMA (mehr als ein Element von Linienmelder, Rauchmelder, RAS-System, Lüftungskanalmelder Abluft, etc.); Auslösung NRA (Auslösung mehr als ein Element); Brand PKW, LKW, Schienenfahrzeug im Innen- und Außenbereich von Gebäuden; Ex-Meldeanlagen oder ähnliche Meldebilder."},
+  B3:{id:"B3",enabled:false,code:"B3",name:"Brand groß",category:"brand",priority:100,conditionMode:"all",conditions:[],volltext:"Auslösung automatische Löschanlagen; Druckknopfmelder; bestätigte Notrufe (Rauchentwicklung oder Brandkenngröße); Auslösung BMA in Sondergebäuden; ab Mittelbrand im Innen- und Außenbereich von Gebäuden oder ähnliche Meldebilder."},
+  G1:{id:"G1",enabled:false,code:"G1",name:"Gefahrguteinsatz klein",category:"abc",priority:300,conditionMode:"all",conditions:[],volltext:"Umweltschäden klein, auslaufende Betriebsmittel; Tierbergung; Transport kritischer Batterien; Geruchsbelästigungen oder ähnliche Meldebilder."},
+  G2:{id:"G2",enabled:false,code:"G2",name:"Gefahrguteinsatz mittel",category:"abc",priority:200,conditionMode:"all",conditions:[],volltext:"Kritische Batterien, wenn nicht G1; Gaswarnanlagen; Gefahrgutunfall / Umweltschaden klein; auslaufende Medien ohne Auswirkung; Gasgeruch oder ähnliche Meldebilder."},
+  G3:{id:"G3",enabled:false,code:"G3",name:"Gefahrguteinsatz groß",category:"abc",priority:100,conditionMode:"all",conditions:[],volltext:"Gefährliche Batterien; auslaufende Medien mit Auswirkung; Gewässerverunreinigung; Gefahrgutunfall / Umweltschaden groß oder ähnliche Meldebilder."},
+  TH1:{id:"TH1",enabled:false,code:"TH1",name:"Technische Hilfeleistung klein",category:"thl",priority:300,conditionMode:"all",conditions:[],volltext:"Befreiung Person Aufzug; kleine Wasserschäden; Tierrettung; Absicherung Einsatzstellen oder ähnliche Meldebilder."},
+  TH2:{id:"TH2",enabled:false,code:"TH2",name:"Technische Hilfeleistung mittel",category:"thl",priority:200,conditionMode:"all",conditions:[],volltext:"VKU ohne Personenschaden; große Wasserschäden; Hilfeleistung oder ähnliche Meldebilder."},
+  TH3:{id:"TH3",enabled:false,code:"TH3",name:"Technische Hilfeleistung groß",category:"thl",priority:100,conditionMode:"all",conditions:[],volltext:"Unfall mit Personenschaden; Retten aus Höhen oder Tiefen; produktionsrelevante Störungen; VKU mit Personenschaden; eingeklemmte Person; hilflose Person oder ähnliche Meldebilder."},
+  SL:{id:"SL",enabled:false,code:"SL",name:"Sonderlage",category:"grossschaden",priority:500,conditionMode:"all",conditions:[],volltext:"Bestätigte Auslösung CO₂-Löschanlage; Massenanfall von Verletzten (Großschadenslage – GSL); Großbrand; Explosion, Detonation; Einsturz von baulichen Anlagen; Gasaustritt; unwetterartige Umwelt ereignisse (Sturm, Hochwasser, Starkregen, Hagel, etc.) oder ähnliche Meldebilder."}
+};
+
+export { defaultAAO, defaultStichworte };
 
 export const categories = [
   ["brand", "🔥 Brand / Rauchentwicklung"],
@@ -148,8 +173,8 @@ export async function loadAllData(){
     notarzt_rules:clone(defaults.notarzt_rules),
     resource_rules:clone(defaults.resource_rules),
     suggestions:clone(defaults.suggestions),
-    aao:clone(defaultAAO),
-    einsatzstichworte:clone(defaultStichworte)
+    aao:{},
+    einsatzstichworte:{}
   };
 
   if(db&&window.__fb?.get){
@@ -165,11 +190,21 @@ export async function loadAllData(){
       }catch(e){ console.warn("Firebase read",p,e); return [p,null]; }
     }));
 
+    const remotePresent=new Set();
     for(const [p,v] of results){
       if(v===null) continue;
+      remotePresent.add(p);
       if(p==="catalog") base.catalog=catalogFromFirebase(base.catalog,v);
       else base[p]=merge(base[p],v);
     }
+    // Nur wenn der komplette Bereich in Firebase noch nicht existiert, wird
+    // die lokale Grundvorlage verwendet. Einzelne gelöschte Einträge kommen
+    // dadurch nicht automatisch zurück.
+    if(!remotePresent.has("aao")) base.aao=clone(defaultAAO);
+    if(!remotePresent.has("einsatzstichworte")) base.einsatzstichworte=clone(defaultStichworte);
+  } else {
+    base.aao=clone(defaultAAO);
+    base.einsatzstichworte=clone(defaultStichworte);
   }
 
   cached=normalizeLegacy(base);
@@ -301,11 +336,15 @@ export function evaluateResources(data,category,answers,reasons=[]){
 }
 export function matchesStichwort(s,category,answers){
   if((aliases[s.category]||s.category)!==category) return false;
-  return (s.conditions||[]).every(c=>matches(answers[c.questionId],c.values??c.value));
+  const conditions=Array.isArray(s.conditions)?s.conditions:[];
+  if(!conditions.length) return true;
+  const test=c=>matches(answers[c.questionId],c.values??c.value);
+  if(s.conditionMode==="any") return conditions.some(test);
+  return conditions.every(test);
 }
 export function chooseStichwort(data,category,answers){
   const generic=new Set(["MED_NEf","MED_NOTFALL","MED_ALLG","MED_ALLGEMEIN","THL_ALLGEMEIN","ABC_ALLGEMEIN"]);
-  let list=Object.values(data.einsatzstichworte||{}).filter(s=>matchesStichwort(s,category,answers));
+  let list=Object.values(data.einsatzstichworte||{}).filter(s=>s.enabled!==false&&matchesStichwort(s,category,answers));
   const specific=list.filter(s=>!generic.has(s.id));
   if(specific.length) list=specific;
   return list.sort((a,b)=>(b.priority||0)-(a.priority||0))[0]||null;

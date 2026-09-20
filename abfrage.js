@@ -14,6 +14,7 @@ const mainCategories = [
 const medicalInitialQuestions = [
   {id:"med_wem",text:"Geht es um Sie oder um jemand anderen?",type:"choice",order:10,options:["Fremdanrufer (Erwachsen)","Ist selbst der einzige Patient","Fremdanrufer (Kind)"]},
   {id:"med_personen",text:"Wie viele Personen sind betroffen?",type:"choice",order:20,options:["1","2–9","Mehr als 9 / MANV"]},
+  {id:"med_anzahl_genau",text:"Wie viele Personen sind tatsächlich verletzt oder erkrankt?",type:"number",order:21,placeholder:"Genaue Anzahl …",whenQuestion:"med_personen",whenValue:"2–9"},
   {id:"med_spricht",text:"Kann der Patient sprechen?",type:"choice",order:30,options:["Ja","Nein","Unsicher (kann nicht beurteilt werden)","Unbekannter (kein Kontakt / keine Angabe möglich)"]},
   {id:"med_demografie",text:"Wie alt ist der Patient?",type:"demographics",order:40,fields:{ageLabel:"Alter in Jahren",birthdateLabel:"Geburtsdatum",genderLabel:"Geschlecht",genderOptions:["Männlich","Weiblich","Divers","Unbekannt"]}},
   {id:"med_grund",text:"Sagen Sie mir bitte den genauen Grund Ihres Anrufes!",type:"choice",order:50,options:["Allergie / Anaphylaxie","Atemstörung","Bauchschmerzen","Bewusstseinsstörung / Wesensveränderung","Blutungen","Brustschmerzen","Erkrankung / medizinische Hilfeleistung","Geburt / Schwangerschaft","Gefühlsstörung / Lähmung / Sprache / Sehstörung","Herzrhythmusstörungen","Hitze- / Kälteprobleme","Kollaps / Kreislaufstörung","Kopfschmerzen","Krampfanfall","Psychische Erkrankung / Suizid","Sonstige Schmerzen","Unklares Geschehen","Vergiftung","Verletzung","Arbeits- / Betriebs- / Schulunfall"]}
@@ -88,6 +89,7 @@ const injurySupplementQuestions = {
       "Schnitt- / Riss- / Platzwunde",
       "Stich- / Pfählungsverletzung",
       "Biss- / Stichverletzung",
+      "Amputation",
       "Elektrische Verletzung / Strommarke",
       "Verbrennung / Verbrühung / Verätzung",
       "Sonstige Verletzung / unklar"
@@ -792,17 +794,16 @@ function nextQuestion(){
     if(map) return map;
 
     // 6) Danach die restlichen relevanten Verletzungsfragen in sinnvoller Reihenfolge.
-    const priorityIds=[
-      "verletzung_v49_tierart","verletzung_v49_tierort","verletzung_v49_tiergefahr",
-      "verletzung_v49_stromart","verletzung_v49_stromfrei","verletzung_v49_stromverbrennung",
-      "verletzung_v49_taeter","verletzung_v49_einvernehmlich","verletzung_v49_sexverletzung","verletzung_v49_sexakut",
-      "verletzung_v49_lokalisation","verletzung_v49_vuenergie","verletzung_v49_vueingeklemmt",
-      "verletzung_v49_exposition","verletzung_v49_expositionsquelle","verletzung_v49_expositionsbereich",
-      "verletzung_v49_stichort","verletzung_v49_sturzhoehe","verletzung_v49_blutung",
-      "verletzung_v49_atmung","verletzung_v49_bewusstsein","verletzung_v49_schmerz",
-      "verletzung_v49_weitere","verletzung_v49_allergie","verletzung_v49_stromsymptome",
-      "verletzung_v49_vublutung","verletzung_v49_zugang","verletzung_v49_zugang_grund"
-    ];
+    const mechSpecific={
+      "Tierbisse / Tierstiche":["verletzung_v49_tierart","verletzung_v49_tiergefahr","verletzung_v49_allergie"],
+      "Stromunfall":["verletzung_v49_stromart","verletzung_v49_stromfrei","verletzung_v49_stromsymptome"],
+      "Blitzschlag":["verletzung_v49_stromsymptome"],
+      "Stich- / Pfählungsverletzung":["verletzung_v49_stichort"],
+      "Vergewaltigung / sexueller Übergriff":["verletzung_v49_sexverletzung","verletzung_v49_sexakut"],
+      "Verkehrsunfall":["verletzung_v49_vuenergie","verletzung_v49_vueingeklemmt"],
+      "Sturz über 3 m / mehrere Treppenstufen":["verletzung_v49_sturzhoehe"]
+    }[mech]||[];
+    const priorityIds=[...mechSpecific,"verletzung_v49_blutung","verletzung_v49_atmung","verletzung_v49_bewusstsein","verletzung_v49_schmerz","verletzung_v49_weitere"];
     for(const id of priorityIds){
       const q=injuryQs.find(x=>x.id===id);
       if(q) return q;
@@ -836,6 +837,8 @@ function durationText(){const sec=Math.max(0,Math.floor((Date.now()-startTime)/1
 
 function diagnosisSuggestion(){
   if(category!=="medizin")return null;
+  const body=bodyMapDiagnosis();
+  if(body)return body;
   const g=String(answers.med_grund||"");
   const p=String(answers.problem||"").toLowerCase();
   if(g==="Gefühlsstörung / Lähmung / Sprache / Sehstörung" || Object.keys(answers).some(k=>k.startsWith("neuro_"))) return {primary:"Möglicher akuter neurologischer Notfall",alternatives:["Möglicher Schlaganfall / TIA","Andere akute neurologische Ursache"]};
@@ -867,6 +870,7 @@ function diagnosisSuggestion(){
       const mstr=String(answers.verletzung_v51_muster);
       const ids=Array.isArray(answers.verletzung_v51_koerperkarte)?answers.verletzung_v51_koerperkarte:[];
       const labels=ids.map(id=>injuryMapRegions.find(r=>r.id===id)?.label||id);
+      if(mstr.startsWith("Amputation") && labels.length) return {primary:`Amputationsverletzung – ${labels.join(", ")}`,alternatives:["CHIR / TRAUMA – gemäß Abfrage","Schwere Extremitätenverletzung"]};
       if(mstr.startsWith("Fraktur") && labels.length) return {primary:`Verdacht Fraktur – ${labels.join(", ")}`,alternatives:["Prellung / Quetschung","Luxations- / Gelenkverletzung"]};
       if(mstr.startsWith("Luxations") && labels.length) return {primary:`Verdacht Luxation – ${labels.join(", ")}`,alternatives:["Frakturverdacht","Band-/Gelenkverletzung"]};
     }
@@ -909,6 +913,16 @@ function injuryMapLabel(){
   return m.replace(" / Knochenverletzung","").replace("- / Gelenkverletzungsverdacht","");
 }
 function isBurnMechanism(){return ["Verbrennung / Verbrühung","Verätzungen"].includes(String(answers.verletzung_v49_mechanismus||""));}
+function selectedBodyInjuries(){
+  const ids=Array.isArray(answers.verletzung_v51_koerperkarte)?answers.verletzung_v51_koerperkarte:[];
+  const details=answers.verletzung_v51_koerperdetails||{};
+  return ids.map(id=>{const region=injuryMapRegions.find(r=>r.id===id);const raw=String(details[id]||"");const type=raw.replace(/\s*\((?:rechts|links)\)\s*$/i,"").trim();const side=(raw.match(/\((rechts|links)\)\s*$/i)||[])[1]||"";return {id,label:region?.label||id,type,side};}).filter(x=>x.id);
+}
+function bodyMapTypes(){return [...new Set(selectedBodyInjuries().map(x=>x.type).filter(Boolean))];}
+function primaryBodyMapType(){const types=bodyMapTypes();const rank=["Amputation","Schussverletzung","Stich- / Pfählungsverletzung","Tiefe Schnittwunde","Verbrennung / Verbrühung / Verätzung","Verletzungsmechanismus schwer","Fraktur","Luxation","Quetschung","Riss- / Quetsch- / Schnittverletzung","Platzwunde / Schürfung","Prellung / Bänderverletzung","Bissverletzung","Erfrierung","Verletzungsart unklar"];return types.sort((a,b)=>(rank.indexOf(a)<0?999:rank.indexOf(a))-(rank.indexOf(b)<0?999:rank.indexOf(b)))[0]||"";}
+function bodyMapDiagnosis(){const injuries=selectedBodyInjuries();const type=primaryBodyMapType();if(!type)return null;const labels=injuries.map(x=>`${x.label}${x.type?` – ${x.type}`:""}${x.side?` (${x.side})`:""}`);const loc=labels.length?` – ${labels.join(", ")}`:"";const category={"Amputation":"CHIR / TRAUMA","Schussverletzung":"TRAUMA","Stich- / Pfählungsverletzung":"TRAUMA","Tiefe Schnittwunde":"CHIR / TRAUMA","Verbrennung / Verbrühung / Verätzung":"TRAUMA","Verletzungsmechanismus schwer":"TRAUMA","Fraktur":"CHIR / TRAUMA","Luxation":"CHIR / TRAUMA","Quetschung":"TRAUMA","Riss- / Quetsch- / Schnittverletzung":"CHIR / TRAUMA","Platzwunde / Schürfung":"CHIR / TRAUMA","Prellung / Bänderverletzung":"TRAUMA","Bissverletzung":"TRAUMA","Erfrierung":"TRAUMA","Verletzungsart unklar":"UNKLAR"}[type]||"TRAUMA";const text={"Amputation":"Amputationsverletzung","Schussverletzung":"Schussverletzung","Stich- / Pfählungsverletzung":"Stich-/Pfählungsverletzung","Tiefe Schnittwunde":"Tiefe Schnittverletzung","Verbrennung / Verbrühung / Verätzung":"Thermische/chemische Verletzung","Verletzungsmechanismus schwer":"Schwere Verletzung / Trauma","Fraktur":"Frakturverdacht","Luxation":"Luxationsverdacht","Quetschung":"Quetschverletzung","Riss- / Quetsch- / Schnittverletzung":"Riss-/Quetsch-/Schnittverletzung","Platzwunde / Schürfung":"Platzwunde / Schürfung","Prellung / Bänderverletzung":"Prell-/Bänderverletzung","Bissverletzung":"Bissverletzung","Erfrierung":"Erfrierungsverletzung","Verletzungsart unklar":"Unklare Verletzung"}[type]||type;return {type,category,primary:`${text}${loc}`,alternatives:[`${category} – gemäß Abfrage`,"Weitere Verletzungsfolge / Schweregrad gemäß Abfrage"]};}
+function medicalDispatchCategory(){const g=String(answers.med_grund||"");const body=primaryBodyMapType();if(answers.deterioration==="Herz-Kreislauf-Stillstand"||answers.deterioration==="Atmet nicht mehr"||answers.atmung==="Atemstillstand")return "REA";if(body){if(["Amputation","Tiefe Schnittwunde","Riss- / Quetsch- / Schnittverletzung","Platzwunde / Schürfung","Fraktur","Luxation"].includes(body))return "CHIR";if(body==="Verletzungsart unklar")return "UNKLAR";return "TRAUMA";}if(g==="Allergie / Anaphylaxie")return "ALLERG";if(g==="Gefühlsstörung / Lähmung / Sprache / Sehstörung"||g==="Krampfanfall")return "NEURO";if(g==="Vergiftung")return "INTOX";if(g==="Psychische Erkrankung / Suizid")return "PSYCH";if(g==="Geburt / Schwangerschaft")return "GYN";if(g==="Verkehrsunfall")return "VERKEHR";if(g==="Ertrinkungsunfall")return "WASSER";if(g==="Verletzung"||g==="Arbeits- / Betriebs- / Schulunfall"){const m=String(answers.verletzung_v49_mechanismus||"");if(m==="Stromunfall"||m==="Blitzschlag")return "STROM";if(m==="Verkehrsunfall")return "VERKEHR";if(m==="Tierbisse / Tierstiche"&&answers.verletzung_v49_allergie==="Ja")return "ALLERG";return "TRAUMA";}if(["Atemstörung","Bauchschmerzen","Bewusstseinsstörung / Wesensveränderung","Blutungen","Brustschmerzen","Herzrhythmusstörungen","Hitze- / Kälteprobleme","Kollaps / Kreislaufstörung","Kopfschmerzen","Sonstige Schmerzen","Erkrankung / medizinische Hilfeleistung"].includes(g))return "INTERN";return "UNKLAR";}
+function medicalRtwCount(){const exact=Number(answers.med_anzahl_genau);if(Number.isFinite(exact)&&exact>=1)return Math.min(4,Math.round(exact));const p=String(answers.med_personen||"");if(p==="Mehr als 9 / MANV")return 4;if(p==="2–9")return 2;return 1;}
 function renderInjuryMapQuestion(q,area){
   const selected=new Set(Array.isArray(answers[q.id])?answers[q.id]:[]);
   const burn=isBurnMechanism();
@@ -1048,7 +1062,10 @@ function render(){
     const box=document.createElement("div");box.className="free-answer-box";
     const input=q.type==="text"?document.createElement("textarea"):document.createElement("input");if(q.type!=="text")input.type=["date","datetime-local","number"].includes(q.type)?q.type:"text";input.className="free-input";input.value=answers[q.id]??"";input.placeholder=q.placeholder||"";input.autocomplete="off";
     if(q.id==="verdachtsdiagnose"){
-      const rec=diagnosisSuggestion()||{primary:"Keine eindeutige Verdachtsdiagnose ableitbar",alternatives:["Unklare Ursache"]};const recBox=document.createElement("div");recBox.className="diagnosis-recommendation";recBox.innerHTML=`<div class="diagnosis-recommendation-title">🤖 Algorithmischer Verdachtsvorschlag</div><div class="diagnosis-recommendation-main">${rec.primary}</div><div class="hint">Nur Entscheidungshilfe – die Auswahl trifft der Disponent.</div>`;const use=document.createElement("button");use.className="next-free";use.textContent="✓ Diesen Vorschlag übernehmen";use.onclick=()=>{input.value=rec.primary;answers[q.id]=rec.primary;};recBox.appendChild(use);const alt=document.createElement("div");alt.className="suggestions";(rec.alternatives||[]).forEach(x=>{const b=document.createElement("button");b.className="suggestion-btn";b.textContent=x;b.onclick=()=>{input.value=x;answers[q.id]=x;};alt.appendChild(b);});recBox.appendChild(alt);box.appendChild(recBox);
+      const rec=diagnosisSuggestion()||{primary:"Keine eindeutige Verdachtsdiagnose ableitbar",alternatives:["Unklare Ursache"]};
+      const bodyDx=bodyMapDiagnosis();
+      if(bodyDx){ input.value=bodyDx.primary; answers[q.id]=bodyDx.primary; }
+      const recBox=document.createElement("div");recBox.className="diagnosis-recommendation";recBox.innerHTML=`<div class="diagnosis-recommendation-title">🤖 ${bodyDx?"Körperschema / algorithmischer Vorschlag":"Algorithmischer Verdachtsvorschlag"}</div><div class="diagnosis-recommendation-main">${rec.primary}</div><div class="hint">${bodyDx?"Das markierte Verletzungsmuster aus dem Körperschema bleibt für Kategorie und Einsatzstichwort maßgeblich.":"Nur Entscheidungshilfe – die Auswahl trifft der Disponent."}</div>`;const use=document.createElement("button");use.className="next-free";use.textContent="✓ Diesen Vorschlag übernehmen";use.onclick=()=>{input.value=rec.primary;answers[q.id]=rec.primary;};recBox.appendChild(use);const alt=document.createElement("div");alt.className="suggestions";(bodyDx?[bodyDx.category]:rec.alternatives||[]).forEach(x=>{const b=document.createElement("button");b.className="suggestion-btn";b.textContent=x;b.onclick=()=>{input.value=x;answers[q.id]=x;};alt.appendChild(b);});recBox.appendChild(alt);box.appendChild(recBox);
     }
     input.oninput=()=>answers[q.id]=input.value;box.appendChild(input);
     const actions=document.createElement("div");actions.className="free-actions";const next=document.createElement("button");next.className="next-free";next.textContent="Weiter →";next.onclick=()=>{const value=String(input.value??"").trim();if(!value&&!q.allowEmpty){input.focus();return;}pushHistory();answers[q.id]=value;steps++;render();};actions.appendChild(next);
@@ -1061,6 +1078,11 @@ function render(){
 
 function showREA(){reaShown=true;updatePhase();$("progress").textContent="⚠️ KRITISCHER NOTFALL";$("questionText").textContent="Reanimation sofort beginnen";$("answerArea").innerHTML=`<div class="rea-guide"><h3>🫀 PRÜFEN – RUFEN – DRÜCKEN</h3><p><b>1.</b> Telefon auf Lautsprecher und den Anweisungen der Leitstelle folgen.</p><p><b>2.</b> Reagiert die Person nicht und atmet sie nicht oder nicht normal: sofort handeln.</p><p><b>3.</b> Person auf den Rücken auf eine möglichst feste Unterlage legen.</p><p><b>4.</b> Handballen in die Mitte des Brustkorbs, zweite Hand darüber.</p><p><b>5.</b> Bei Erwachsenen etwa <b>5–6 cm</b> tief und <b>100–120/min</b> drücken und vollständig entlasten.</p><p><b>6.</b> AED holen lassen und den Geräteanweisungen folgen.</p><p class="hint">Die Anleitung der Notrufleitstelle hat Vorrang.</p><button id="reaFinish" type="button">Zur Auswertung</button></div>`;$("reaFinish").onclick=finish;}
 
+function bodyMapHasMajorAmputation(){
+  const amps=selectedBodyInjuries().filter(x=>x.type==="Amputation");
+  if(!amps.length)return false;
+  return amps.some(x=>!/(finger|zehe|daumen|kleiner zeh|große zehe|lange zehe|ringzehe|mittlere zehe)/i.test(String(x.label)));
+}
 function evaluateNotarzt(){
   if(category==="grossschaden")return [];
   const reasons=[];
@@ -1080,6 +1102,14 @@ function evaluateNotarzt(){
     if(applies&&matches(ruleAnswers[r.questionId],r.values??r.value)) reasons.push(r.reason||r.id);
   }
   if(category==="medizin"){
+    const bodyType=primaryBodyMapType();
+    if(bodyType==="Amputation" && bodyMapHasMajorAmputation()) reasons.push("Größere Amputation / schwere Verletzung");
+    if(bodyType==="Schussverletzung"||bodyType==="Stich- / Pfählungsverletzung") reasons.push("Penetrierende Verletzung – NEF-Indikation gemäß Lage prüfen");
+    if(answers.verletzung_v49_blutung==="Ja") reasons.push("Starke / nicht kontrollierbare Blutung");
+    if(answers.verletzung_v49_atmung==="Ja") reasons.push("Atemprobleme / zunehmende Atemnot");
+    if(answers.verletzung_v49_bewusstsein==="Nein") reasons.push("Bewusstseinsstörung / fehlende Ansprechbarkeit");
+    if(answers.verletzung_v49_schmerz==="Ja") reasons.push("Starke / zunehmende Schmerzen");
+    if(bodyType==="Verbrennung / Verbrühung / Verätzung" && (answers.verletzung_v49_atmung==="Ja"||answers.verletzung_v49_blutung==="Ja"||answers.verletzung_v49_bewusstsein==="Nein")) reasons.push("Verbrennung/Verätzung mit möglicher Vitalgefährdung");
     if(answers.deterioration==="Herz-Kreislauf-Stillstand"||answers.deterioration==="Atmet nicht mehr") reasons.push("Akute Reanimationslage / Atemstillstand");
     if(answers.med_personen==="Mehr als 9 / MANV") reasons.push("MANV / mehr als 9 Betroffene");
     if(answers.atem_05==="Ja"||answers.atem_01==="Ja"&&answers.atem_03==="Nein") reasons.push("Atemstörung mit möglicher relevanter Beeinträchtigung");
@@ -1110,50 +1140,11 @@ function evaluateResources(reasons){
 function fallbackStichwort(){
   if(category==="grossschaden") return null;
   if(category==="medizin"){
-    if(["rea","noBreath"].includes(answers.deterioration) || answers.atmung==="Atemstillstand") return {code:"N1R1",name:"N1R1 - REA",priority:999};
-    const g=String(answers.med_grund||"");
-    if(g==="Erkrankung / medizinische Hilfeleistung"){
-      const e=String(answers.erkrankung_typ||"");
-      const sub={
-        "Blutdruckstörung":"Blutdruckstörung",
-        "Diabetes":"Diabetes / Stoffwechselentgleisung",
-        "Allergie / Hautausschlag":"Allergische Reaktion / Hautausschlag",
-        "Durchfall":"Akuter Durchfall",
-        "Erbrechen / Übelkeit":"Erbrechen / Übelkeit",
-        "Fieber":"Fieber / fieberhafter Infekt",
-        "Grippe / Erkältung":"Grippe / Erkältung",
-        "Harnverhalt":"Harnverhalt",
-        "Hyperventilation":"Hyperventilation",
-        "Infektionskrankheiten":"Infektionskrankheit",
-        "Schwindel":"Akuter Schwindel",
-        "Medizinische Hilfeleistung / sonstige Erkrankung":"Medizinische Hilfeleistung / sonstige Erkrankung"
-      };
-      let name=sub[e]||"Erkrankung / medizinische Hilfeleistung";
-      if(e==="Diabetes"){
-        if(String(answers.erkrankung_dm_01).startsWith("Hypoglykämie")) name="Hypoglykämie / Unterzuckerung";
-        else if(String(answers.erkrankung_dm_01).startsWith("Hyperglykämie")) name="Hyperglykämie / Überzuckerung";
-      }
-      return {code:"RD-MED",name,priority:10};
-    }
-    const map={"Atemstörung":"Atemnot / Atemstörung","Brustschmerzen":"Brustschmerz","Kollaps / Kreislaufstörung":"Kollaps / Kreislaufstörung","Bewusstseinsstörung / Wesensveränderung":"Bewusstseinsstörung","Blutungen":"Blutung","Krampfanfall":"Krampfanfall","Vergiftung":"Vergiftung / Intoxikation","Verletzung":"Verletzung / Trauma","Arbeits- / Betriebs- / Schulunfall":"Verletzung / Trauma (Arbeits-/Betriebs-/Schulunfall)","Bauchschmerzen":"Akute Bauchschmerzen","Gefühlsstörung / Lähmung / Sprache / Sehstörung":"Neurologischer Notfall","Geburt / Schwangerschaft":"Geburtshilflicher Notfall","Allergie / Anaphylaxie":"Allergische Reaktion / Anaphylaxie","Herzrhythmusstörungen":"Herzrhythmusstörung","Kopfschmerzen":"Akuter Kopfschmerz","Psychische Erkrankung / Suizid":"Psychischer Notfall","Hitze- / Kälteprobleme":"Hitze-/Kältenotfall","Sonstige Schmerzen":"Akuter Schmerz","Erkrankung / medizinische Hilfeleistung":"Erkrankung / medizinische Hilfeleistung"};
-    const exact={
-      "Allergie / Anaphylaxie":["R1","R1 - ALLERG"],
-      "Atemstörung":["N1R1","N1R1 - UNKLAR"],
-      "Bewusstseinsstörung / Wesensveränderung":["N1R1","N1R1 - UNKLAR"],
-      "Blutungen":["N1R1","N1R1 - TRAUMA"],
-      "Brustschmerzen":["N1R1","N1R1 - UNKLAR"],
-      "Gefühlsstörung / Lähmung / Sprache / Sehstörung":["N1R1","N1R1 - NEURO"],
-      "Krampfanfall":["N1R1","N1R1 - NEURO"],
-      "Psychische Erkrankung / Suizid":["N1R1","N1R1 - UNKLAR"],
-      "Vergiftung":["N1R1","N1R1 - UNKLAR"],
-      "Verletzung":["N1R1","N1R1 - TRAUMA"],
-      "Arbeits- / Betriebs- / Schulunfall":["N1R1","N1R1 - TRAUMA"],
-      "Verkehrsunfall":["N1R1","N1R1 - VERKEHR"],
-      "Ertrinkungsunfall":["N1R1","N1R1 - WASSER"],
-      "Unklares Geschehen":["R1","R1 - UNKLAR"]
-    };
-    const e=exact[g];
-    return e?{code:e[0],name:e[1],priority:1}:{code:"R1",name:`R1 - ${String(map[g]||g||"UNKLAR").toUpperCase()}`,priority:1};
+    const nef=evaluateNotarzt().length>0;
+    const rtw=medicalRtwCount();
+    const cat=medicalDispatchCategory();
+    const prefix=nef?`N1R${rtw}`:`R${rtw}`;
+    return {code:prefix,name:`${prefix} - ${cat}`,priority:999};
   }
   if(category==="brand") {
     const fw=String(answers.fw_schadensfall||"");
@@ -1191,7 +1182,20 @@ function fallbackStichwort(){
 }
 function chooseStichwort(){
   if(category==="grossschaden")return null;
-  const list=Object.values(data.einsatzstichworte||{}).filter(s=>s.category===category&&(s.conditions||[]).every(c=>matches(answers[c.questionId],c.values??c.value)));
+  const list=Object.values(data.einsatzstichworte||{}).filter(s=>s.category===category&&s.enabled!==false&&(s.conditions||[]).every(c=>matches(answers[c.questionId],c.values??c.value)));
+  if(category==="medizin" && primaryBodyMapType()){
+    const desired=medicalDispatchCategory();
+    const nef=evaluateNotarzt().length>0;
+    const rtw=medicalRtwCount();
+    const prefix=nef?`N1R${rtw}`:`R${rtw}`;
+    const exact=list.filter(s=>String(s.code||"").toUpperCase()===prefix && String(s.name||"").toUpperCase().includes(desired));
+    const sameCode=list.filter(s=>String(s.code||"").toUpperCase()===prefix && String(s.name||"").toUpperCase().includes(desired));
+    if(exact.length)return exact.sort((a,b)=>(b.priority||0)-(a.priority||0))[0];
+    if(sameCode.length)return sameCode.sort((a,b)=>(b.priority||0)-(a.priority||0))[0];
+    const byCat=list.filter(s=>String(s.name||"").toUpperCase().includes(desired));
+    if(byCat.length)return byCat.sort((a,b)=>(b.priority||0)-(a.priority||0))[0];
+    return fallbackStichwort();
+  }
   const specific=list.filter(s=>!['MED_ALL','MED_ALLGEMEIN','THL_ALLGEMEIN','ABC_ALLGEMEIN'].includes(s.id));
   return(specific.length?specific:list).sort((a,b)=>(b.priority||0)-(a.priority||0))[0]||fallbackStichwort();
 }
@@ -1260,7 +1264,9 @@ function importantDispatchFacts(){
   if(answers.erkrankung_dm_04||answers.erkrankung_dm_05)facts.push(answers.erkrankung_dm_04||answers.erkrankung_dm_05);
   if(answers.erkrankung_bd_02)facts.push(answers.erkrankung_bd_02);
   if(answers.deterioration)facts.push(`Verschlechterung: ${answers.deterioration}`);
-  if(answers.verdachtsdiagnose)facts.push(`Verdachtsdiagnose: ${answers.verdachtsdiagnose}`);
+  const bodyDx=bodyMapDiagnosis();
+  if(bodyDx) facts.push(`Verletzungsmuster: ${bodyDx.primary} · Kategorie ${bodyDx.category}`);
+  else if(answers.verdachtsdiagnose) facts.push(`Verdachtsdiagnose: ${answers.verdachtsdiagnose}`);
   if(Array.isArray(answers.verletzung_v51_koerperkarte) && answers.verletzung_v51_koerperkarte.length){
     const details=answers.verletzung_v51_koerperdetails||{};
     const labels=answers.verletzung_v51_koerperkarte.map(id=>{const r=injuryMapRegions.find(r=>r.id===id);return `${r?.label||id}${details[id]?` (${details[id]})`:""}`;});
@@ -1274,7 +1280,7 @@ function importantDispatchFacts(){
   const qs=questions();
   for(const [id,v] of Object.entries(answers)){
     if(facts.length>=11)break;
-    if(["med_wem","med_personen","med_spricht","med_demografie","med_grund","erkrankung_typ","erkrankung_dm_01","erkrankung_dm_04","erkrankung_dm_05","erkrankung_bd_02","verdachtsdiagnose","abfrage_bemerkung","atemfrequenz","deterioration"].includes(id))continue;
+    if(["med_wem","med_personen","med_anzahl_genau","med_spricht","med_demografie","med_grund","erkrankung_typ","erkrankung_dm_01","erkrankung_dm_04","erkrankung_dm_05","erkrankung_bd_02","verdachtsdiagnose","abfrage_bemerkung","atemfrequenz","deterioration"].includes(id))continue;
     const q=qs.find(x=>x.id===id);if(!q)continue;
     const fact=dispatchAnswerFact(q,v);if(fact)facts.push(fact);
   }
@@ -1316,6 +1322,7 @@ function alarmierungVorschlag(reasons,resources){
 }
 function currentResult(){
   const reasons=evaluateNotarzt(),stichwort=chooseStichwort(),aao=stichwort?data.aao?.[stichwort.id]||null:null;
+  if(stichwort && !stichwort.volltext && aao?.volltext) stichwort={...stichwort,volltext:aao.volltext};
   let final=[];
   if(category==="brand"||category==="thl"||category==="abc") {
     // Nur tatsächlich zu alarmierende Feuerwehrmittel aus der AAO anzeigen.

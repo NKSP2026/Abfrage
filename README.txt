@@ -325,3 +325,19 @@ Datum: 20.09.2026
 - Bei „Permission denied“ bleibt die Abbruchmaske offen und zeigt einen eindeutigen Hinweis auf die Firebase-Realtime-Database-Regeln.
 - Die vorhandene zentrale README.txt wurde weitergeführt; keine neue README angelegt.
 - Für gemeinsame Speicherung in QM1 muss die mitgelieferte database.rules.json in Firebase Realtime Database → Rules veröffentlicht werden. Unter abbruchAbfragen ist Schreiben für authentifizierte Benutzer erlaubt; die übrigen Bereiche bleiben administrativ geschützt.
+
+V68.30 – ABBRUCHDIALOG / QM1 AKTIONEN KORRIGIERT
+Datum: 20.09.2026
+
+- Abbruchdialog über „Ausstieg“, „Launcher“ und „Beenden“ nochmals stabilisiert.
+- Alle sechs Abbruchgründe sind jetzt echte type="button"-Schaltflächen und erhalten nach der Auswahl eine deutlich sichtbare blaue Markierung.
+- „Abbruch speichern“ bleibt gesperrt, solange kein Grund ausgewählt wurde.
+- Bei „Sonstiges“ bleibt „Abbruch speichern“ ohne eingetragene Begründung gesperrt; die Begründung ist Pflicht.
+- Nach erfolgreichem Speichern geht die Anwendung NICHT mehr zur allgemeinen NABS-Startseite zurück, sondern direkt zur Seite mit der Auswahl „Rettungsdienst / Feuerwehr / Verkehrsunfall / Wasserunfall / Großschaden“ (ils.html).
+- Die bestehende Abbruchaufzeichnung in Firebase „abbruchAbfragen“ bleibt erhalten.
+- QM1: „Aktualisieren“ lädt die Abbruchliste jetzt mit sichtbarem Ladezustand neu.
+- QM1: Jeder Abbruchdatensatz kann durch Administratoren einzeln gelöscht werden. Vor dem Löschen erfolgt eine Sicherheitsabfrage.
+- Die PDF-/Druckfunktion bleibt erhalten und enthält weiterhin nur die gespeicherten Abbruchdaten.
+- Die automatische Löschung von Einträgen älter als zwei Monate bleibt erhalten.
+- Cache-Versionen von abfrage.js und qm1.js wurden erhöht, damit die neue Logik nach dem Hochladen nicht von einer alten Browserdatei überlagert wird.
+- Keine neue README-Datei angelegt; diese Änderung wurde in der bestehenden zentralen README.txt ergänzt.

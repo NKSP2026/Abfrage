@@ -1,4 +1,4 @@
-import { authState, login, logout, anonymous, read, write } from './firebase-rest.js?v=20260920v41';
+import { authState, login, logout, anonymous, read, write } from './firebase-rest.js?v=20260920v42';
 import { defaults, CATALOG_SCHEMA_VERSION } from './data.js?v=20260915v27';
 const $=id=>document.getElementById(id);
 const TWO_MONTHS_MS=60*24*60*60*1000;
@@ -18,8 +18,8 @@ async function loadAbortData(){
       keep[id]=r;
     }
     if(removed){await write("abbruchAbfragen",keep);}
-    const rows=Object.values(keep).sort((a,b)=>String(b?.createdAt||"").localeCompare(String(a?.createdAt||"")));
-    el.innerHTML=rows.length?`<div class="abort-table-wrap"><table class="abort-table"><thead><tr><th>Datum</th><th>Uhrzeit</th><th>Benutzer</th><th>Grund</th><th>Sonstiger Grund</th><th>Abfrage</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.datum)}</td><td>${esc(r.uhrzeit)}</td><td>${esc(r.benutzername)}</td><td>${esc(r.grund)}</td><td>${esc(r.sonstigerGrund||"—")}</td><td>${esc(r.abfrageKategorie||"—")}</td></tr>`).join("")}</tbody></table></div>`:`<div class="module-note">Keine Abbruch-Abfragen innerhalb der letzten zwei Monate.</div>`;
+    const rows=Object.entries(keep).map(([id,r])=>({...r,_id:id})).sort((a,b)=>String(b?.createdAt||"").localeCompare(String(a?.createdAt||"")));
+    el.innerHTML=rows.length?`<div class="abort-table-wrap"><table class="abort-table"><thead><tr><th>Datum</th><th>Uhrzeit</th><th>Benutzer</th><th>Grund</th><th>Sonstiger Grund</th><th>Abfrage</th><th>Aktion</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.datum)}</td><td>${esc(r.uhrzeit)}</td><td>${esc(r.benutzername)}</td><td>${esc(r.grund)}</td><td>${esc(r.sonstigerGrund||"—")}</td><td>${esc(r.abfrageKategorie||"—")}</td><td><button type="button" class="button danger abort-delete" data-abort-id="${esc(r._id||"")}">Löschen</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="module-note">Keine Abbruch-Abfragen innerhalb der letzten zwei Monate.</div>`;
     $("abortCount").textContent=`${rows.length} Einträge`;
     $("abortPdf").disabled=!rows.length;
     window.__NABS_ABORT_ROWS__=rows;
@@ -28,6 +28,14 @@ async function loadAbortData(){
     $("abortCount").textContent="Fehler";
     $("abortPdf").disabled=true;
   }
+}
+async function deleteAbort(id){
+  if(!id)return;
+  if(!confirm('Diesen Abbruch-Eintrag wirklich löschen?'))return;
+  try{
+    await write(`abbruchAbfragen/${encodeURIComponent(id)}`,null);
+    await loadAbortData();
+  }catch(e){alert('Eintrag konnte nicht gelöscht werden: '+e.message);}
 }
 function printAbortPdf(){
   const rows=window.__NABS_ABORT_ROWS__||[];
@@ -53,6 +61,8 @@ async function init(){
 }
 
 $('logoutBtn').onclick=()=>{logout();location.href='index.html';};
-$('abortPdf').onclick=printAbortPdf;$('abortRefresh').onclick=loadAbortData;
+$('abortPdf').onclick=printAbortPdf;
+$('abortRefresh').onclick=async()=>{const b=$('abortRefresh');b.disabled=true;b.textContent='↻ Lädt …';try{await loadAbortData();}finally{b.disabled=false;b.textContent='↻ Aktualisieren';}};
+$('abortList').addEventListener('click',e=>{const b=e.target.closest('[data-abort-id]');if(b)deleteAbort(b.dataset.abortId);});
 $('seedBtn').onclick=async()=>{try{const a=authState();if(!a.admin)throw Error('Bitte zuerst als Administrator anmelden.');const payload={_meta:{schemaVersion:CATALOG_SCHEMA_VERSION,updatedAt:new Date().toISOString()},...defaults.catalog};await write('catalog',payload);alert('✓ Grund-Fragenkatalog wurde in Firebase übernommen.');}catch(e){alert('Speichern fehlgeschlagen: '+e.message);}};
 init();

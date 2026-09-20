@@ -1,5 +1,5 @@
 // Einsatzabfrage V20 – dynamischer Entscheidungsbaum mit permanenter Aktionsleiste
-import { startupDefaults } from "./startup-data.js?v=20260915v39";
+import { startupDefaults } from "./startup-data.js?v=20260920v40";
 import { anonymous, read, authState, pushPublic } from "./firebase-rest.js?v=20260920v45";
 
 const $ = id => document.getElementById(id);

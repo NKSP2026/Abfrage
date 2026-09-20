@@ -5211,14 +5211,20 @@ export const defaults={
       },
       "psyche_02": {
         "id": "psyche_02",
-        "text": "Hat die Person bereits konkrete Mittel/Medikamente bereitgelegt?",
+        "text": "Ist bekannt, wie sich die Person selbst verletzen oder Suizid begehen möchte?",
         "type": "choice",
         "order": 9522,
         "options": [
-          "Ja",
-          "Nein",
-          "Unsicher (kann nicht beurteilt werden)",
-          "Unbekannter (kein Kontakt / keine Angabe möglich)"
+          "Kohlenstoffmonoxidvergiftung (CO)",
+          "Tabletten / Medikamente",
+          "Sturz aus Höhe",
+          "Vergiftung",
+          "Drogen / Alkohol",
+          "Schnitt- / Stichverletzung",
+          "Erhängen / Strangulation",
+          "Ertrinken",
+          "Mehrere Methoden / mehrere Angaben",
+          "Sonstige / unbekannt"
         ],
         "whenQuestion": "med_grund",
         "whenValue": "Psychische Erkrankung / Suizid"
@@ -5298,34 +5304,6 @@ export const defaults={
         "text": "Besteht starke Verwirrtheit?",
         "type": "choice",
         "order": 9528,
-        "options": [
-          "Ja",
-          "Nein",
-          "Unsicher (kann nicht beurteilt werden)",
-          "Unbekannter (kein Kontakt / keine Angabe möglich)"
-        ],
-        "whenQuestion": "med_grund",
-        "whenValue": "Psychische Erkrankung / Suizid"
-      },
-      "psyche_09": {
-        "id": "psyche_09",
-        "text": "Besteht Alkohol-/Drogenkonsum?",
-        "type": "choice",
-        "order": 9529,
-        "options": [
-          "Ja",
-          "Nein",
-          "Unsicher (kann nicht beurteilt werden)",
-          "Unbekannter (kein Kontakt / keine Angabe möglich)"
-        ],
-        "whenQuestion": "med_grund",
-        "whenValue": "Psychische Erkrankung / Suizid"
-      },
-      "psyche_10": {
-        "id": "psyche_10",
-        "text": "Wurde eine größere Medikamentenmenge eingenommen?",
-        "type": "choice",
-        "order": 9530,
         "options": [
           "Ja",
           "Nein",

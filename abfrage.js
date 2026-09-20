@@ -1313,20 +1313,13 @@ function currentResult(){
 async function recordAbort(reason, otherReason="") {
   const now=new Date();
   let a=authState();
-  const username=(a?.email||sessionStorage.getItem("nabs_username")||"Einsatzbearbeiter").trim() || "Einsatzbearbeiter";
+  const baseReason=String(reason||"").trim();
+  const extra=String(otherReason||"").trim();
+  const abbruchgrund=baseReason==='Sonstiges' && extra ? `Sonstiges: ${extra}` : baseReason;
   const record={
-    category:"Abbruch abfragen",
-    grund:String(reason||"").trim(),
-    sonstigerGrund:String(otherReason||"").trim(),
-    benutzername:username,
-    datum:now.toISOString().slice(0,10),
+    datum:now.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"}),
     uhrzeit:now.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",second:"2-digit"}),
-    createdAt:now.toISOString(),
-    abfrageKategorie:category,
-    modus:mode||"",
-    fragenBeantwortet:Number(steps||0),
-    abfragedauer:durationText(),
-    status:phaseText()
+    abbruchgrund
   };
   try{
     if(!a?.token) a=await anonymous();

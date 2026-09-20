@@ -341,3 +341,18 @@ Datum: 20.09.2026
 - Die automatische Löschung von Einträgen älter als zwei Monate bleibt erhalten.
 - Cache-Versionen von abfrage.js und qm1.js wurden erhöht, damit die neue Logik nach dem Hochladen nicht von einer alten Browserdatei überlagert wird.
 - Keine neue README-Datei angelegt; diese Änderung wurde in der bestehenden zentralen README.txt ergänzt.
+
+
+V68.31 – ABBRUCHDATEN REDUZIERT
+Datum: 20.09.2026
+
+- Neue Abbruch-Abfragen speichern ab jetzt ausschließlich drei Datenfelder in Firebase unter „abbruchAbfragen“: Datum (TT.MM.JJJJ), Uhrzeit (HH.MM.SS) und Abbruchgrund.
+- Bei „Sonstiges“ wird die eingegebene Begründung direkt im Feld „abbruchgrund“ als „Sonstiges: …“ gespeichert.
+- Benutzername, E-Mail, Abfragekategorie, Modus, Fragenanzahl, Abfragedauer und Status werden bei neuen Abbruch-Einträgen nicht mehr gespeichert.
+- QM1 zeigt entsprechend nur Datum, Uhrzeit und Abbruchgrund sowie die Löschaktion an.
+- Die PDF-/Druckliste enthält ebenfalls nur Datum, Uhrzeit und Abbruchgrund.
+- Die automatische Zwei-Monats-Bereinigung funktioniert weiterhin: neue Einträge werden anhand von Datum/Uhrzeit geprüft. Bereits vorhandene ältere Datensätze mit „createdAt“ werden weiterhin erkannt.
+- Einzelnes Löschen in QM1 bleibt erhalten.
+- Für diese Änderung der gespeicherten Felder müssen die Firebase-Realtime-Database-Regeln nicht geändert werden. Die vorhandenen Regeln unter „abbruchAbfragen“ können unverändert bleiben.
+- Voraussetzung für das Speichern bleibt eine vorhandene Firebase-Authentifizierung der Abfrage; bei der bisherigen anonymen Speicherung muss „Anonyme Anmeldung“ in Firebase Authentication aktiviert sein.
+- Die bestehende zentrale README.txt wurde weitergeführt; keine neue README-Datei angelegt.

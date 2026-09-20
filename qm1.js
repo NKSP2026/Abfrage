@@ -4,6 +4,17 @@ const $=id=>document.getElementById(id);
 const TWO_MONTHS_MS=60*24*60*60*1000;
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;", "'":"&#39;"}[m]));}
 function twoMonthsAgo(){const d=new Date();d.setMonth(d.getMonth()-2);return d;}
+function parseAbortDate(r){
+  if(r?.createdAt){
+    const t=Date.parse(r.createdAt);
+    if(Number.isFinite(t)) return t;
+  }
+  const m=String(r?.datum||"").match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  const tm=String(r?.uhrzeit||"").match(/^(\d{2})[.:](\d{2})[.:](\d{2})$/);
+  if(!m) return NaN;
+  const d=new Date(Number(m[3]),Number(m[2])-1,Number(m[1]),tm?Number(tm[1]):0,tm?Number(tm[2]):0,tm?Number(tm[3]):0);
+  return d.getTime();
+}
 async function loadAbortData(){
   const el=$("abortList");
   if(!el)return;
@@ -13,13 +24,13 @@ async function loadAbortData(){
     const cutoff=twoMonthsAgo().getTime();
     const keep={}; let removed=0;
     for(const [id,r] of Object.entries(all)){
-      const t=Date.parse(r?.createdAt||"");
+      const t=parseAbortDate(r);
       if(Number.isFinite(t)&&t<cutoff){removed++;continue;}
       keep[id]=r;
     }
     if(removed){await write("abbruchAbfragen",keep);}
-    const rows=Object.entries(keep).map(([id,r])=>({...r,_id:id})).sort((a,b)=>String(b?.createdAt||"").localeCompare(String(a?.createdAt||"")));
-    el.innerHTML=rows.length?`<div class="abort-table-wrap"><table class="abort-table"><thead><tr><th>Datum</th><th>Uhrzeit</th><th>Benutzer</th><th>Grund</th><th>Sonstiger Grund</th><th>Abfrage</th><th>Aktion</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.datum)}</td><td>${esc(r.uhrzeit)}</td><td>${esc(r.benutzername)}</td><td>${esc(r.grund)}</td><td>${esc(r.sonstigerGrund||"—")}</td><td>${esc(r.abfrageKategorie||"—")}</td><td><button type="button" class="button danger abort-delete" data-abort-id="${esc(r._id||"")}">Löschen</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="module-note">Keine Abbruch-Abfragen innerhalb der letzten zwei Monate.</div>`;
+    const rows=Object.entries(keep).map(([id,r])=>({...r,_id:id})).sort((a,b)=>parseAbortDate(b)-parseAbortDate(a));
+    el.innerHTML=rows.length?`<div class="abort-table-wrap"><table class="abort-table"><thead><tr><th>Datum</th><th>Uhrzeit</th><th>Abbruchgrund</th><th>Aktion</th></tr></thead><tbody>${rows.map(r=>{const reason=r.abbruchgrund||r.grund||((r.sonstigerGrund)?`Sonstiges: ${r.sonstigerGrund}`:"");return `<tr><td>${esc(r.datum)}</td><td>${esc(r.uhrzeit)}</td><td>${esc(reason)}</td><td><button type="button" class="button danger abort-delete" data-abort-id="${esc(r._id||"")}">Löschen</button></td></tr>`;}).join("")}</tbody></table></div>`:`<div class="module-note">Keine Abbruch-Abfragen innerhalb der letzten zwei Monate.</div>`;
     $("abortCount").textContent=`${rows.length} Einträge`;
     $("abortPdf").disabled=!rows.length;
     window.__NABS_ABORT_ROWS__=rows;
@@ -42,8 +53,8 @@ function printAbortPdf(){
   if(!rows.length)return;
   const w=window.open("","_blank");
   if(!w){alert("Bitte Pop-ups für QM1 erlauben.");return;}
-  const body=rows.map(r=>`<tr><td>${esc(r.datum)}</td><td>${esc(r.uhrzeit)}</td><td>${esc(r.benutzername)}</td><td>${esc(r.grund)}</td><td>${esc(r.sonstigerGrund||"—")}</td><td>${esc(r.abfrageKategorie||"—")}</td></tr>`).join("");
-  w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>NABS – Abbruch-Abfragen</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{font-size:22px;margin:0 0 5px}p{color:#444}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:1px solid #999;padding:6px;text-align:left;vertical-align:top}th{background:#eee}@media print{body{padding:0}table{font-size:10px}}</style></head><body><h1>NABS – Abbruch-Abfragen</h1><p>Kategorie: Abbruch abfragen · Zeitraum: letzte 2 Monate · Erstellt am ${esc(new Date().toLocaleString("de-DE"))}</p><table><thead><tr><th>Datum</th><th>Uhrzeit</th><th>Benutzer</th><th>Grund</th><th>Sonstiger Grund</th><th>Abfrage</th></tr></thead><tbody>${body}</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>`);
+  const body=rows.map(r=>{const reason=r.abbruchgrund||r.grund||((r.sonstigerGrund)?`Sonstiges: ${r.sonstigerGrund}`:"");return `<tr><td>${esc(r.datum)}</td><td>${esc(r.uhrzeit)}</td><td>${esc(reason)}</td></tr>`;}).join("");
+  w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>NABS – Abbruch-Abfragen</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{font-size:22px;margin:0 0 5px}p{color:#444}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:1px solid #999;padding:6px;text-align:left;vertical-align:top}th{background:#eee}@media print{body{padding:0}table{font-size:10px}}</style></head><body><h1>NABS – Abbruch-Abfragen</h1><p>Kategorie: Abbruch abfragen · Zeitraum: letzte 2 Monate · Erstellt am ${esc(new Date().toLocaleString("de-DE"))}</p><table><thead><tr><th>Datum</th><th>Uhrzeit</th><th>Abbruchgrund</th></tr></thead><tbody>${body}</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>`);
   w.document.close();
 }
 async function init(){

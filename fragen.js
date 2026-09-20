@@ -17,6 +17,12 @@ const firebaseBereiche = {
 const categoryToBereich = {medizin:'rettungsdienst',brand:'feuerwehr',thl:'feuerwehr',abc:'gefahrgut',verkehrsunfall:'verkehrsunfall',wasserunfall:'wasserunfall',aufzug:'aufzug',grossschaden:'grossschaden'};
 const bereichLabels = {rettungsdienst:'🚑 Rettungsdienst',feuerwehr:'🚒 Feuerwehr',gefahrgut:'☣️ Gefahrgut / ABC',verkehrsunfall:'🚗 Verkehrsunfall',wasserunfall:'🌊 Wasserunfall',aufzug:'🛗 Aufzug',grossschaden:'🚨 Großschaden'};
 
+function firebaseSafeKey(key){
+  // Realtime Database child keys may not contain . # $ [ ] or /.
+  // Keep the original question ID inside the stored object, but encode only the Firebase child key.
+  return String(key ?? '').replace(/[.\#$\[\]\/]/g,ch=>`_x${ch.charCodeAt(0).toString(16)}_`);
+}
+
 function buildFirebaseCatalog(){
   const out={
     _meta:{
@@ -35,7 +41,7 @@ function buildFirebaseCatalog(){
         const copy=JSON.parse(JSON.stringify(q));
         copy.sourceCategory=cat;
         copy.sourceCategoryLabel=cat==='medizin'?'Rettungsdienst':cat==='brand'?'Feuerwehr – Brand / Rauchentwicklung':cat==='thl'?'Feuerwehr – Technische Hilfeleistung':cat==='abc'?'Gefahrgut / ABC':bereichLabels[bereich];
-        out[bereich][copy.id]=copy;
+        out[bereich][firebaseSafeKey(copy.id)]=copy;
         out._meta.frageCount++;
         out._meta.bereiche[bereich].frageCount++;
       }
@@ -391,7 +397,7 @@ $('seed').onclick=async()=>{
     const payload=buildFirebaseCatalog();
     await write('catalog',payload);
     const total=payload._meta.frageCount;
-    msg(`✓ Alle ${total} Fragen wurden in Firebase gespeichert: 🚑 Rettungsdienst ${payload._meta.bereiche.rettungsdienst.frageCount} · 🚒 Feuerwehr ${payload._meta.bereiche.feuerwehr.frageCount} · ☣️ Gefahrgut ${payload._meta.bereiche.gefahrgut.frageCount}.`);
+    msg(`✓ ${total} Katalogfragen wurden in Firebase gespeichert: 🚑 Rettungsdienst ${payload._meta.bereiche.rettungsdienst.frageCount} · 🚒 Feuerwehr ${payload._meta.bereiche.feuerwehr.frageCount} · ☣️ Gefahrgut ${payload._meta.bereiche.gefahrgut.frageCount} · 🚗 Verkehrsunfall ${payload._meta.bereiche.verkehrsunfall.frageCount} · 🌊 Wasserunfall ${payload._meta.bereiche.wasserunfall.frageCount} · 🛗 Aufzug ${payload._meta.bereiche.aufzug.frageCount} · 🚨 Großschaden ${payload._meta.bereiche.grossschaden.frageCount}.`);
     setStatus(`● Firebase – ${total} Fragen gespeichert`);
     await load();
   }catch(e){msg('⚠️ Grundkatalog konnte nicht gespeichert werden: '+e.message);console.error('NABS Firebase seed error',e);}
@@ -405,7 +411,7 @@ $('save').onclick=async()=>{
     const q=build(),cat=$('category').value;
     const bereich=categoryToBereich[cat]||cat;
     const stored={...q,sourceCategory:cat,sourceCategoryLabel:cat==='medizin'?'Rettungsdienst':cat==='brand'?'Feuerwehr – Brand / Rauchentwicklung':cat==='thl'?'Feuerwehr – Technische Hilfeleistung':cat==='abc'?'Gefahrgut / ABC':categoryLabel(cat)};
-    await write(`catalog/${bereich}/${q.id}`,stored);
+    await write(`catalog/${bereich}/${firebaseSafeKey(q.id)}`,stored);
     await write('catalog/_meta',{schemaVersion:CATALOG_SCHEMA_VERSION,updatedAt:new Date().toISOString(),storageFormat:'NABS-Bereiche-v1'});
     msg('✓ Frage in Firebase gespeichert.');
     editingId=q.id;
@@ -421,7 +427,7 @@ $('delete').onclick=async()=>{
     const id=$('id').value.trim();if(!id)throw Error('Keine Frage ausgewählt.');
     const cat=$('category').value;
     const bereich=categoryToBereich[cat]||cat;
-    await write(`catalog/${bereich}/${id}`,null);
+    await write(`catalog/${bereich}/${firebaseSafeKey(id)}`,null);
     await write('catalog/_meta',{schemaVersion:CATALOG_SCHEMA_VERSION,updatedAt:new Date().toISOString(),storageFormat:'NABS-Bereiche-v1'});
     msg('✓ Frage gelöscht.');editingId=null;await load();
   }catch(e){msg('⚠️ '+e.message);}

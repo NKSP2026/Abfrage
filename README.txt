@@ -872,3 +872,14 @@ Version 5.18 – Firebase-Fragenkatalog nach Einsatzbereichen
 - Die Fragenverwaltung kann alle diese Bereiche einzeln auswählen, bearbeiten, speichern und löschen.
 - Der Seed-Button übernimmt den vollständigen erweiterten Katalog nach Firebase.
 - Hinweis: Der bisherige Grundkatalog umfasst 1.398 eindeutige Fragen (1.081 Medizin + 202 Brand + 71 THL + 44 ABC). Durch die zusätzlichen, bewusst separat gespeicherten Einsatzarten entstehen 1.471 gespeicherte Katalogeinträge, da gemeinsame THL-Fragen in Verkehrsunfall/Wasserunfall zusätzlich als eigene Katalogeinträge abgelegt werden.
+
+
+Version 5.20 – Firebase-Katalogschlüssel korrigiert
+====================================================
+- Fehler beim Übertragen des Grundkatalogs behoben.
+- Vier vorhandene medizinische Frage-IDs enthalten das in Firebase verbotene Zeichen "/".
+- Beim Speichern in Firebase werden nur die technischen Child-Keys sicher codiert; die originale Frage-ID bleibt im Frageobjekt unverändert erhalten.
+- Einzelnes Speichern und Löschen verwenden ebenfalls den sicheren Firebase-Key.
+- Erfolgsanzeige nennt jetzt alle Katalogbereiche und die tatsächlich gespeicherten Einträge.
+- Grundkatalog: 1.249 Fragen (Medizin 1.081, Brand 53, THL 71, ABC 44).
+- Zusätzliche eigenständige Einsatzkataloge: Verkehrsunfall 35, Wasserunfall 18, Aufzug 15, Großschaden 5.

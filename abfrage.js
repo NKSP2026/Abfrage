@@ -19,6 +19,34 @@ const medicalInitialQuestions = [
   {id:"med_grund",text:"Sagen Sie mir bitte den genauen Grund Ihres Anrufes!",type:"choice",order:50,options:["Allergie / Anaphylaxie","Atemstörung","Bauchschmerzen","Bewusstseinsstörung / Wesensveränderung","Blutungen","Brustschmerzen","Erkrankung / medizinische Hilfeleistung","Geburt / Schwangerschaft","Gefühlsstörung / Lähmung / Sprache / Sehstörung","Herzrhythmusstörungen","Hitze- / Kälteprobleme","Kollaps / Kreislaufstörung","Kopfschmerzen","Krampfanfall","Psychische Erkrankung / Suizid","Sonstige Schmerzen","Unklares Geschehen","Vergiftung","Verletzung","Arbeits- / Betriebs- / Schulunfall"]}
 ];
 const yesNoUnclearOptions=["Ja","Nein","Unsicher (kann nicht beurteilt werden)","Unbekannter (kein Kontakt / keine Angabe möglich)"];
+
+const firefighterCommonQuestions = [
+  {id:"fw_common_ort",text:"Wo genau befindet sich die Einsatzstelle?",type:"text",order:9000,placeholder:"Straße, Hausnummer, Objekt, Ort …"},
+  {id:"fw_common_personen",text:"Sind Personen betroffen, verletzt oder gefährdet?",type:"choice",order:9001,options:["Ja","Nein","Unklar"]},
+  {id:"fw_common_anzahl",text:"Wie viele Personen sind ungefähr betroffen? (0 wenn keine)",type:"number",order:9002,placeholder:"Anzahl …"},
+  {id:"fw_common_gefahr",text:"Besteht eine unmittelbare Gefahr für Personen oder Einsatzkräfte?",type:"choice",order:9003,options:["Ja","Nein","Unklar"]},
+  {id:"fw_common_zugang",text:"Ist die Einsatzstelle für Einsatzkräfte sicher erreichbar?",type:"choice",order:9004,options:["Ja","Nein","Unklar"]},
+  {id:"fw_common_vorort",text:"Sind bereits andere Einsatzkräfte vor Ort oder informiert?",type:"choice",order:9005,options:["Nein","Rettungsdienst","Polizei","Weitere Feuerwehrkräfte","Mehrere","Unklar"]},
+  {id:"fw_common_verlauf",text:"Verändert sich die Lage weiter oder besteht eine Ausbreitungsgefahr?",type:"choice",order:9006,options:["Ja","Nein","Unklar"]},
+  {id:"fw_common_weitere",text:"Gibt es noch eine weitere wichtige Information für die Einsatzkräfte?",type:"text",order:9007,placeholder:"Weitere wichtige Angaben …",allowEmpty:true}
+];
+
+function firefighterQuestions(){
+  const branch=String(answers.fw_schadensfall||"");
+  const all=Object.values(data.catalog?.brand||{})
+    .filter(q=>q?.id&&q?.text&&q.fwBranch&&q.id!=="fw_schadensfall"&&q.whenQuestion==="fw_schadensfall"&&String(q.whenValue)===branch)
+    .sort((a,b)=>(Number(a.order)||999999)-(Number(b.order)||999999));
+
+  // Feuerwehr soll eine kurze, lagebezogene Abfrage erhalten: maximal
+  // 14 Fragen insgesamt (inkl. Schadensfall), mindestens 12 als Ziel.
+  // Bei kleinen Zweigen werden nur die fehlenden Fragen mit allgemeinen,
+  // einsatzrelevanten Angaben ergänzt.
+  const selected=all.slice(0,13);
+  const needed=Math.max(0,12-selected.length); // + Schadensfall = 13 Ziel; bei bedingten Folgefragen bleiben 12–14 realistisch
+  if(needed>0) selected.push(...firefighterCommonQuestions.slice(0,needed));
+  return [data.catalog?.brand?.fw_schadensfall,...selected].filter(Boolean);
+}
+
 const injurySupplementQuestions = {
   "verletzung_v49_mechanismus": {
     "id": "verletzung_v49_mechanismus",
@@ -676,6 +704,7 @@ function visible(q){
 function isInjuryReason(){ return answers.med_grund==="Verletzung" || answers.med_grund==="Arbeits- / Betriebs- / Schulunfall"; }
 function questions(){
   if(category==="grossschaden") return grossQuestions;
+  if(category==="brand") return firefighterQuestions().map(normalizeChoiceOptions);
   let qs=Object.values(data.catalog?.[category]||{}).filter(q=>q?.id&&q?.text).map(normalizeChoiceOptions);
   if(category==="medizin") {
     const byId=new Map(qs.map(q=>[q.id,q]));
@@ -707,6 +736,11 @@ function medicalBranchCount(){
   return Object.keys(answers).filter(id=>ids.has(id) && !["med_wem","med_personen","med_spricht","med_demografie","med_grund","verdachtsdiagnose"].includes(id)).length;
 }
 function nextQuestion(){
+  // Feuerwehr: nach der Auswahl des Schadensfalls nur noch die kurze,
+  // lagebezogene 12–14-Fragen-Abfrage verwenden.
+  if(category==="brand" && answers.fw_schadensfall!==undefined){
+    if(steps>=14) return null;
+  }
   // Verletzungspfad: erst Unfallmechanismus, danach das passende
   // Verletzungsmuster und anschließend die Körperkarte.
   // Verbrennung/Verbrühung/Verätzung ist bereits durch den Mechanismus

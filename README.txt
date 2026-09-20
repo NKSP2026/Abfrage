@@ -383,3 +383,6 @@ Datum: 20.09.2026
 - Dadurch ist für das Abbruchprotokoll keine Firebase-Anmeldung und keine anonyme Anmeldung erforderlich.
 - Die drei gespeicherten Felder bleiben: Datum, Uhrzeit und Abbruchgrund.
 
+
+
+V68.36: Feuerwehr-Abfrage auf einen kurzen, lagebezogenen Entscheidungsbaum mit 12–14 Fragen begrenzt; branch-spezifische Folgefragen statt des bisherigen langen Katalogs.

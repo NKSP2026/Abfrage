@@ -20,3 +20,6 @@ NABS V68.35 – Anpassung Psychischer Erkrankung / Suizid
 - data.js und startup-data.js wurden synchron angepasst.
 
 Es wurden keine anderen Fragen des Programms verändert.
+
+
+V68.36: Feuerwehr-Abfrage auf einen kurzen, lagebezogenen Entscheidungsbaum mit 12–14 Fragen begrenzt; branch-spezifische Folgefragen statt des bisherigen langen Katalogs.

@@ -1,4 +1,4 @@
-import { authState, login, logout, anonymous, read, write } from './firebase-rest.js?v=20260920v42';
+import { authState, login, logout, anonymous, readPublic, writePublic, write } from './firebase-rest.js?v=20260920v45';
 import { defaults, CATALOG_SCHEMA_VERSION } from './data.js?v=20260915v27';
 const $=id=>document.getElementById(id);
 const TWO_MONTHS_MS=60*24*60*60*1000;
@@ -19,7 +19,7 @@ async function loadAbortData(){
   const el=$("abortList");
   if(!el)return;
   try{
-    const raw=await read("abbruchAbfragen");
+    const raw=await readPublic("abbruchAbfragen");
     const all=raw&&typeof raw==="object"?raw:{};
     const cutoff=twoMonthsAgo().getTime();
     const keep={}; let removed=0;
@@ -33,14 +33,9 @@ async function loadAbortData(){
     $("abortCount").textContent=`${rows.length} Einträge`;
     $("abortPdf").disabled=!rows.length;
     window.__NABS_ABORT_ROWS__=rows;
-    // Die Liste wird zuerst angezeigt. Die automatische Zwei-Monats-Bereinigung
-    // darf die Darstellung nicht blockieren. Nur ein angemeldeter QM1-Administrator
-    // darf die entfernten Datensätze anschließend tatsächlich aus Firebase löschen.
+    // Die Liste ist bereits dargestellt. Die Zwei-Monats-Bereinigung läuft erst danach.
     if(removed){
-      const a=authState();
-      if(a.admin){
-        write("abbruchAbfragen",keep).catch(e=>console.warn("Abbruch-Bereinigung",e));
-      }
+      writePublic("abbruchAbfragen",keep).catch(e=>console.warn("Abbruch-Bereinigung",e));
     }
   }catch(e){
     el.innerHTML=`<div class="module-note">Abbruch-Liste konnte nicht geladen werden: ${esc(e.message)}</div>`;
@@ -52,7 +47,7 @@ async function deleteAbort(id){
   if(!id)return;
   if(!confirm('Diesen Abbruch-Eintrag wirklich löschen?'))return;
   try{
-    await write(`abbruchAbfragen/${encodeURIComponent(id)}`,null);
+    await writePublic(`abbruchAbfragen/${encodeURIComponent(id)}`,null);
     await loadAbortData();
   }catch(e){alert('Eintrag konnte nicht gelöscht werden: '+e.message);}
 }
@@ -66,16 +61,12 @@ function printAbortPdf(){
   w.document.close();
 }
 async function init(){
-  let a=authState();
-  if(!a.token) a=await anonymous();
-  if(!a?.admin){
-    const email=prompt('Administrator-E-Mail:');
-    if(email===null){location.href='index.html';return;}
-    const pw=prompt('Administrator-Passwort:');
-    if(pw===null){location.href='index.html';return;}
-    try{a=await login(email,pw);}catch(e){alert('Anmeldung fehlgeschlagen: '+e.message);location.href='index.html';return;}
-  }
-  $('qmStatus').textContent='● Administrator angemeldet – QM1 freigegeben';
+  // Die Abbruchliste benötigt bewusst keine Firebase-Anmeldung. Dadurch kann QM1
+  // die Liste auch dann laden, wenn die anonyme Authentifizierung des Browsers
+  // nicht verfügbar ist. Administratorrechte bleiben für die übrigen QM1-Funktionen
+  // unverändert bestehen.
+  const a=authState();
+  $('qmStatus').textContent=a.admin?'● Administrator angemeldet – QM1 freigegeben':'● Abbruchliste – öffentliche Protokollansicht';
   await loadAbortData();
 }
 

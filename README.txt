@@ -369,3 +369,17 @@ Datum: 20.09.2026
 - Das einzelne Löschen bleibt ausschließlich für den QM1-Administrator möglich.
 - Es wurden keine Firebase-Regeln für diese Korrektur geändert.
 - Die bestehende zentrale README.txt wurde weitergeführt; keine neue README-Datei angelegt.
+
+V68.33 – ABBRUCHLISTE OHNE AUTHENTIFIZIERUNG REPARIERT
+Datum: 20.09.2026
+
+- Ursache der weiterhin leeren/hängenden QM1-Abbruchliste behoben: Der Abbruch-Log verwendet jetzt einen eigenen öffentlichen RTDB-REST-Zugriff.
+- QM1 kann die Abbruchliste dadurch unabhängig von Firebase Authentication laden.
+- Aktualisieren lädt die Daten direkt neu.
+- Löschen und Zwei-Monats-Bereinigung verwenden ebenfalls den getrennten Abbruch-Log-Zugriff.
+- Neue Abbrüche werden ebenfalls ohne Firebase-Anmeldung unter „abbruchAbfragen“ gespeichert.
+- Die übrigen Firebase-Bereiche bleiben durch die vorhandenen Regeln geschützt.
+- WICHTIG: Die mitgelieferte database.rules.json muss einmal in Firebase Realtime Database → Regeln veröffentlicht werden. Nur „abbruchAbfragen“ ist dort öffentlich les-/schreibbar; die übrigen Bereiche bleiben wie bisher geschützt.
+- Dadurch ist für das Abbruchprotokoll keine Firebase-Anmeldung und keine anonyme Anmeldung erforderlich.
+- Die drei gespeicherten Felder bleiben: Datum, Uhrzeit und Abbruchgrund.
+

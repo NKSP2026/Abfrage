@@ -1,6 +1,6 @@
 // Einsatzabfrage V20 – dynamischer Entscheidungsbaum mit permanenter Aktionsleiste
 import { startupDefaults } from "./startup-data.js?v=20260915v39";
-import { anonymous, read, authState, push } from "./firebase-rest.js?v=20260920v42";
+import { anonymous, read, authState, pushPublic } from "./firebase-rest.js?v=20260920v45";
 
 const $ = id => document.getElementById(id);
 const mainCategories = [
@@ -1312,7 +1312,6 @@ function currentResult(){
 }
 async function recordAbort(reason, otherReason="") {
   const now=new Date();
-  let a=authState();
   const baseReason=String(reason||"").trim();
   const extra=String(otherReason||"").trim();
   const abbruchgrund=baseReason==='Sonstiges' && extra ? `Sonstiges: ${extra}` : baseReason;
@@ -1322,15 +1321,13 @@ async function recordAbort(reason, otherReason="") {
     abbruchgrund
   };
   try{
-    if(!a?.token) a=await anonymous();
-    if(!a?.token) throw new Error("Keine Firebase-Anmeldung verfügbar. Bitte in Firebase Authentication die anonyme Anmeldung aktivieren.");
-    await push("abbruchAbfragen",record);
+    await pushPublic("abbruchAbfragen",record);
     return true;
   }catch(e){
     console.error("Abbruch konnte nicht gespeichert werden",e);
     const msg=String(e?.message||e);
     if(/permission denied/i.test(msg)){
-      alert("Der Abbruch konnte nicht gespeichert werden.\n\nFirebase meldet: Permission denied.\n\nBitte in Firebase Realtime Database die Regeln aus der Datei database.rules.json veröffentlichen. Unter abbruchAbfragen muss .write für angemeldete Benutzer erlaubt sein.");
+      alert("Der Abbruch konnte nicht gespeichert werden.\n\nFirebase meldet: Permission denied.\n\nBitte in Firebase Realtime Database unter „abbruchAbfragen“ das Schreiben erlauben (siehe mitgelieferte database.rules.json).");
     }else{
       alert("Der Abbruch konnte nicht gespeichert werden.\n\n"+msg);
     }

@@ -80,3 +80,20 @@ export async function write(path,value){
   const url=`${firebaseConfig.databaseURL.replace(/\/$/,'')}/${path}.json?auth=${encodeURIComponent(a.token)}`;
   return jsonFetch(url,{method:'PUT',body:JSON.stringify(value)});
 }
+// Öffentlicher REST-Zugriff nur für den technisch getrennten Abbruch-Log.
+// Die übrigen Firebase-Bereiche verwenden weiterhin die geschützten Funktionen oben.
+export async function readPublic(path){
+  const url=`${firebaseConfig.databaseURL.replace(/\/$/,'')}/${path}.json`;
+  return jsonFetch(url,{method:'GET'});
+}
+
+export async function pushPublic(path,value){
+  const url=`${firebaseConfig.databaseURL.replace(/\/$/,'')}/${path}.json`;
+  return jsonFetch(url,{method:'POST',body:JSON.stringify(value)});
+}
+
+export async function writePublic(path,value){
+  const url=`${firebaseConfig.databaseURL.replace(/\/$/,'')}/${path}.json`;
+  return jsonFetch(url,{method:'PUT',body:JSON.stringify(value)});
+}
+

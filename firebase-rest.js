@@ -14,12 +14,21 @@ export function authState(){
 
 async function jsonFetch(url, options={}){
   const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),10000);
+  const timer=setTimeout(()=>controller.abort(),15000);
   try{
-    const r=await fetch(url,{...options,signal:controller.signal,headers:{'Content-Type':'application/json',...(options.headers||{})}});
+    let r;
+    try{
+      r=await fetch(url,{...options,signal:controller.signal,headers:{'Content-Type':'application/json',...(options.headers||{})}});
+    }catch(err){
+      if(err?.name==='AbortError') throw new Error(`Firebase-Netzwerkfehler: Zeitüberschreitung nach 15 Sekunden (${new URL(url).hostname})`);
+      throw new Error(`Firebase-Netzwerkfehler: ${err?.message||err}`);
+    }
     const text=await r.text();
     let data=null; try{data=text?JSON.parse(text):null;}catch{data={raw:text};}
-    if(!r.ok) throw new Error(data?.error?.message||data?.error||`HTTP ${r.status}`);
+    if(!r.ok){
+      const detail=data?.error?.message||data?.error||`HTTP ${r.status}`;
+      throw new Error(`Firebase HTTP ${r.status}: ${detail}`);
+    }
     return data;
   }finally{clearTimeout(timer);}
 }

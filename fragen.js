@@ -1,5 +1,6 @@
 import { defaults, CATALOG_SCHEMA_VERSION } from './data-bridge.js?v=20260915v24';
-import { authState, login, logout, anonymous, read, write } from './firebase-rest.js?v=20260915v24';
+import { authState, login, logout, anonymous, read, write } from './firebase-rest.js?v=20260921v01';
+import { ADMIN_UID } from './firebase-config.js?v=20260921v01';
 
 const $ = id => document.getElementById(id);
 const categories = ['medizin','brand','thl','abc'];
@@ -12,6 +13,11 @@ const linkedReportId=pageParams.get('report')||'';
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
 function setStatus(text){$('status').textContent=text;}
 function msg(text){$('message').textContent=text||'';}
+function setAuthInfo(a){
+  const el=$('authInfo'); if(!el)return;
+  if(!a?.token){el.textContent='🔴 Firebase: nicht angemeldet';return;}
+  el.textContent=`${a.admin?'🟢 Administrator angemeldet':'🟡 Firebase angemeldet – Lesemodus'} · UID: ${a.uid||'unbekannt'}`;
+}
 
 function allQuestions(){
   const out=[];
@@ -254,7 +260,9 @@ async function load(){
   }
   setStatus('Verbinde mit Firebase …');
   let a=authState();
+  setAuthInfo(a);
   if(!a.token){try{a=await anonymous();}catch(e){/* Admin kann sich trotzdem anmelden. */}}
+  setAuthInfo(a);
   if(!a?.token){
     setStatus('● Lokaler Grundkatalog – für Änderungen bitte Administrator anmelden');
     /* Katalog bleibt lokal verfügbar; nur Firebase-Speichern benötigt Admin-Rechte. */
@@ -301,11 +309,12 @@ $('reload').onclick=async()=>{msg('');await load();};
 $('loginBtn').onclick=async()=>{
   const email=prompt('Administrator-E-Mail:');if(email===null)return;
   const pw=prompt('Administrator-Passwort:');if(pw===null)return;
-  try{await login(email,pw);setStatus('● Firebase – Administrator angemeldet');msg('✓ Anmeldung erfolgreich.');await load();}
+  try{const a=await login(email,pw);setAuthInfo(a);setStatus('● Firebase – Administrator angemeldet');msg(`✓ Anmeldung erfolgreich. UID: ${a.uid}`);await load();}
   catch(e){alert('Anmeldung fehlgeschlagen: '+e.message);setStatus('⚠️ Anmeldung fehlgeschlagen');}
 };
 $('logoutBtn').onclick=()=>{
   logout();
+  setAuthInfo(authState());
   catalog={...defaults.catalog};
   setStatus('● Abgemeldet – lokaler Grundkatalog aktiv');
   renderSelect(editingId);
@@ -326,7 +335,10 @@ $('seed').onclick=async()=>{
 };
 $('save').onclick=async()=>{
   try{
-    const a=authState();if(!a.admin)throw Error('Bitte zuerst als Administrator anmelden.');
+    const a=authState();
+    setAuthInfo(a);
+    if(!a.token)throw Error('Keine Firebase-Anmeldung vorhanden. Bitte als Administrator anmelden.');
+    if(!a.admin)throw Error(`Firebase-Konto ist nicht der Administrator. Angemeldete UID: ${a.uid||'unbekannt'} · erwartet: ${ADMIN_UID||'konfiguriert'}`);
     const q=build(),cat=$('category').value;
     await write(`catalog/${cat}/${q.id}`,q);
     await write('catalog/_meta',{schemaVersion:CATALOG_SCHEMA_VERSION,updatedAt:new Date().toISOString()});
@@ -336,7 +348,7 @@ $('save').onclick=async()=>{
       try{await write(`frageMeldungen/${linkedReportId}/status`,'erledigt');await write(`frageMeldungen/${linkedReportId}/resolvedAt`,new Date().toISOString());await write(`frageMeldungen/${linkedReportId}/resolvedQuestionId`,q.id);}catch(e){console.warn('QM-Meldung konnte nicht abgeschlossen werden',e);}
     }
     await load();
-  }catch(e){msg('⚠️ '+e.message);}
+  }catch(e){msg('⚠️ Speichern fehlgeschlagen: '+e.message);console.error('NABS Firebase save error',e);}
 };
 $('delete').onclick=async()=>{
   try{

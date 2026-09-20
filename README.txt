@@ -783,3 +783,10 @@ VERSION 5.12 – LÖSCHEN OHNE BESTÄTIGUNG (20.09.2026)
 
 
 Version 5.12 – Fragemeldungen: Das Absenden einer neuen Fragemeldung bleibt ohne Anmeldung möglich; bestehende Meldungen bleiben ausschließlich durch den Administrator les-/bearbeitbar/löschbar. Die Firebase-Regel für frageMeldungen wurde dafür eindeutig auf "neuer Datensatz oder Admin" gesetzt.
+
+
+Version 5.13 – Firebase-Diagnose Fragenverwaltung
+- Fragenverwaltung zeigt jetzt den tatsächlichen Firebase-Anmeldestatus und die UID an.
+- Firebase-Fehler werden beim Speichern mit HTTP-Status und genauer Fehlermeldung angezeigt statt nur „Failed to fetch“.
+- Netzwerk-/Timeout-Fehler werden getrennt ausgewiesen.
+- Die Firebase-Berechtigungen für catalog wurden nicht gelockert.

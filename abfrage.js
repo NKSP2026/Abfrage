@@ -785,8 +785,8 @@ function hazmatSummary(){
   const h=answers.gefahrgut_details;
   if(!h || typeof h!=='object') return '';
   const out=[];
-  if(h.gefahrnummer){ const key=String(h.gefahrnummer).trim().toUpperCase(); const meaning=KEMLER_MEANINGS[key]; out.push(`Gefahrnummer ${key}${meaning?` (${meaning})`:''}`); }
-  if(h.un){ const key=String(h.un).replace(/\D/g,'').padStart(4,'0'); const d=UN_DANGEROUS_GOODS[key]; out.push(`UN ${key}${d?` – ${d.name}`:''}`); if(d?.class)out.push(`Klasse ${d.class}`); }
+  if(h.gefahrnummer){ const key=String(h.gefahrnummer).trim().toUpperCase(); const meaning=KEMLER_MEANINGS[key]; out.push(`Warntafel Gefahrnummer ${key}${meaning?` (${meaning})`:''}`); }
+  if(h.un){ const key=String(h.un).replace(/\D/g,'').padStart(4,'0'); const d=UN_DANGEROUS_GOODS[key]; out.push(`Warntafel UN ${key}${d?` – ${d.name}`:''}`); if(d?.class)out.push(`Klasse ${d.class}`); }
   if(Array.isArray(h.ghs)&&h.ghs.length) out.push(`GHS: ${h.ghs.join(', ')}`); if(Array.isArray(h.adrLabels)&&h.adrLabels.length) out.push(`Gefahrzettel: ${h.adrLabels.join(', ')}`);
   if(h.transport) out.push(`Verkehrsmittel: ${h.transport}`);
   if(h.menge) out.push(`Ausgetreten: ca. ${h.menge} cm³`);
@@ -827,7 +827,8 @@ function hazmatFieldsMarkup(h={}){
       <div class="meaning-row"><b>Stoff:</b><span id="hazUNInfo">${un&&UN_DANGEROUS_GOODS[un.padStart(4,'0')]?`${UN_DANGEROUS_GOODS[un.padStart(4,'0')].name} · Klasse ${UN_DANGEROUS_GOODS[un.padStart(4,'0')].class}`:'Stoffbezeichnung erscheint automatisch'}</span></div>
     </div>
   </div>
-  <div class="hazmat-section adr-symbol-section"><h3>☑ Sichtbare Gefahrzettel / Symbole</h3><p class="hint">Nur tatsächlich sichtbare Kennzeichnungen anklicken. Keine Auswahl ist erforderlich.</p><div id="adrGrid" class="adr-grid"></div></div>
+  <div class="hazmat-section ghs-symbol-section"><h3>☑ Sichtbare Gefahrenpiktogramme (GHS / CLP)</h3><p class="hint">Die rot umrandeten GHS-Piktogramme und die ADR-Gefahrzettel getrennt erfassen. Nur tatsächlich sichtbare Kennzeichnungen anklicken.</p><div id="ghsGrid" class="ghs-grid-original"></div></div>
+  <div class="hazmat-section adr-symbol-section"><h3>☑ Sichtbare ADR-Gefahrzettel</h3><p class="hint">Nur tatsächlich sichtbare transportrechtliche Gefahrzettel anklicken.</p><div id="adrGrid" class="adr-grid"></div></div>
   <div class="hazmat-grid hazmat-transport-grid">
     <label>🚚 Verkehrsmittel / Behälter<select id="hazTransport"><option value="">Bitte auswählen …</option>${TRANSPORT_TYPES.map(x=>`<option>${x}</option>`).join('')}</select></label>
     <label>💧 Wie viel ist ungefähr ausgelaufen? (cm³)<input id="hazMenge" type="number" min="0" step="1" inputmode="numeric" value="${String(h.menge||'')}" placeholder="z. B. 5000"></label>
@@ -837,6 +838,24 @@ function hazmatFieldsMarkup(h={}){
 function wireHazmat(box,h,onSave,onClear){
   const selected=new Set(Array.isArray(h.ghs)?h.ghs:[]);
   const selectedAdr=new Set(Array.isArray(h.adrLabels)?h.adrLabels:[]);
+  const ghsRemote={
+    GHS01:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/GHS-pictogram-explos.svg/768px-GHS-pictogram-explos.svg.png',
+    GHS02:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/GHS-pictogram-flamme.svg/768px-GHS-pictogram-flamme.svg.png',
+    GHS03:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/GHS-pictogram-rondflam.svg/768px-GHS-pictogram-rondflam.svg.png',
+    GHS04:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/GHS-pictogram-bottle.svg/768px-GHS-pictogram-bottle.svg.png',
+    GHS05:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/GHS-pictogram-acid.svg/768px-GHS-pictogram-acid.svg.png',
+    GHS06:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/GHS-pictogram-skull.svg/768px-GHS-pictogram-skull.svg.png',
+    GHS07:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/GHS-pictogram-exclam.svg/768px-GHS-pictogram-exclam.svg.png',
+    GHS08:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/GHS-pictogram-silhouette.svg/768px-GHS-pictogram-silhouette.svg.png',
+    GHS09:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/GHS-pictogram-pollu.svg/768px-GHS-pictogram-pollu.svg.png'
+  };
+  const gg=box.querySelector('#ghsGrid');
+  GHS_SYMBOLS.forEach(([id,name])=>{
+    const lab=document.createElement('label'); lab.className='ghs-choice-original';
+    lab.innerHTML=`<input type="checkbox" value="${name}"><span class="ghs-original-wrap"><img src="${ghsRemote[id]}" alt="${id} ${name}" loading="lazy"></span><span class="ghs-original-name"><b>${id}</b><br>${name}</span>`;
+    const inp=lab.querySelector('input'); inp.checked=selected.has(name);
+    inp.onchange=()=>inp.checked?selected.add(name):selected.delete(name); gg.appendChild(lab);
+  });
   const g=box.querySelector('#adrGrid');
   const ADR_ORIGINAL_IMAGES={
     ADR1:'https://www.bmv.de/SharedDocs/DE/Anlage/G/Gefahrengut/gefahrzettel-1-pdf.jpg?__blob=publicationFile',

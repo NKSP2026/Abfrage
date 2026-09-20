@@ -393,3 +393,16 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 .adr-diamond b{display:none!important}
 .adr-choice{min-height:145px}
 @media(max-width:760px){.adr-choice{min-height:125px}.adr-diamond,.adr-diamond .adr-original{width:70px;height:70px}}
+
+/* V68.51 – echte rot umrandete GHS/CLP-Gefahrenpiktogramme zusätzlich zu ADR */
+.ghs-grid-original{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:10px}
+.ghs-choice-original{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:7px;background:#202631;border:2px solid #455266;border-radius:11px;padding:10px 7px;cursor:pointer;min-height:155px;transition:.15s}
+.ghs-choice-original:hover{border-color:#f59e0b;transform:translateY(-1px)}
+.ghs-choice-original:has(input:checked){border-color:#f59e0b;background:#33230c;box-shadow:0 0 0 2px #f59e0b55}
+.ghs-choice-original input{position:absolute;opacity:0;pointer-events:none}
+.ghs-original-wrap{width:82px;height:82px;display:flex;align-items:center;justify-content:center}
+.ghs-original-wrap img{display:block;width:82px;height:82px;object-fit:contain}
+.ghs-original-name{text-align:center;color:#e5e7eb;font-size:.78rem;line-height:1.15}
+.ghs-original-name b{color:#fbbf24}
+@media(max-width:900px){.ghs-grid-original{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){.ghs-grid-original{grid-template-columns:repeat(2,minmax(0,1fr))}.ghs-choice-original{min-height:145px}.ghs-original-wrap,.ghs-original-wrap img{width:72px;height:72px}}

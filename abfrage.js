@@ -1064,8 +1064,20 @@ function showREA(){reaShown=true;updatePhase();$("progress").textContent="⚠️
 function evaluateNotarzt(){
   if(category==="grossschaden")return [];
   const reasons=[];
+  // Der Notarztindikationskatalog gilt auch dann, wenn der Einsatz über
+  // Feuerwehr/THL eröffnet wurde und dort medizinisch betroffene Personen
+  // vorhanden sind. Die vorhandenen medizinischen Regeln bleiben dabei die
+  // maßgebliche Quelle; die Brücken unten übersetzen nur die entsprechenden
+  // Feuerwehr-Antworten in die dafür benötigten medizinischen Kriterien.
+  const ruleAnswers={...answers};
+  if(category!=="medizin") {
+    if(["fw_vergiftung_bewusst","fw_wasser_bewusst","fw_eis_bewusst","fw_tauch_bewusst","fw_notlage_bewusst"].some(id=>answers[id]==="Nein")) ruleAnswers.bewusstsein="Bewusstlos";
+    if(["fw_vergiftung_atmung","fw_wasser_atmung","fw_tauch_atmung","fw_notlage_atmung"].some(id=>answers[id]==="Nein")) ruleAnswers.atmung="Keine normale Atmung";
+    if(["fw_vergiftung_atmung"].some(id=>answers[id]==="Ja")) ruleAnswers.atem_01="Ja";
+  }
   for(const r of Object.values(data.notarzt_rules||{})){
-    if(r.category===category&&matches(answers[r.questionId],r.values??r.value)) reasons.push(r.reason||r.id);
+    const applies=(r.category==="medizin" || r.category===category);
+    if(applies&&matches(ruleAnswers[r.questionId],r.values??r.value)) reasons.push(r.reason||r.id);
   }
   if(category==="medizin"){
     if(answers.deterioration==="Herz-Kreislauf-Stillstand"||answers.deterioration==="Atmet nicht mehr") reasons.push("Akute Reanimationslage / Atemstillstand");
@@ -1087,68 +1099,18 @@ function allAnswerText(){
   return Object.values(answers).flatMap(v=>Array.isArray(v)?v:[v]).map(v=>String(v??"").toLowerCase()).join(" | ");
 }
 function evaluateResources(reasons){
-  if(category==="grossschaden")return[];
-  const s=new Set();
-  for(const r of Object.values(data.resource_rules||{})){
-    if(r.category===category&&matches(answers[r.questionId],r.values??r.value))(r.resources||[]).forEach(x=>s.add(x));
-  }
-  const txt=allAnswerText();
-  // Basisvorschlag: Bei einem medizinischen Notruf mindestens RTW/Rettungsdienst.
-  if(category==="medizin") s.add("RTW / Rettungsdienst");
-  if(category==="medizin" && answers.med_personen==="Mehr als 9 / MANV") s.add("MANV-/Rettungsmittel nach örtlicher AAO");
-  if(category==="medizin" && (answers.med_grund==="Verletzung" || answers.med_grund==="Arbeits- / Betriebs- / Schulunfall")){
-    const m=String(answers.verletzung_v49_mechanismus||"");
-    const danger=String(answers.verletzung_v49_zugang_grund||"");
-    if(["Stromunfall","Verbrennung / Verbrühung","Verätzungen","Eingeklemmt / eingeschlossen"].includes(m) || /eingeklemmt|eingeschlossen|verschlossene wohnung|abgestürzt|verschüttet|höhe|fahrzeug|aufzug|unzugänglich|gefahrenbereich/i.test(danger)) s.add("Feuerwehr – Technische Hilfe / Gefahrenabwehr lageabhängig prüfen");
-    if(m==="Hiebverletzung / Schlägerei" || m==="Vergewaltigung / sexueller Übergriff" || answers.verletzung_v49_taeter==="Ja") s.add("Polizei – lageabhängig zusätzlich prüfen");
-    if(["Stromunfall","Stich- / Pfählungsverletzung","Hohe Krafteinwirkung","Hochgeschwindigkeitsverletzung","Verkehrsunfall"].includes(m)) s.add("NEF / Notarzt – Indikation anhand hinterlegter Kriterien prüfen");
-    if(answers.verletzung_v49_blutung==="Ja" || answers.verletzung_v49_atmung==="Ja" || answers.verletzung_v49_bewusstsein==="Nein") s.add("NEF / Notarzt – relevantes Verletzungs-/Vitalrisiko prüfen");
-  }
-  if(reasons.length) s.add("NEF / Notarzt");
-  if(answers.deterioration) s.add("Rettungsdienst – akute Verschlechterung berücksichtigen");
-  if(category==="brand") {
-    s.add("Feuerwehr");
-    const fw=String(answers.fw_schadensfall||"");
-    if(["Gewalt","Terroranschlag ausgeführt","Terroranschlag Drohung"].includes(fw)) s.add("Polizei – lageabhängig zusätzlich prüfen");
-    if(["Vergiftung","Gefahrstoffaustritt / ABC"].includes(fw)) s.add("ABC-/Gefahrgut-Komponente – lageabhängig prüfen");
-    if(["Ertrinkungsunfall","Eisrettung","Tauchunfall","Wasserfahrzeug / -sportler in Not","Sachbergung aus dem Wasser","Tierrettung aus dem Wasser"].includes(fw)) s.add("Wasserrettung / Feuerwehr – lageabhängig prüfen");
-    if(["Ertrinkungsunfall","Eisrettung","Tauchunfall","Wasserfahrzeug / -sportler in Not"].includes(fw)) s.add("RTW / Rettungsdienst – bei betroffenen Personen prüfen");
-    if(["Explosion","Einsturz / Gebäudeschaden","Person in Notlage","Technische Hilfeleistung","Verkehrsunfall"].includes(fw)) s.add("Technische Hilfeleistung – lageabhängig prüfen");
-    if(fw==="Sonstiger MANV (FREITEXT)") s.add("Rettungsdienst / MANV-Komponente – nach Lage und örtlicher AAO prüfen");
-    if(
-      answers.fw_blitz_personen==="Ja" ||
-      answers.fw_gewalt_verletzt==="Ja" ||
-      answers.fw_terror_verletzt==="Ja" ||
-      answers.fw_vergiftung_bewusst==="Ja" ||
-      answers.fw_vergiftung_atmung==="Ja" ||
-      answers.fw_wasser_atmung==="Nein" ||
-      answers.fw_tauch_bewusst==="Nein" ||
-      answers.fw_tauch_atmung==="Nein" ||
-      answers.fw_explo_personen==="Ja" ||
-      answers.fw_notlage_bewusst==="Nein" ||
-      answers.fw_notlage_atmung==="Nein" ||
-      answers.fw_oel_person==="Ja" ||
-      answers.fw_sonst_person==="Ja"
-    ) s.add("RTW / Rettungsdienst – betroffene Person(en) medizinisch beurteilen");
-  }
-  // Zusätzliche Kräfte nur bei konkreten Hinweisen.
-  if(/feuer|rauch|gas|gefahrstoff|chemikal|brand|eingeklemmt|eingeschlossen|stromleitung|explosion|einsturz|abgestürzt|verschüttet|verschlossene wohnung|auf dach|balkon|höhe|fahrzeug|aufzug|unzugängliches gelände/.test(txt)) s.add("Feuerwehr – zusätzlich erforderlich/zu prüfen");
-  if(/waffe|gewalt|schlägerei|bedroh|angriff|stra[ft]at|polizei|suizid|fremdgefähr/.test(txt)) s.add("Polizei – lageabhängig zusätzlich zu prüfen");
-  if(category==="thl" && mode==="vu"){
-    s.add("RTW / Rettungsdienst – Verletztenversorgung");
-    if(/eingeklemmt|eingeschlossen|brand|rauch|gefahrgut|kraftstoff|stromleitung|besondere gefahr/.test(txt)) s.add("Feuerwehr – Technische Hilfeleistung");
-    s.add("Polizei – Verkehrsabsicherung/lageabhängig prüfen");
-  }
-  if(category==="thl" && mode==="wasser"){
-    s.add("RTW / Rettungsdienst");
-    s.add("Wasserrettung / Feuerwehr – lageabhängig prüfen");
-  }
-  return [...s];
+  // Die Rettungsdienst-Fahrzeugzahl steckt im medizinischen Stichwort
+  // (R1/R2/R3/R4 bzw. N1R1/N1R2/...). Deshalb hier keine zusätzlichen
+  // RTW-/NEF-Einträge erzeugen. Bei Feuerwehr/THL kommt die Fahrzeugliste
+  // ausschließlich aus der hinterlegten AAO.
+  if(category==="grossschaden")return [];
+  if(category==="medizin")return [];
+  return [];
 }
 function fallbackStichwort(){
   if(category==="grossschaden") return null;
   if(category==="medizin"){
-    if(["rea","noBreath"].includes(answers.deterioration) || answers.atmung==="Atemstillstand") return {code:"RD-REAN",name:"Reanimation / Atemstillstand",priority:999};
+    if(["rea","noBreath"].includes(answers.deterioration) || answers.atmung==="Atemstillstand") return {code:"N1R1",name:"N1R1 - REA",priority:999};
     const g=String(answers.med_grund||"");
     if(g==="Erkrankung / medizinische Hilfeleistung"){
       const e=String(answers.erkrankung_typ||"");
@@ -1174,7 +1136,24 @@ function fallbackStichwort(){
       return {code:"RD-MED",name,priority:10};
     }
     const map={"Atemstörung":"Atemnot / Atemstörung","Brustschmerzen":"Brustschmerz","Kollaps / Kreislaufstörung":"Kollaps / Kreislaufstörung","Bewusstseinsstörung / Wesensveränderung":"Bewusstseinsstörung","Blutungen":"Blutung","Krampfanfall":"Krampfanfall","Vergiftung":"Vergiftung / Intoxikation","Verletzung":"Verletzung / Trauma","Arbeits- / Betriebs- / Schulunfall":"Verletzung / Trauma (Arbeits-/Betriebs-/Schulunfall)","Bauchschmerzen":"Akute Bauchschmerzen","Gefühlsstörung / Lähmung / Sprache / Sehstörung":"Neurologischer Notfall","Geburt / Schwangerschaft":"Geburtshilflicher Notfall","Allergie / Anaphylaxie":"Allergische Reaktion / Anaphylaxie","Herzrhythmusstörungen":"Herzrhythmusstörung","Kopfschmerzen":"Akuter Kopfschmerz","Psychische Erkrankung / Suizid":"Psychischer Notfall","Hitze- / Kälteprobleme":"Hitze-/Kältenotfall","Sonstige Schmerzen":"Akuter Schmerz","Erkrankung / medizinische Hilfeleistung":"Erkrankung / medizinische Hilfeleistung"};
-    return {code:"RD-MED",name:map[g]||g||"Medizinischer Notfall",priority:1};
+    const exact={
+      "Allergie / Anaphylaxie":["R1","R1 - ALLERG"],
+      "Atemstörung":["N1R1","N1R1 - UNKLAR"],
+      "Bewusstseinsstörung / Wesensveränderung":["N1R1","N1R1 - UNKLAR"],
+      "Blutungen":["N1R1","N1R1 - TRAUMA"],
+      "Brustschmerzen":["N1R1","N1R1 - UNKLAR"],
+      "Gefühlsstörung / Lähmung / Sprache / Sehstörung":["N1R1","N1R1 - NEURO"],
+      "Krampfanfall":["N1R1","N1R1 - NEURO"],
+      "Psychische Erkrankung / Suizid":["N1R1","N1R1 - UNKLAR"],
+      "Vergiftung":["N1R1","N1R1 - UNKLAR"],
+      "Verletzung":["N1R1","N1R1 - TRAUMA"],
+      "Arbeits- / Betriebs- / Schulunfall":["N1R1","N1R1 - TRAUMA"],
+      "Verkehrsunfall":["N1R1","N1R1 - VERKEHR"],
+      "Ertrinkungsunfall":["N1R1","N1R1 - WASSER"],
+      "Unklares Geschehen":["R1","R1 - UNKLAR"]
+    };
+    const e=exact[g];
+    return e?{code:e[0],name:e[1],priority:1}:{code:"R1",name:`R1 - ${String(map[g]||g||"UNKLAR").toUpperCase()}`,priority:1};
   }
   if(category==="brand") {
     const fw=String(answers.fw_schadensfall||"");
@@ -1326,23 +1305,27 @@ function dispatchText(resources,reasons,stichwort){
   return parts.filter(Boolean).join(" – ").slice(0,520)||"Einsatz – weitere Angaben nicht verfügbar";
 }
 function alarmierungVorschlag(reasons,resources){
-  const has=(needle)=>resources.some(x=>String(x).toLowerCase().includes(needle));
-  const out={rtw:false,nef:false,feuerwehr:false,polizei:false,hinweise:[]};
-  if(category==="medizin"){out.rtw=true;out.nef=reasons.length>0;}
-  if(category==="brand") out.feuerwehr=true;
-  if(category==="thl" && (mode==="vu"||mode==="wasser")) out.rtw=true;
-  out.feuerwehr=out.feuerwehr||has("feuerwehr");
-  out.polizei=has("polizei");
-  if(out.nef) out.hinweise.push("NEF/Notarzt aufgrund mindestens eines hinterlegten Indikationskriteriums.");
-  if(out.feuerwehr && category!=="brand") out.hinweise.push("Feuerwehr zusätzlich nur entsprechend Lage/örtlicher AAO alarmieren.");
-  if(out.polizei) out.hinweise.push("Polizei lageabhängig bzw. nach örtlicher Zuständigkeit prüfen.");
+  const out={rtw:false,nef:reasons.length>0,feuerwehr:resources.length>0,polizei:false,hinweise:[]};
+  if(category==="medizin"){
+    // RTW/NEF werden nicht separat als Ja/Nein ausgegeben: Die Auswahl
+    // steht bereits im Rettungsdienst-Stichwort.
+    out.rtw=true;
+  }
+  if(reasons.length) out.hinweise.push("NEF/Notarzt gemäß hinterlegtem Notarztindikationskatalog.");
   return out;
 }
 function currentResult(){
-  const reasons=evaluateNotarzt(),resources=evaluateResources(reasons),stichwort=chooseStichwort(),aao=stichwort?data.aao?.[stichwort.id]||null:null;
-  let final=[...(aao?.resources||[]),...resources];
-  if(category==="grossschaden"){final=["Großschadenslage – lageabhängige Einsatzmittel prüfen"];if(Array.isArray(answers.gs_gefahren)){if(answers.gs_gefahren.some(x=>x.includes("Feuer")))final.push("Feuerwehr");if(answers.gs_gefahren.some(x=>x.includes("Viele Verletzte")))final.push("Rettungsdienst / MANV-Komponente");if(answers.gs_gefahren.some(x=>x.includes("Gefahrstoffe")))final.push("ABC-/Gefahrgut-Komponente");if(answers.gs_gefahren.some(x=>x.includes("Wasser")))final.push("Wasserrettung / technische Hilfe");}}
-  const unique=[...new Set(final)];return{reasons,resources:unique,stichwort,aao,alarmierung:alarmierungVorschlag(reasons,unique),dispatchText:dispatchText(unique,reasons,stichwort)};
+  const reasons=evaluateNotarzt(),stichwort=chooseStichwort(),aao=stichwort?data.aao?.[stichwort.id]||null:null;
+  let final=[];
+  if(category==="brand"||category==="thl"||category==="abc") {
+    // Nur tatsächlich zu alarmierende Feuerwehrmittel aus der AAO anzeigen.
+    // Allgemeine Platzhalter wie "Feuerwehr" werden bewusst nicht ausgegeben.
+    final=Array.isArray(aao?.resources)?aao.resources.filter(x=>!/^RTW$|^NEF$|Rettungsdienst|Notarzt/i.test(String(x).trim())):[];
+  } else if(category==="grossschaden") {
+    final=["Großschadenslage – lageabhängige Einsatzmittel prüfen"];
+  }
+  const unique=[...new Set(final.filter(Boolean).map(String))];
+  return{reasons,resources:unique,stichwort,aao,alarmierung:alarmierungVorschlag(reasons,unique),dispatchText:dispatchText(unique,reasons,stichwort)};
 }
 async function recordAbort(reason, otherReason="") {
   const now=new Date();

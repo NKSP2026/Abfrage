@@ -709,3 +709,23 @@ VERSION 5.4 – QM2 / ABFRAGEZÄHLER (20.09.2026)
 - QM2 startet bei jedem Öffnen automatisch mit dem Statusfilter „Neu“.
 - Jeder Start einer ILS-Abfrage wird als Nutzungsereignis protokolliert und im Systembereich als Zähler nach Bereich angezeigt.
 - Firebase-Regeln wurden um geschützte Bereiche für Abbruch-Abfragen und Nutzungsereignisse ergänzt. Die aktualisierte database.rules.json muss bei Verwendung der Firebase-Funktionalität veröffentlicht werden.
+
+
+Version 5.5 Erweiterung: Kleiner Button „💡 Verbesserung“ in der laufenden Abfrage. Verbesserungsvorschläge werden in Firebase unter „verbesserungsvorschlaege“ gespeichert und in QM2 bearbeitet. Nach Status „Erledigt“ oder „Abgelehnt“ kann ein Administrator den Vorschlag dauerhaft löschen. Firebase-Regeln wurden um diesen Pfad ergänzt.
+
+
+VERSION 5.5 – VERBESSERUNGSVORSCHLÄGE (20.09.2026)
+- Kleiner Button „💡 Verbesserung“ direkt in der laufenden Abfrage.
+- Vorschläge werden als neue Einträge unter „verbesserungsvorschlaege“ in Firebase gespeichert und in QM2 angezeigt.
+- QM2 bietet Status „Neu“, „In Prüfung“, „Erledigt“ und „Abgelehnt“.
+- Nach „Erledigt“ oder „Abgelehnt“ kann der Administrator den Vorschlag mit „🗑 Löschen“ dauerhaft entfernen.
+- Die Firebase-Regeln wurden um den neuen Bereich ergänzt.
+
+V5.7 – EHSI Quellenverwaltung
+- Admin kann im EHSI eigene Quellen und Dokumente je Bereich hinzufügen.
+- Unterstützt Webadressen sowie Upload von PDF/Office/Bild/Text bis 20 MB.
+- Eigene Einträge werden in Firebase Realtime Database unter ehsi_sources gespeichert.
+- Hochgeladene Dokumente liegen in Firebase Storage unter ehsi_sources/.
+- Nur der Administrator kann hinzufügen und löschen; eigene Einträge sind für alle als Quellen sichtbar.
+- Für Firebase Storage muss storage.rules veröffentlicht werden.
+

@@ -97,3 +97,31 @@ export async function writePublic(path,value){
   return jsonFetch(url,{method:'PUT',body:JSON.stringify(value)});
 }
 
+
+
+export async function uploadStorage(file, storagePath){
+  const a=authState();
+  if(!a.token || !a.admin) throw new Error('Administrator-Anmeldung erforderlich.');
+  const bucket=encodeURIComponent(firebaseConfig.storageBucket);
+  const name=encodeURIComponent(storagePath);
+  const url=`https://firebasestorage.googleapis.com/v0/b/${bucket}/o?uploadType=media&name=${name}`;
+  const r=await fetch(url,{method:'POST',headers:{'Authorization':`Bearer ${a.token}`,'Content-Type':file.type||'application/octet-stream'},body:file});
+  const text=await r.text();
+  let data=null; try{data=text?JSON.parse(text):null;}catch{data={raw:text};}
+  if(!r.ok) throw new Error(data?.error?.message||data?.error||`HTTP ${r.status}`);
+  return `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${name}?alt=media`;
+}
+
+export async function deleteStorage(storagePath){
+  const a=authState();
+  if(!a.token || !a.admin) throw new Error('Administrator-Anmeldung erforderlich.');
+  const bucket=encodeURIComponent(firebaseConfig.storageBucket);
+  const name=encodeURIComponent(storagePath);
+  const url=`https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${name}`;
+  const r=await fetch(url,{method:'DELETE',headers:{'Authorization':`Bearer ${a.token}`}});
+  if(!r.ok){
+    const text=await r.text();
+    let data=null; try{data=text?JSON.parse(text):null;}catch{data={raw:text};}
+    throw new Error(data?.error?.message||data?.error||`HTTP ${r.status}`);
+  }
+}

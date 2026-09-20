@@ -4,6 +4,7 @@ import { anonymous, read, authState, push } from "./firebase-rest.js?v=20260920v
 import { KEMLER_MEANINGS, UN_DANGEROUS_GOODS, GHS_SYMBOLS, ADR_LABELS, TRANSPORT_TYPES } from "./hazmat-data.js?v=20260920v2";
 
 const $ = id => document.getElementById(id);
+let currentQuestion = null;
 const mainCategories = [
   ["medizin", "🚑 Rettungsdienst"],
   ["brand", "🔥 Feuerwehr"],
@@ -1227,6 +1228,49 @@ function openQuestionReport(){
     }catch(e){btn.disabled=false;btn.textContent='📤 Meldung absenden';$('reportStatus').textContent='⚠️ '+e.message;}
   };
 }
+function openImprovementSuggestion(){
+  openModal(`<div class="modal-title">💡 Verbesserungsvorschlag</div>
+    <p class="hint">Du hast eine Idee, wie NABS/EHSI verbessert werden könnte? Der Vorschlag wird direkt an QM2 übermittelt.</p>
+    <label>Betreff
+      <input id="suggestionTitle" class="modal-input" maxlength="160" placeholder="Kurzer Titel …">
+    </label>
+    <label>Bereich
+      <select id="suggestionCategory" class="modal-input">
+        <option value="medizin">🚑 Rettungsdienst / Medizin</option>
+        <option value="brand">🔥 Feuerwehr</option>
+        <option value="thl">🛠️ THL</option>
+        <option value="abc">☣️ Gefahrgut / ABC</option>
+        <option value="allgemein" selected>⚙️ Allgemein / NABS</option>
+        <option value="ehsi">📚 EHSI / Einsatzhilfe</option>
+      </select>
+    </label>
+    <label>Verbesserungsvorschlag
+      <textarea id="suggestionText" class="modal-textarea" rows="6" maxlength="4000" placeholder="Was sollte geändert, ergänzt oder verbessert werden? …"></textarea>
+    </label>
+    <div class="modal-actions"><button id="sendSuggestion">📤 Vorschlag senden</button><button class="secondary modal-close">Abbrechen</button></div>
+    <p id="suggestionStatus" class="hint"></p>`);
+  const modal=$('modalRoot');
+  modal.querySelector('.modal-close').onclick=closeModal;
+  $('sendSuggestion').onclick=async()=>{
+    const title=String($('suggestionTitle')?.value||'').trim();
+    const text=String($('suggestionText')?.value||'').trim();
+    const categoryValue=String($('suggestionCategory')?.value||'allgemein');
+    if(!title){$('suggestionStatus').textContent='Bitte einen kurzen Betreff eingeben.';return;}
+    if(!text){$('suggestionStatus').textContent='Bitte den Verbesserungsvorschlag eingeben.';return;}
+    const btn=$('sendSuggestion');btn.disabled=true;btn.textContent='⏳ Wird gespeichert …';
+    try{
+      const a=authState().token?authState():await anonymous();
+      if(!a?.token) throw new Error('Keine Verbindung zur Vorschlagsverwaltung möglich.');
+      await push('verbesserungsvorschlaege',{
+        createdAt:new Date().toISOString(),status:'neu',title,text,category:categoryValue,
+        categoryTitle:title(),mode:mode||'',questionId:currentQuestion?.id||'',
+        questionText:currentQuestion?.text||'',reportedBy:a.email||'Einsatzbearbeiter',reportedUid:a.uid||''
+      });
+      $('suggestionStatus').textContent='✓ Vorschlag gespeichert. Er wird in QM2 angezeigt.';
+      setTimeout(closeModal,800);
+    }catch(e){btn.disabled=false;btn.textContent='📤 Vorschlag senden';$('suggestionStatus').textContent='⚠️ '+e.message;}
+  };
+}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
 
 function render(){
@@ -1239,12 +1283,14 @@ function render(){
     previousBtn.title=history.length?"Zur vorherigen Frage zurückgehen":"Noch keine vorherige Frage vorhanden";
   }
   const q=nextQuestion();
+  currentQuestion=q||null;
   if(!q){finish();return;}
   $("categoryTitle").textContent=title();
   $("progress").textContent=`Frage ${steps+1}`;
   updatePhase();
   $("questionText").textContent=q.text;
   const reportBtn=$("reportQuestionBtn"); if(reportBtn){reportBtn.disabled=q.type==="hazmat"; reportBtn.onclick=openQuestionReport;}
+  const suggestionBtn=$("suggestionBtn"); if(suggestionBtn){suggestionBtn.onclick=openImprovementSuggestion;}
   const area=$("answerArea");area.innerHTML="";
   if(q.id.startsWith("erkrankung_Fieber_")){
     const note=document.createElement("div");

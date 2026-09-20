@@ -464,3 +464,38 @@ body.abfrage-page{padding-bottom:155px;touch-action:pan-y}
 .quality-stat-card b{font-size:1rem;}
 .quality-stat-card span{font-size:2rem;font-weight:800;line-height:1.1;}
 .quality-stat-card small{opacity:.72;}
+
+/* Mini-Button und QM2 Verbesserungsvorschläge */
+.suggestion-mini{font-size:.78rem!important;padding:7px 10px!important;min-height:32px!important;border-color:#3b82f6!important;}
+.suggestion-card .ehsi-detail{white-space:pre-wrap;line-height:1.45;}
+.report-actions .report-delete{background:#991b1b;color:#fff}.report-actions .report-delete:hover{filter:brightness(1.12)}
+.report-actions .report-back-neu{background:#475569}
+
+/* EHSI V5.7 – eigene Quellen/Dokumente */
+.ehsi-admin-tools{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 16px;padding:12px 14px;border:1px solid #3b4758;border-radius:12px;background:#141b25}
+.ehsi-admin-tools strong{display:block;margin-bottom:3px}
+.ehsi-admin-tools span{display:block;color:#98a6b8;font-size:.82rem}
+.ehsi-manage-btn{white-space:nowrap}
+.ehsi-source-card-wrap{position:relative;min-width:0}
+.ehsi-source-card-wrap .ehsi-source-card{padding-right:42px}
+.ehsi-source-name{display:flex;flex-direction:column;gap:2px}
+.ehsi-source-name small{color:#8493a7;font-size:.7rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ehsi-source-delete{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:30px;height:30px;border:1px solid #6b3035;border-radius:8px;background:#421b20;color:#ffb4b8;font-weight:800;cursor:pointer}
+.ehsi-source-delete:hover{background:#6b2028;border-color:#ef4444}
+.ehsi-manager-card{width:min(760px,96vw)}
+.ehsi-source-form{margin-top:16px}
+.ehsi-source-form label{display:block;margin:13px 0;color:#dfe8f2;font-weight:700}
+.ehsi-source-form input,.ehsi-source-form select{display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:11px 12px;border:1px solid #4a586d;border-radius:10px;background:#0f151e;color:#eef4fb;font:inherit}
+.ehsi-source-form input[type=file]{padding:9px}
+.ehsi-source-form input:focus,.ehsi-source-form select:focus{outline:none;border-color:#62b8ff;box-shadow:0 0 0 2px rgba(98,184,255,.14)}
+.ehsi-optional{font-size:.76rem;color:#8d9aad;font-weight:400}
+.ehsi-upload-hint{padding:11px 12px;border-radius:10px;background:#111722;color:#9eacbd;font-size:.82rem;line-height:1.4}
+.ehsi-form-status{min-height:20px;margin-top:12px;color:#a9b6c6;font-size:.86rem}
+.ehsi-form-status.success{color:#86efac}.ehsi-form-status.error{color:#fca5a5}
+.ehsi-form-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:16px;padding-top:13px;border-top:1px solid #303947}
+@media(max-width:760px){
+  .ehsi-admin-tools{align-items:flex-start;flex-direction:column}
+  .ehsi-manage-btn{width:100%}
+  .ehsi-form-actions{flex-direction:column-reverse}
+  .ehsi-form-actions .button{width:100%;text-align:center}
+}

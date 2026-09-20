@@ -193,3 +193,13 @@ Datum: 18.09.2026
 - „Auswahl löschen“ setzt Körperauswahl, Verletzungsdetails und Zusatzfragen gemeinsam zurück.
 - Die anatomischen Sollpositionen aus V68.4 bleiben unverändert; diese Version ändert ausschließlich die Platzierung der Zusatzfragen außerhalb der Grafik.
 - Es bleibt bei genau einer README.txt.
+
+
+=== V68.19 – AUFRÄUMEN / HINWEISTEXT ENTFERNT ===
+Datum: 20.09.2026
+
+- Der in der Abfrage direkt oberhalb der Markierungs-Zusammenfassung angezeigte Hinweisblock „Körperflächen-/Verletzungskarte“ wurde vollständig entfernt.
+- Entfernt wurde ausschließlich der erklärende Textblock; die eigentliche Körperkarte, die orange Markierung, die Zusammenfassung und die zusätzlichen Angaben bleiben erhalten.
+- Die permanente Abfragelogik und die Antwortmöglichkeiten bleiben unverändert.
+- Die Versionsnummer des abfrage.js-Cache wurde erhöht, damit GitHub Pages die Änderung sicher lädt.
+- Die bisherigen versionsbezogenen README-Dateien wurden in diese zentrale README.txt zusammengeführt. Es bleibt ab jetzt bei genau einer README.txt für die Änderungsdokumentation.

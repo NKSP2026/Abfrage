@@ -757,3 +757,15 @@ VERSION 5.9 – VERBESSERUNG / ABBRUCH-SPEICHERUNG (20.09.2026)
 - Firebase-Regeln wurden entsprechend angepasst.
 
 - Abbruch-, Fragemeldungs-, Verbesserungsvorschlags- und Nutzungszähler-Erfassung nutzt für Einsatzbearbeiter den öffentlichen Create-Pfad; QM2-Lesen/Ändern bleibt Admin-only.
+
+Version 5.10 – QM1 Qualitätsmanagement ausgebaut
+=================================================
+- QM1 von einer reinen Verwaltung um ein echtes Qualitätsmanagement-Dashboard erweitert.
+- Neue Bereiche: QM-Dashboard, Qualitätsprüfungen, Qualitätsabweichungen, Maßnahmen/Korrekturmaßnahmen,
+  Änderungsmanagement, Quellen- und Dokumentenprüfung, Qualitätsauswertung, Schulungen/Unterweisungen,
+  QM-Dokumente und QM-Historie.
+- QM1-Einträge können durch den Administrator angelegt, bearbeitet und gelöscht werden.
+- QM-Aktionen werden in einer nachvollziehbaren QM-Historie protokolliert.
+- Neue Firebase-Realtime-Database-Pfade für die QM1-Verwaltung ergänzt.
+- QM2 bleibt für die operative Bearbeitung von Fragemeldungen, Abbruch-Abfragen und Verbesserungsvorschlägen zuständig.
+- QM1 und QM2 sind damit getrennt: QM1 = Qualitätsmanagement/Steuerung, QM2 = operativer Eingang und Bearbeitung.

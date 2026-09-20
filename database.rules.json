@@ -2,79 +2,180 @@
   "rules": {
     ".read": "auth != null",
     ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
-
     "catalog": {
       ".read": true,
       ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'"
     },
-
     "notarzt_rules": {
       ".read": true,
       ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'"
     },
-
     "resource_rules": {
       ".read": true,
       ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'"
     },
-
     "call_history": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
         ".write": "auth != null && auth.uid == $uid"
       }
     },
-
     "frageMeldungen": {
       ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
-      ".indexOn": ["datum", "uhrzeit", "status", "bereich", "frageId"],
+      ".indexOn": [
+        "datum",
+        "uhrzeit",
+        "status",
+        "bereich",
+        "frageId"
+      ],
       "$id": {
         ".write": "(!data.exists() && newData.exists()) || (auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1')"
       }
     },
-
     "abbruchAbfragen": {
       ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
-      ".indexOn": ["createdAt", "datum", "uhrzeit", "status", "category"],
+      ".indexOn": [
+        "createdAt",
+        "datum",
+        "uhrzeit",
+        "status",
+        "category"
+      ],
       "$id": {
         ".write": "(!data.exists() && newData.exists()) || (auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1')"
       }
     },
-
     "verbesserungsvorschlaege": {
       ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
-      ".indexOn": ["createdAt", "status", "category"],
+      ".indexOn": [
+        "createdAt",
+        "status",
+        "category"
+      ],
       "$id": {
         ".write": "(!data.exists() && newData.exists()) || (auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1')"
       }
     },
-
     "suggestions": {
       ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
-      ".indexOn": ["createdAt", "datum", "uhrzeit", "status", "bereich"],
+      ".indexOn": [
+        "createdAt",
+        "datum",
+        "uhrzeit",
+        "status",
+        "bereich"
+      ],
       "$id": {
         ".write": "(!data.exists() && newData.exists()) || (auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1')"
       }
     },
-
     "nutzungsereignisse": {
       ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
-      ".indexOn": ["createdAt", "category"],
+      ".indexOn": [
+        "createdAt",
+        "category"
+      ],
       "$id": {
         ".write": "(!data.exists() && newData.exists()) || (auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1')"
       }
     },
-
     "einsatzAufwertungen": {
       ".read": "auth != null",
       ".write": "auth != null",
-      ".indexOn": ["zeitpunkt", "einsatz"]
+      ".indexOn": [
+        "zeitpunkt",
+        "einsatz"
+      ]
     },
-
     "ehsi_sources": {
       ".read": true,
       ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
-      ".indexOn": ["sectionId", "createdAt", "title"]
+      ".indexOn": [
+        "sectionId",
+        "createdAt",
+        "title"
+      ]
+    },
+    "qm_pruefungen": {
+      ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".indexOn": [
+        "createdAt",
+        "updatedAt",
+        "status",
+        "bereich"
+      ]
+    },
+    "qm_abweichungen": {
+      ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".indexOn": [
+        "createdAt",
+        "updatedAt",
+        "status",
+        "bereich"
+      ]
+    },
+    "qm_massnahmen": {
+      ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".indexOn": [
+        "createdAt",
+        "updatedAt",
+        "status",
+        "bereich"
+      ]
+    },
+    "qm_aenderungen": {
+      ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".indexOn": [
+        "createdAt",
+        "updatedAt",
+        "status",
+        "bereich"
+      ]
+    },
+    "qm_quellenpruefungen": {
+      ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".indexOn": [
+        "createdAt",
+        "updatedAt",
+        "status",
+        "bereich"
+      ]
+    },
+    "qm_schulungen": {
+      ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".indexOn": [
+        "createdAt",
+        "updatedAt",
+        "status",
+        "bereich"
+      ]
+    },
+    "qm_dokumente": {
+      ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".indexOn": [
+        "createdAt",
+        "updatedAt",
+        "status",
+        "bereich"
+      ]
+    },
+    "qm_historie": {
+      ".read": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".write": "auth != null && auth.uid == 'SrRHH7RgmDRXOCKcHy2mOQANrTk1'",
+      ".indexOn": [
+        "createdAt",
+        "updatedAt",
+        "status",
+        "bereich"
+      ]
     }
   }
 }

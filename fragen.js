@@ -1,5 +1,5 @@
 import { defaults, CATALOG_SCHEMA_VERSION } from './data-bridge.js?v=20260915v24';
-import { authState, login, logout, anonymous, restoreAuthState, read, write } from './firebase-rest.js?v=20260921v71';
+import { authState, login, logout, anonymous, restoreAuthState, read, write, writeSdkOnly } from './firebase-rest.js?v=20260921v72';
 import { ADMIN_UID } from './firebase-config.js?v=20260921v04';
 import { specialCatalogs } from './catalog-special.js?v=20260921v01';
 
@@ -23,30 +23,40 @@ function firebaseSafeKey(key){
   return String(key ?? '').replace(/[.\#$\[\]\/]/g,ch=>`_x${ch.charCodeAt(0).toString(16)}_`);
 }
 
-function buildFirebaseCatalog(){
-  const out={
-    _meta:{
-      schemaVersion:CATALOG_SCHEMA_VERSION,
-      updatedAt:new Date().toISOString(),
-      storageFormat:'NABS-Bereiche-v1',
-      frageCount:0,
-      bereiche:Object.fromEntries(Object.keys(firebaseBereiche).map(k=>[k,{label:bereichLabels[k],frageCount:0}]))
-    }
-  };
+function buildFirebaseEntries(){
+  const entries=[];
   for(const [bereich,cats] of Object.entries(firebaseBereiche)){
-    out[bereich]={};
     for(const cat of cats){
       const source = defaults.catalog?.[cat] || specialCatalogs[cat] || {};
       for(const q of Object.values(source)){
+        if(!q?.id) continue;
         const copy=JSON.parse(JSON.stringify(q));
         copy.sourceCategory=cat;
         copy.sourceCategoryLabel=cat==='medizin'?'Rettungsdienst':cat==='brand'?'Feuerwehr – Brand / Rauchentwicklung':cat==='thl'?'Feuerwehr – Technische Hilfeleistung':cat==='abc'?'Gefahrgut / ABC':bereichLabels[bereich];
-        out[bereich][firebaseSafeKey(copy.id)]=copy;
-        out._meta.frageCount++;
-        out._meta.bereiche[bereich].frageCount++;
+        entries.push({bereich,cat,key:firebaseSafeKey(copy.id),value:copy});
       }
     }
   }
+  return entries;
+}
+
+function buildFirebaseCatalogMeta(total, counts){
+  return {
+    schemaVersion:CATALOG_SCHEMA_VERSION,
+    updatedAt:new Date().toISOString(),
+    storageFormat:'NABS-Bereiche-v1',
+    frageCount:total,
+    bereiche:Object.fromEntries(Object.keys(firebaseBereiche).map(k=>[k,{label:bereichLabels[k],frageCount:counts[k]||0}]))
+  };
+}
+
+function buildFirebaseCatalog(){
+  const entries=buildFirebaseEntries();
+  const counts=Object.fromEntries(Object.keys(firebaseBereiche).map(k=>[k,0]));
+  for(const e of entries) counts[e.bereich]++;
+  const out={_meta:buildFirebaseCatalogMeta(entries.length,counts)};
+  for(const [bereich] of Object.entries(firebaseBereiche)) out[bereich]={};
+  for(const e of entries) out[e.bereich][e.key]=e.value;
   return out;
 }
 
@@ -393,15 +403,54 @@ $('logoutBtn').onclick=()=>{
 $('seed').onclick=async()=>{
   const a=authState();
   if(!a.admin){msg('⚠️ Bitte zuerst als Administrator anmelden.');return;}
+  const statusEl=$('seedStatus');
+  const entries=buildFirebaseEntries();
+  const counts=Object.fromEntries(Object.keys(firebaseBereiche).map(k=>[k,0]));
+  for(const e of entries) counts[e.bereich]++;
+  const total=entries.length;
   try{
-    const payload=buildFirebaseCatalog();
-    await write('catalog',payload);
-    const total=payload._meta.frageCount;
-    msg(`✓ ${total} Katalogfragen wurden in Firebase gespeichert: 🚑 Rettungsdienst ${payload._meta.bereiche.rettungsdienst.frageCount} · 🚒 Feuerwehr ${payload._meta.bereiche.feuerwehr.frageCount} · ☣️ Gefahrgut ${payload._meta.bereiche.gefahrgut.frageCount} · 🚗 Verkehrsunfall ${payload._meta.bereiche.verkehrsunfall.frageCount} · 🌊 Wasserunfall ${payload._meta.bereiche.wasserunfall.frageCount} · 🛗 Aufzug ${payload._meta.bereiche.aufzug.frageCount} · 🚨 Großschaden ${payload._meta.bereiche.grossschaden.frageCount}.`);
+    // Wichtig: Jede Frage wird einzeln über das Firebase Web SDK geschrieben.
+    // Dadurch kann eine problematische Frage nicht den kompletten Import als einen
+    // riesigen JSON-PUT abbrechen. Es gibt hier bewusst keinen REST-Fallback.
+    await restoreAuthState();
+    const current=authState();
+    if(!current.admin) throw new Error(`Firebase-Administrator nicht aktiv. UID: ${current.uid||'unbekannt'}`);
+    $('seed').disabled=true;
+    msg('');
+    if(statusEl) statusEl.textContent=`Import wird vorbereitet: 0 / ${total}`;
+    setStatus(`● Firebase – Import 0 / ${total}`);
+
+    const batchSize=8;
+    let done=0;
+    for(let i=0;i<entries.length;i+=batchSize){
+      const batch=entries.slice(i,i+batchSize);
+      await Promise.all(batch.map(async e=>{
+        try{
+          await writeSdkOnly(`catalog/${e.bereich}/${e.key}`,e.value);
+        }catch(err){
+          throw new Error(`${e.bereich} / ${e.value.id}: ${err?.message||err}`);
+        }
+      }));
+      done+=batch.length;
+      const pct=Math.round(done/total*100);
+      if(statusEl) statusEl.textContent=`☁️ Firebase-Import: ${done} / ${total} (${pct} %) · zuletzt: ${batch[batch.length-1].value.id}`;
+      setStatus(`● Firebase – ${done} / ${total} Fragen gespeichert`);
+    }
+
+    await writeSdkOnly('catalog/_meta',buildFirebaseCatalogMeta(total,counts));
+    msg(`✓ Alle ${total} Fragen wurden einzeln in Firebase gespeichert: 🚑 Rettungsdienst ${counts.rettungsdienst} · 🚒 Feuerwehr ${counts.feuerwehr} · ☣️ Gefahrgut ${counts.gefahrgut} · 🚗 Verkehrsunfall ${counts.verkehrsunfall} · 🌊 Wasserunfall ${counts.wasserunfall} · 🛗 Aufzug ${counts.aufzug} · 🚨 Großschaden ${counts.grossschaden}.`);
+    if(statusEl) statusEl.textContent=`✓ Import abgeschlossen: ${total} / ${total} Fragen`;
     setStatus(`● Firebase – ${total} Fragen gespeichert`);
     await load();
-  }catch(e){msg('⚠️ Grundkatalog konnte nicht gespeichert werden: '+e.message);console.error('NABS Firebase seed error',e);}
+  }catch(e){
+    msg('⚠️ Grundkatalog konnte nicht vollständig gespeichert werden: '+(e?.message||e));
+    if(statusEl) statusEl.textContent='❌ Import abgebrochen – die genaue fehlerhafte Frage steht unten.';
+    console.error('NABS Firebase seed error',e);
+  }finally{
+    $('seed').disabled=false;
+  }
 };
+
 $('save').onclick=async()=>{
   try{
     const a=authState();

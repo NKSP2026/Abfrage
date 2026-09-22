@@ -1,7 +1,7 @@
 // Firebase helper – SDK-first für Realtime Database, REST-Fallback für bestehende Bereiche.
 // Version 5.18: Die Fragenverwaltung nutzt damit nicht mehr den problematischen
 // browserseitigen REST-PUT-Preflight für catalog.
-import { firebaseConfig, ADMIN_UID } from './firebase-config.js?v=20260921v03';
+import { firebaseConfig, ADMIN_UID } from './firebase-config.js?v=20260921v04';
 
 const TOKEN_KEY='einsatzabfrage_fb_idtoken';
 const UID_KEY='einsatzabfrage_fb_uid';
@@ -211,6 +211,15 @@ export async function push(path,value){
   catch(sdkError){return dbRequest(path,{method:'POST',body:JSON.stringify(value)});}
 }
 
+export async function writeSdkOnly(path,value){
+  const a=authState();
+  if(!a.token || !a.admin) throw new Error('Administrator-Anmeldung erforderlich.');
+  const f=await getSdk();
+  const user=f.auth.currentUser;
+  if(!user || user.uid!==ADMIN_UID) throw new Error(`Firebase-SDK: Administrator nicht aktiv (UID: ${user?.uid||'unbekannt'}).`);
+  return await sdkWrite(path,value);
+}
+
 export async function writeAuthenticated(path,value){
   try{
     const f=await getSdk();
@@ -220,10 +229,29 @@ export async function writeAuthenticated(path,value){
 }
 
 export async function write(path,value){
-  const a=authState();
+  let a=authState();
   if(!a.token || !a.admin) throw new Error('Administrator-Anmeldung erforderlich.');
-  try{return await sdkWrite(path,value);}
-  catch(sdkError){return dbRequest(path,{method:'PUT',body:JSON.stringify(value)});}
+  // Nach einem Seitenwechsel kann sessionStorage noch den Admin-Token enthalten,
+  // während Firebase Auth seinen Benutzer im SDK noch nicht wiederhergestellt hat.
+  // Erst die SDK-Session synchronisieren, damit Statusänderungen nicht fälschlich
+  // auf den REST-Fallback mit einem veralteten Token fallen.
+  try{
+    const f=await getSdk();
+    if(!f.auth.currentUser) await restoreAuthState();
+    if(f.auth.currentUser && f.auth.currentUser.uid===ADMIN_UID){
+      const token=await f.auth.currentUser.getIdToken(true);
+      sessionStorage.setItem(TOKEN_KEY,token);
+      sessionStorage.setItem(UID_KEY,f.auth.currentUser.uid);
+      sessionStorage.setItem(EMAIL_KEY,f.auth.currentUser.email||'');
+      sessionStorage.setItem(DB_URL_KEY,configuredDbUrl());
+      return await sdkWrite(path,value);
+    }
+  }catch(sdkError){
+    // Falls das SDK nicht verfügbar ist, unten kontrolliert über REST weiter.
+  }
+  a=authState();
+  if(!a.token || !a.admin) throw new Error('Administrator-Anmeldung erforderlich.');
+  return dbRequest(path,{method:'PUT',body:JSON.stringify(value)});
 }
 
 export async function readPublic(path){

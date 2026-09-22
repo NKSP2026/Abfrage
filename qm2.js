@@ -1,4 +1,4 @@
-import { authState, login, logout, read, write } from './firebase-rest.js?v=20260921v70';
+import { authState, login, logout, read, write, restoreAuthState } from './firebase-rest.js?v=20260922v01';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 let reports={};
@@ -139,13 +139,12 @@ function renderSuggestions(){
     <div class="report-meta"><span class="report-status ${esc(r.status||'neu')}">${esc(statusLabel(r.status))}</span><span class="badge">${esc(r.categoryTitle||r.category||'Allgemein')}</span>${r.questionId?`<span class="badge">Frage: ${esc(r.questionId)}</span>`:''}</div>
     <div class="hint" style="margin-top:8px">Gemeldet: ${esc(r.reportedBy||'Einsatzbearbeiter')} · ${r.createdAt?new Date(r.createdAt).toLocaleString('de-DE'):''}</div>
     <div class="ehsi-detail"><b>Vorschlag:</b><br>${esc(r.text||'–')}</div>
-    <div class="report-actions"><button type="button" class="secondary suggestion-pruefung" data-id="${esc(r._id)}">🔎 In Prüfung</button><button type="button" class="secondary suggestion-done" data-id="${esc(r._id)}">✅ Erledigt</button><button type="button" class="secondary suggestion-reject" data-id="${esc(r._id)}">✕ Ablehnen</button>${['erledigt','abgelehnt'].includes(r.status||'')?`<button type="button" class="secondary suggestion-delete" data-id="${esc(r._id)}">🗑 Löschen</button>`:''}</div>
+    <div class="report-actions"><button type="button" class="secondary suggestion-pruefung" data-id="${esc(r._id)}">🔎 In Prüfung</button><button type="button" class="secondary suggestion-done" data-id="${esc(r._id)}">✅ Erledigt</button><button type="button" class="secondary suggestion-delete" data-id="${esc(r._id)}">🗑 Löschen</button></div>
   </article>`).join(''):'<div class="module-note">Keine Verbesserungsvorschläge vorhanden.</div>';
 }
 async function deleteSuggestion(id){
   const a=authState();if(!a.admin){alert('Bitte zuerst als Administrator anmelden.');return;}
   const r=suggestions[id]; if(!r)return;
-  if(!['erledigt','abgelehnt'].includes(r.status||'')){alert('Ein Vorschlag kann erst nach Erledigung oder Ablehnung gelöscht werden.');return;}
   try{await write(`verbesserungsvorschlaege/${encodeURIComponent(id)}`,null);await load();}catch(e){alert('Vorschlag konnte nicht gelöscht werden: '+e.message);}
 }
 async function setStatus(path,id,status){
@@ -153,6 +152,7 @@ async function setStatus(path,id,status){
   try{await write(`${path}/${encodeURIComponent(id)}/status`,status);await load();}catch(e){alert('Status konnte nicht gespeichert werden: '+e.message)}
 }
 async function load(){
+  try{await restoreAuthState();}catch{}
   const a=authState();
   if(!a.admin){$('reportList').innerHTML='<div class="module-note">🔐 Administrator-Anmeldung erforderlich, um QM2 zu sehen.</div>';return;}
   try{
@@ -177,5 +177,5 @@ $('logoutBtn').onclick=()=>{logout();location.reload()};
 $('filterStatus').value='neu'; $('filterCategory').value=''; $('abortFilterStatus').value='neu'; $('abortFilterCategory').value=''; $('filterStatus').onchange=renderReports; $('filterCategory').onchange=renderReports; $('abortFilterStatus').onchange=renderAborts; $('abortFilterCategory').onchange=renderAborts; $('refreshBtn').onclick=load;
 $('reportList').addEventListener('click',e=>{const b=e.target.closest('button[data-id]');if(!b)return;const id=b.dataset.id;if(b.classList.contains('report-pruefung'))setStatus('frageMeldungen',id,'pruefung');else if(b.classList.contains('report-back-neu'))setStatus('frageMeldungen',id,'neu');else if(b.classList.contains('report-done'))completeReport(id);else if(b.classList.contains('report-reject'))setStatus('frageMeldungen',id,'abgelehnt');else if(b.classList.contains('report-delete'))deleteReport(id);});
 $('abortList').addEventListener('click',e=>{const b=e.target.closest('button[data-id]');if(!b)return;const id=b.dataset.id;if(b.classList.contains('abort-pruefung'))setStatus('abbruchAbfragen',id,'pruefung');else if(b.classList.contains('abort-back-neu'))setStatus('abbruchAbfragen',id,'neu');else if(b.classList.contains('abort-done'))completeAbort(id);else if(b.classList.contains('abort-delete'))deleteAbort(id);});
-$('suggestionList').addEventListener('click',e=>{const b=e.target.closest('button[data-id]');if(!b)return;const id=b.dataset.id;if(b.classList.contains('suggestion-delete'))deleteSuggestion(id);else if(b.classList.contains('suggestion-pruefung'))setStatus('verbesserungsvorschlaege',id,'pruefung');else if(b.classList.contains('suggestion-done'))setStatus('verbesserungsvorschlaege',id,'erledigt');else if(b.classList.contains('suggestion-reject'))setStatus('verbesserungsvorschlaege',id,'abgelehnt');});
+$('suggestionList').addEventListener('click',e=>{const b=e.target.closest('button[data-id]');if(!b)return;const id=b.dataset.id;if(b.classList.contains('suggestion-delete'))deleteSuggestion(id);else if(b.classList.contains('suggestion-pruefung'))setStatus('verbesserungsvorschlaege',id,'pruefung');else if(b.classList.contains('suggestion-done'))setStatus('verbesserungsvorschlaege',id,'erledigt');});
 load();

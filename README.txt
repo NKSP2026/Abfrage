@@ -871,7 +871,7 @@ Version 5.18 – Firebase-Fragenkatalog nach Einsatzbereichen
 - Die vorhandenen Bereiche Rettungsdienst, Feuerwehr und Gefahrgut/ABC bleiben erhalten.
 - Die Fragenverwaltung kann alle diese Bereiche einzeln auswählen, bearbeiten, speichern und löschen.
 - Der Seed-Button übernimmt den vollständigen erweiterten Katalog nach Firebase.
-- Hinweis: Der bisherige Grundkatalog umfasst 1.398 eindeutige Fragen (1.081 Medizin + 202 Brand + 71 THL + 44 ABC). Durch die zusätzlichen, bewusst separat gespeicherten Einsatzarten entstehen 1.471 gespeicherte Katalogeinträge, da gemeinsame THL-Fragen in Verkehrsunfall/Wasserunfall zusätzlich als eigene Katalogeinträge abgelegt werden.
+- Hinweis: Der Grundkatalog umfasst 1.249 Fragen (1.081 Medizin + 53 Brand + 71 THL + 44 ABC). Zusätzlich werden 73 eigenständige Fragen für Verkehrsunfall, Wasserunfall, Aufzug und Großschaden gespeichert. Damit umfasst der erweiterte Firebase-Katalog 1.322 Einträge. Gemeinsame THL-Fragen können dabei bewusst in Verkehrsunfall/Wasserunfall zusätzlich als eigene Katalogeinträge vorkommen.
 
 
 Version 5.20 – Firebase-Katalogschlüssel korrigiert
@@ -883,3 +883,25 @@ Version 5.20 – Firebase-Katalogschlüssel korrigiert
 - Erfolgsanzeige nennt jetzt alle Katalogbereiche und die tatsächlich gespeicherten Einträge.
 - Grundkatalog: 1.249 Fragen (Medizin 1.081, Brand 53, THL 71, ABC 44).
 - Zusätzliche eigenständige Einsatzkataloge: Verkehrsunfall 35, Wasserunfall 18, Aufzug 15, Großschaden 5.
+
+
+VERSION 5.21 – 21.09.2026 – EINZELIMPORT DES GESAMTKATALOGS
+- Der Firebase-Import des erweiterten Fragenkatalogs wurde vollständig auf Einzel-/Kleinbatch-Schreibvorgänge umgestellt.
+- Es wird nicht mehr versucht, den gesamten Katalog als einen großen JSON-PUT zu speichern.
+- Jede Frage wird über das offizielle Firebase Web SDK unter catalog/<bereich>/<firebaseKey> gespeichert.
+- Pro Import werden kleine Batches mit 8 Fragen parallel verarbeitet; der Fortschritt wird laufend angezeigt.
+- Ein Fehler zeigt jetzt den konkreten Bereich und die konkrete Frage-ID an, an der der Import abgebrochen ist.
+- Es gibt beim Katalog-Import bewusst keinen REST-Fallback, damit der frühere Browser-CORS-Fehler nicht erneut verschleiert wird.
+- Nach erfolgreichem Import wird catalog/_meta zuletzt geschrieben.
+- Erweiterter Katalog: 1.322 Einträge = Rettungsdienst 1.081, Feuerwehr 124, Gefahrgut 44, Verkehrsunfall 35, Wasserunfall 18, Aufzug 15, Großschaden 5.
+- Die vier Firebase-gesperrten Zeichen in vorhandenen Frage-IDs (insbesondere '/') werden weiterhin ausschließlich im technischen Firebase-Key codiert; die originale Frage-ID bleibt erhalten.
+- Keine Änderung an Firebase Security Rules oder der Administrator-UID.
+
+
+Version 5.22 – Verbesserungsvorschläge: Jeder einzelne Verbesserungsvorschlag kann jetzt von Administratoren jederzeit direkt über „🗑 Löschen“ entfernt werden. Die bisherige Einschränkung, dass erst nach Erledigung/Ablehnung gelöscht werden durfte, wurde entfernt. „✕ Ablehnen“ wurde im Verbesserungsvorschlagsbereich entfernt. Das Löschen erfolgt ohne Bestätigungsdialog.
+
+
+Version 5.23 – QM2 Firebase-Statusfix
+- QM2 synchronisiert die Firebase-Administrator-Sitzung beim Laden.
+- Statusänderungen (In Prüfung / Erledigt / Ablehnen), Löschen und Erledigungsgrund verwenden vor dem Schreiben einen aktuellen Firebase-ID-Token.
+- Verhindert 401 Permission denied nach Seitenwechsel bzw. bei noch nicht wiederhergestellter SDK-Session.
